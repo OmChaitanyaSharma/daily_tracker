@@ -5,6 +5,7 @@ import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, 
 import { ChevronLeft, ChevronRight, ArrowLeft, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import { getTodayStr } from '../utils/dateUtils';
 
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
 
@@ -125,12 +126,33 @@ export function Logs() {
       end = endOfYear(currentDate);
     }
 
+    let appStartDateStr = '2026-08-27';
+    allHabits.forEach(h => {
+      if (h.startDate && h.startDate < appStartDateStr) appStartDateStr = h.startDate;
+    });
+    allGoals.forEach(g => {
+      if (g.startDate && g.startDate < appStartDateStr) appStartDateStr = g.startDate;
+    });
+    allEntries.forEach(e => {
+      if (e.date < appStartDateStr) appStartDateStr = e.date;
+    });
+
     const rangeStartStr = format(start, 'yyyy-MM-dd');
     const rangeEndStr = format(end, 'yyyy-MM-dd');
+    const todayStr = getTodayStr();
 
     const periodEntries = allEntries.filter(e => e.date >= rangeStartStr && e.date <= rangeEndStr);
 
-    const totalDaysInPeriod = eachDayOfInterval({ start, end }).length;
+    const effectiveStartStr = rangeStartStr > appStartDateStr ? rangeStartStr : appStartDateStr;
+    const effectiveEndStr = rangeEndStr < todayStr ? rangeEndStr : todayStr;
+
+    let totalDaysInPeriod = 0;
+    if (effectiveStartStr <= effectiveEndStr) {
+      const effStart = parseISO(`${effectiveStartStr}T12:00:00`);
+      const effEnd = parseISO(`${effectiveEndStr}T12:00:00`);
+      totalDaysInPeriod = eachDayOfInterval({ start: effStart, end: effEnd }).length;
+    }
+
     const daysLogged = periodEntries.length;
     
     // Mood mapping: excellent=5, good=4, okay=3, not-great=2, bad=1
@@ -149,7 +171,7 @@ export function Logs() {
       totalDays: totalDaysInPeriod,
       avgMood: avgMoodScore > 0 ? avgMoodScore.toFixed(1) : '0'
     };
-  }, [currentDate, period, allEntries]);
+  }, [currentDate, period, allEntries, allHabits, allGoals]);
 
   return (
     <div className="max-w-5xl mx-auto pb-24 animate-fade-in flex flex-col gap-16">
