@@ -82,26 +82,30 @@ export function Logs() {
   const selectedHabitLogs = selectedDate ? allHabitLogs.filter(l => l.date === selectedDate) : [];
   const selectedHourLogs = selectedDate ? allHourLogs.filter(l => l.date === selectedDate) : [];
 
-  const exportData = () => {
-    const headers = ['Date', 'Mood', 'One Line Summary', 'Highlight', 'Went Well', 'Problems', 'Learned'];
-    const rows = allEntries.map(e => [
-      e.date,
-      e.mood,
-      `"${(e.oneLineSummary || '').replace(/"/g, '""')}"`,
-      `"${(e.highlight || '').replace(/"/g, '""')}"`,
-      `"${(e.wentWell || '').replace(/"/g, '""')}"`,
-      `"${(e.problems || '').replace(/"/g, '""')}"`,
-      `"${(e.learned || '').replace(/"/g, '""')}"`
-    ].join(','));
-    
-    const csv = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `daily-tracker-export-${format(new Date(), 'yyyy-MM-dd')}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const exportData = async () => {
+    try {
+      const backupData = {
+        exportDate: new Date().toISOString(),
+        dayEntries: await db.dayEntries.toArray(),
+        habits: await db.habits.toArray(),
+        habitLogs: await db.habitLogs.toArray(),
+        hourLogs: await db.hourLogs.toArray(),
+        goals: await db.goals.toArray(),
+        goalMeasurements: await db.goalMeasurements.toArray()
+      };
+
+      const jsonStr = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `daily-tracker-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export data.");
+    }
   };
 
   // Stats Logic based on period
@@ -170,7 +174,7 @@ export function Logs() {
           onClick={exportData} 
           className="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-main transition-colors bg-bg-surface hover:bg-bg-surface-hover border border-border-strong px-4 py-2 rounded-xl"
         >
-          <Download size={16} /> Export CSV
+          <Download size={16} /> Export JSON
         </button>
       </header>
 
