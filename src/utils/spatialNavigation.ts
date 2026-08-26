@@ -67,12 +67,23 @@ export function handleDirectionalNavigation(e: KeyboardEvent) {
     }
 
     if (isValidDirection) {
-      // Heuristic distance: heavily penalize off-axis distance
+      // Calculate effective off-axis distance, treating overlapping bounds as 0.
+      // This prevents wide elements (like textareas) from being heavily penalized
+      // when navigating vertically from a small element on the side.
+      let effectiveDx = 0;
+      if (currentCenter.x < rect.left) effectiveDx = rect.left - currentCenter.x;
+      else if (currentCenter.x > rect.right) effectiveDx = currentCenter.x - rect.right;
+
+      let effectiveDy = 0;
+      if (currentCenter.y < rect.top) effectiveDy = rect.top - currentCenter.y;
+      else if (currentCenter.y > rect.bottom) effectiveDy = currentCenter.y - rect.bottom;
+
+      // Heuristic distance: heavily penalize true off-axis distance
       let distance = 0;
       if (key === 'w' || key === 's') {
-        distance = absDy + absDx * 4;
+        distance = absDy + (effectiveDx * 4);
       } else {
-        distance = absDx + absDy * 4;
+        distance = absDx + (effectiveDy * 4);
       }
 
       if (distance < minDistance) {
