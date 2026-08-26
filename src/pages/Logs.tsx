@@ -24,7 +24,10 @@ export function Logs() {
   const allEntries = useLiveQuery(() => db.dayEntries.toArray()) || [];
   const allHabitLogs = useLiveQuery(() => db.habitLogs.toArray()) || [];
   const allHourLogs = useLiveQuery(() => db.hourLogs.toArray()) || [];
+  const allHourCategories = useLiveQuery(() => db.hourCategories.toArray()) || [];
   const allHabits = useLiveQuery(() => db.habits.toArray()) || [];
+  const allExercises = useLiveQuery(() => db.exercises.toArray()) || [];
+  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) || [];
   const allGoals = useLiveQuery(() => db.goals.toArray()) || [];
   const allGoalMeasurements = useLiveQuery(() => db.goalMeasurements.toArray()) || [];
 
@@ -80,6 +83,7 @@ export function Logs() {
   const selectedEntry = selectedDate ? allEntries.find(e => e.date === selectedDate) : null;
   const selectedHabitLogs = selectedDate ? allHabitLogs.filter(l => l.date === selectedDate) : [];
   const selectedHourLogs = selectedDate ? allHourLogs.filter(l => l.date === selectedDate) : [];
+  const selectedExerciseLogs = selectedDate ? allExerciseLogs.filter(l => l.date === selectedDate) : [];
 
   const exportData = async () => {
     try {
@@ -89,8 +93,11 @@ export function Logs() {
         habits: await db.habits.toArray(),
         habitLogs: await db.habitLogs.toArray(),
         hourLogs: await db.hourLogs.toArray(),
+        hourCategories: await db.hourCategories.toArray(),
         goals: await db.goals.toArray(),
-        goalMeasurements: await db.goalMeasurements.toArray()
+        goalMeasurements: await db.goalMeasurements.toArray(),
+        exercises: await db.exercises.toArray(),
+        exerciseLogs: await db.exerciseLogs.toArray()
       };
 
       const jsonStr = JSON.stringify(backupData, null, 2);
@@ -373,26 +380,40 @@ export function Logs() {
                     <div className="pt-4 border-t border-border-subtle">
                       <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-3">Hours Tracked</h3>
                       <div className="flex gap-6">
-                        {['WebDev', 'Study', 'DSA'].map(activity => {
+                        {allHourCategories.map(cat => {
                           const hours = selectedHourLogs
-                            .filter(l => l.activity === activity)
+                            .filter(l => l.activity === cat.name)
                             .reduce((sum, l) => sum + l.hours, 0);
                           
                           if (hours === 0) return null;
 
-                          const colorClass = 
-                            activity === 'WebDev' ? 'text-[#ef4444]' :
-                            activity === 'Study' ? 'text-[#3b82f6]' :
-                            'text-[#10b981]';
-
                           return (
-                            <div key={activity} className="flex flex-col">
-                              <span className={clsx("text-xl font-medium", colorClass)}>{hours}h</span>
-                              <span className="text-xs text-text-muted uppercase tracking-wider">{activity}</span>
+                            <div key={cat.id} className="flex flex-col">
+                              <span className="text-xl font-medium" style={{ color: cat.color }}>{hours}h</span>
+                              <span className="text-xs text-text-muted uppercase tracking-wider">{cat.name}</span>
                             </div>
                           );
                         })}
                       </div>
+                    </div>
+                  )}
+
+                  {/* Exercises */}
+                  {selectedExerciseLogs.length > 0 && (
+                    <div className="pt-4 border-t border-border-subtle">
+                      <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-3">Exercises</h3>
+                      <ul className="space-y-2">
+                        {selectedExerciseLogs.map(log => {
+                          const ex = allExercises.find(e => e.id === log.exerciseId);
+                          if (!ex || log.reps === 0) return null;
+                          return (
+                            <li key={log.id} className="flex items-center gap-3 text-sm">
+                              <span className="text-accent-orange font-bold w-8 text-right">{log.reps}</span>
+                              <span className="text-text-main font-medium">{ex.name}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
                     </div>
                   )}
 
