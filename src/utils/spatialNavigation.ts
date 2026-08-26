@@ -83,9 +83,11 @@ export function handleDirectionalNavigation(e: KeyboardEvent) {
       // element in that row/column is far off to the side (e.g. right-aligned buttons).
       let distance = 0;
       if (key === 'w' || key === 's') {
+        // Vertical: prioritize finding the nearest row (absDy), tolerate horizontal drift
         distance = (absDy * 10) + effectiveDx;
       } else {
-        distance = (absDx * 10) + effectiveDy;
+        // Horizontal: heavily penalize jumping rows (effectiveDy), prioritize horizontal proximity
+        distance = absDx + (effectiveDy * 10);
       }
 
       if (distance < minDistance) {
