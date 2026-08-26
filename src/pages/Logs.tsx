@@ -352,9 +352,9 @@ export function Logs() {
 
                   <div>
                     <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-3">Habits</h3>
-                    {allHabits.length > 0 ? (
+                    {allHabits.filter(h => !h.archived || selectedHabitLogs.some(l => l.habitId === h.id && l.status !== 'none')).length > 0 ? (
                       <ul className="space-y-2">
-                        {allHabits.map(habit => {
+                        {allHabits.filter(h => !h.archived || selectedHabitLogs.some(l => l.habitId === h.id && l.status !== 'none')).map(habit => {
                           const log = selectedHabitLogs.find(l => l.habitId === habit.id);
                           const isCompleted = log?.status === 'completed';
                           const isPartial = log?.status === 'partial';
