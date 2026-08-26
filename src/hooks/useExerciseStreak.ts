@@ -1,3 +1,4 @@
+const EMPTY_ARRAY: any[] = [];
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { format, subDays, parseISO } from 'date-fns';
@@ -7,8 +8,8 @@ import { useMemo } from 'react';
 const TRACKING_START_DATE = new Date('2026-08-27T00:00:00');
 
 export function useExerciseStreak() {
-  const allExercises = useLiveQuery(() => db.exercises.toArray()) || [];
-  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) || [];
+  const allExercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
+  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
 
   const streak = useMemo(() => {
     if (!allExercises.length || !allExerciseLogs.length) return 0;

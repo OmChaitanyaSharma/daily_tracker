@@ -240,15 +240,6 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
             </div>
           )}
 
-          {entry.oneLineSummary && (
-            <div>
-              <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Today in one line</h3>
-              <p className="text-2xl font-serif italic text-text-main leading-relaxed">
-                "{entry.oneLineSummary}"
-              </p>
-            </div>
-          )}
-
           {entry.highlight && (
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Highlight</h3>
@@ -313,18 +304,6 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
             </button>
           ))}
         </div>
-      </section>
-
-      {/* One Line Summary */}
-      <section className="space-y-6 relative group">
-        <label className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted block text-center">Today in one line</label>
-        <input
-          type="text"
-          value={entry.oneLineSummary || ''}
-          onChange={e => setEntry({ ...entry, oneLineSummary: e.target.value })}
-          placeholder="e.g. focused work, gym session, and read a book..."
-          className="w-full bg-transparent border-b-2 border-border-subtle py-4 focus:outline-none focus:border-accent-blue transition-colors text-2xl md:text-3xl font-serif text-center text-text-main placeholder:text-text-muted/30 placeholder:italic"
-        />
       </section>
 
       {/* Highlight of the day */}

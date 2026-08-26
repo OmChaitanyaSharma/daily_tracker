@@ -5,6 +5,9 @@ import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, 
 import { ChevronLeft, ChevronRight, ArrowLeft, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import { ActivityHeatmap } from '../components/ActivityHeatmap';
+import { WeeklyDigest } from '../components/WeeklyDigest';
+
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
 
 const MOOD_EMOJIS: Record<string, string> = {
@@ -15,21 +18,23 @@ const MOOD_EMOJIS: Record<string, string> = {
   'bad': '😞'
 };
 
+const EMPTY_ARRAY: any[] = [];
 export function Logs() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [period, setPeriod] = useState<Period>('Monthly');
+  const [viewMode, setViewMode] = useState<'calendar' | 'digest'>('calendar');
 
   // Fetch all data needed for the calendar and stats
-  const allEntries = useLiveQuery(() => db.dayEntries.toArray()) || [];
-  const allHabitLogs = useLiveQuery(() => db.habitLogs.toArray()) || [];
-  const allHourLogs = useLiveQuery(() => db.hourLogs.toArray()) || [];
-  const allHourCategories = useLiveQuery(() => db.hourCategories.toArray()) || [];
-  const allHabits = useLiveQuery(() => db.habits.toArray()) || [];
-  const allExercises = useLiveQuery(() => db.exercises.toArray()) || [];
-  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) || [];
-  const allGoals = useLiveQuery(() => db.goals.toArray()) || [];
-  const allGoalMeasurements = useLiveQuery(() => db.goalMeasurements.toArray()) || [];
+  const allEntries = useLiveQuery(() => db.dayEntries.toArray()) ?? EMPTY_ARRAY;
+  const allHabitLogs = useLiveQuery(() => db.habitLogs.toArray()) ?? EMPTY_ARRAY;
+  const allHourLogs = useLiveQuery(() => db.hourLogs.toArray()) ?? EMPTY_ARRAY;
+  const allHourCategories = useLiveQuery(() => db.hourCategories.toArray()) ?? EMPTY_ARRAY;
+  const allHabits = useLiveQuery(() => db.habits.toArray()) ?? EMPTY_ARRAY;
+  const allExercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
+  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
+  const allGoals = useLiveQuery(() => db.goals.toArray()) ?? EMPTY_ARRAY;
+  const allGoalMeasurements = useLiveQuery(() => db.goalMeasurements.toArray()) ?? EMPTY_ARRAY;
 
   const completedGoalsCount = useMemo(() => {
     let count = 0;
@@ -174,9 +179,9 @@ export function Logs() {
   }, [currentDate, period, allEntries]);
 
   return (
-    <div className="max-w-5xl mx-auto pb-24 animate-fade-in flex flex-col gap-16">
+    <div className="max-w-6xl mx-auto pb-24 animate-fade-in">
       
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between border-b border-border-subtle pb-6 mb-12">
         <div className="flex items-center gap-6">
           <Link to="/" className="text-text-muted hover:text-text-main transition-colors">
             <ArrowLeft size={24} />
@@ -196,10 +201,37 @@ export function Logs() {
         </button>
       </header>
 
+      <ActivityHeatmap />
+
+      <div className="flex items-center justify-center mb-8">
+        <div className="inline-flex items-center p-1 bg-bg-surface border border-border-strong rounded-xl shadow-sm">
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={clsx(
+              "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300",
+              viewMode === 'calendar' ? "bg-accent-blue-bg text-accent-blue shadow-sm" : "text-text-muted hover:text-text-main"
+            )}
+          >
+            Calendar & Stats
+          </button>
+          <button
+            onClick={() => setViewMode('digest')}
+            className={clsx(
+              "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300",
+              viewMode === 'digest' ? "bg-accent-purple-bg text-accent-purple shadow-sm" : "text-text-muted hover:text-text-main"
+            )}
+          >
+            Weekly Digest
+          </button>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         
-        {/* Left Side: Calendar & Stats */}
+        {/* Left Side: Calendar & Stats (or Digest) */}
         <div className="lg:col-span-7 space-y-12">
+          {viewMode === 'calendar' ? (
+            <>
           
           {/* Monthly Calendar */}
           <section className="bg-bg-surface border border-border-strong rounded-2xl p-6 shadow-sm">
@@ -306,6 +338,10 @@ export function Logs() {
               </div>
             </div>
           </section>
+          </>
+          ) : (
+            <WeeklyDigest entries={allEntries} />
+          )}
 
         </div>
 
@@ -332,13 +368,6 @@ export function Logs() {
 
               {selectedEntry ? (
                 <div className="space-y-8">
-                  {selectedEntry.oneLineSummary && (
-                    <div>
-                      <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Today in one line</h3>
-                      <p className="text-text-main font-serif italic">"{selectedEntry.oneLineSummary}"</p>
-                    </div>
-                  )}
-
                   {selectedEntry.highlight && (
                     <div>
                       <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Highlight of the day</h3>

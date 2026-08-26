@@ -2,13 +2,16 @@ import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Habit, type HourCategory } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO } from 'date-fns';
+const EMPTY_ARRAY: any[] = [];
 import { getTodayStr } from '../utils/dateUtils';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import clsx from 'clsx';
+import { useSound } from '../hooks/useSound';
 
 export function ProductivityHabits() {
+  const { playClick } = useSound();
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Habit Management State
@@ -36,7 +39,7 @@ export function ProductivityHabits() {
   const [editCatName, setEditCatName] = useState('');
   const [editCatColor, setEditCatColor] = useState('');
 
-  const allHabits = useLiveQuery(() => db.habits.toArray()) || [];
+  const allHabits = useLiveQuery(() => db.habits.toArray()) ?? EMPTY_ARRAY;
   
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -47,13 +50,13 @@ export function ProductivityHabits() {
 
   const habitLogs = useLiveQuery(() => 
     db.habitLogs.where('date').between(monthStartStr, monthEndStr, true, true).toArray()
-  , [monthStartStr, monthEndStr]) || [];
+  , [monthStartStr, monthEndStr]) ?? EMPTY_ARRAY;
 
   const hourLogs = useLiveQuery(() => 
     db.hourLogs.where('date').between(monthStartStr, monthEndStr, true, true).toArray()
-  , [monthStartStr, monthEndStr]) || [];
+  , [monthStartStr, monthEndStr]) ?? EMPTY_ARRAY;
 
-  const hourCategories = useLiveQuery(() => db.hourCategories.toArray()) || [];
+  const hourCategories = useLiveQuery(() => db.hourCategories.toArray()) ?? EMPTY_ARRAY;
 
   // Streak logic moved to Home.tsx
 
@@ -126,6 +129,7 @@ export function ProductivityHabits() {
         status: nextStatus as any
       });
     }
+    playClick();
   };
 
 

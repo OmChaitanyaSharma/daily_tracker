@@ -76,11 +76,16 @@ export interface HourCategory {
   createdAt: string;
 }
 
+export type ExerciseDifficulty = 'very_easy' | 'easy' | 'medium' | 'hard' | 'very_hard';
+export type TrackingType = 'reps' | 'time';
+
 export interface Exercise {
   id: string;
   name: string;
   createdAt: string; // ISO string
   archived: boolean;
+  difficulty?: ExerciseDifficulty;
+  trackingType?: TrackingType;
 }
 
 export interface ExerciseLog {
@@ -218,14 +223,11 @@ export class DailyTrackerDB extends Dexie {
       goals: 'id, category',
       goalMeasurements: 'id, goalId, date'
     }).upgrade(async tx => {
-      const defaultCategories = [
-        { id: crypto.randomUUID(), name: 'WebDev', color: 'var(--accent-red)', createdAt: new Date().toISOString() },
-        { id: crypto.randomUUID(), name: 'Study', color: 'var(--accent-purple)', createdAt: new Date().toISOString() },
-        { id: crypto.randomUUID(), name: 'DSA', color: 'var(--accent-green)', createdAt: new Date().toISOString() },
-      ];
-      for (const cat of defaultCategories) {
-        await tx.table('hourCategories').add(cat);
-      }
+      await tx.table('hourCategories').bulkAdd([
+        { id: crypto.randomUUID(), name: 'Web Dev', color: 'var(--accent-blue)', createdAt: new Date().toISOString() },
+        { id: crypto.randomUUID(), name: 'DSA', color: 'var(--accent-purple)', createdAt: new Date().toISOString() },
+        { id: crypto.randomUUID(), name: 'Study', color: 'var(--accent-red)', createdAt: new Date().toISOString() }
+      ]);
     });
 
     // Version 7 schema definition (Exercise Tracking)

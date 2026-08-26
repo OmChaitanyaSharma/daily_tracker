@@ -1,60 +1,47 @@
 # Daily Tracker
 
-A beautifully crafted digital diary and personal progress tracker designed to feel like a premium physical notebook. It is built to help you track your daily highlights, habits, long-term goals, and study hours with elegance and simplicity.
+A digital diary and personal progress tracker designed to log daily highlights, habits, goals, exercise reps, and study hours entirely on the client side.
 
-## ✨ Features
+## Core Features
 
-### 📖 Highlight of the Day
-- A focused daily journaling experience.
-- Track your mood, write a one-line summary, and note your main highlight.
-- Includes a smooth "Completed" read-only view and an easy edit flow.
+### Highlight of the Day & Journal
+- **Daily Reflection:** Track mood, sleep quality and duration, a one-line summary, and main highlights.
+- **Weekly Digest:** Automatically aggregates daily highlights and reflections into a week-by-week masonry layout for easy review.
 
-### 📅 Habit & Progress Tracker
-- **Physical Diary Grid:** A monthly habit grid that reads bottom-to-top, replicating the feel of a physical notebook.
-- **Fast Interactions:** Click cells to cycle instantly between Not Done, Partially Done (◐), and Fully Done (●).
-- **Time Tracking:** Integrated line graph tracking hours spent on WebDev, Study, and DSA. Add hours incrementally throughout the day!
-- **Safe Management:** Edit or safely archive habits without ever losing historical data.
+### Habit & Exercise Tracking
+- **Productivity Habits:** A monthly habit grid with bottom-to-top layout. Cycle between Not Done, Partially Done, and Fully Done states.
+- **Exercise Tracking:** A rep-counting system allowing incremental addition (+1, +5, +10) to active exercises.
+- **Difficulty & Cardio Tracking:** Set custom difficulties (Very Easy to Very Hard) that dynamically scale your XP rewards. Switch an exercise from 'Reps' to 'Cardio' to track and earn points by the minute.
+- **Personal Records (PR):** Real-time PR detection that triggers a badge and audio feedback when a daily maximum is surpassed.
+- **Strict Streaks:** Enforces discipline by requiring at least 1 rep (or minute) for every active exercise on a given day to maintain the streak.
 
-### 🎯 Long-Term Goals
-- **15-Day Check-ins:** Automatically generates a strict 15-day measurement schedule ending exactly on December 31st.
-- **Chronological Progress System:** Goals are tracked using a strict `Starting → Current → Next Log` pipeline:
-  - **Starting:** The original baseline measurement.
-  - **Current:** The most recent valid measurement on or after the starting date.
-  - **Next Log:** Automatically calculates the next scheduled check-in *after* your current measurement.
-- **End of Year Goals:** Track qualitative goals (e.g., "Better skin"), numerical goals (e.g., "Solve 100+ LeetCode questions"), and percentages.
-- **Health Goals:** A dedicated dashboard for physical measurements with an automatic weight-change calculator.
-- **Historical Integrity:** Every measurement is saved as an independent historical record, ensuring timelines can never be overwritten or accidentally reversed.
+### Gamification & Analytics
+- **RPG Leveling System:** Converts logged hours (1 hour = 100 XP) and exercise output (dynamic XP per rep/minute based on difficulty) into discrete Developer and Fitness levels with progress bars.
+- **Activity Heatmap:** A 365-day GitHub-style matrix showing overall activity intensity based on combined habit and exercise volume.
+- **Web Audio Feedback:** Native synthesized audio (via Web Audio API) providing satisfying "pop" clicks and "ding" success sounds on interactions.
 
-### ⏳ Global Date Editing & Strict Chronology
-- **Editable Timelines:** Everything across the application can be retroactively edited. If you forgot to log a highlight or measurement yesterday, you can log it today and set the date back safely.
-- **Conflict Resolution:** Safely move Daily Highlights to other dates with built-in clash detection (Replace vs. Cancel).
-- **UUID Data Architecture:** Habit and Goal measurements use unique identifiers (UUIDs) completely decoupled from their date, ensuring you can freely move or modify past records without accidentally overwriting data from the same day.
-- **Merged Goal Timelines:** The goals system smoothly combines your strictly scheduled 15-day check-ins with any ad-hoc custom measurements you enter, presenting them in a unified chronological history.
+### Long-Term Goals
+- **15-Day Check-ins:** Generates a strict 15-day measurement schedule ending on December 31st.
+- **Chronological Progress System:** Goals track Starting, Current, and Next Log milestones.
+- **End of Year & Health Goals:** Track qualitative goals, numerical goals, percentages, and body metrics.
 
-### 🎨 Premium UI & Finishing Touches
-- **PWA Ready:** Install the app locally to your device for a native-like experience.
-- **Journal Streak Counter:** A delightful streak counter to keep you motivated to write daily.
-- **Export to CSV:** Safely export all your historical journal data to a `.csv` file anytime.
-- **Keyboard Navigation:** Use `1-4` and `Esc` to instantly traverse the application without touching the mouse.
-- **Micro-animations:** Satisfying button feedback and smooth transitions throughout.
+### UI & Architecture
+- **Warm Editorial Theme:** A minimal light theme featuring beige, ink colors, and distinct accents (Red, Blue, Purple) for maximum clarity and readability.
+- **Local-First Data:** Uses Dexie.js (IndexedDB) for completely private, offline-first data persistence.
+- **Export & Backup:** Export all historical data (day entries, habit logs, exercise logs, goal measurements) to JSON for backup and portability.
+- **Keyboard Navigation:** Navigate sections via `1-4` numeric keys and `Esc`.
 
-### 📓 Logs & Archive
-- A central calendar view to look back at any previous day.
-- Instantly review your journal entry, completed habits, and exact hours tracked for that specific date.
+## Tech Stack
 
-## 🛠️ Tech Stack
-
-- **Framework:** React 18 + Vite
+- **Framework:** React 19 + Vite
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS v4
-- **Database:** Dexie.js (IndexedDB for offline-first, local data persistence)
+- **Database:** Dexie.js (IndexedDB)
 - **Charts:** Recharts
 - **Icons:** Lucide React
 - **Date Utilities:** date-fns
 
-## 🚀 Getting Started
-
-To run this project locally on your machine:
+## Getting Started
 
 1. **Install dependencies**
    ```bash
@@ -67,8 +54,8 @@ To run this project locally on your machine:
    ```
 
 3. **Open your browser**
-   Navigate to `http://localhost:5173` to view the application.
+   Navigate to `http://localhost:5173`.
 
-## 💾 Data Privacy
+## Data Privacy
 
-All data is stored completely locally in your browser using IndexedDB. No data is sent to external servers, ensuring your personal diary and habits remain 100% private.
+All data is stored locally in the browser using IndexedDB. No data leaves the client. Use the JSON export tool in the Logs tab to backup data before clearing browser cache.
