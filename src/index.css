@@ -193,3 +193,5 @@
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
   transition: outline-color 0.2s, box-shadow 0.2s;
 }
+
+*:focus-visible[data-edit-mode='true'] { outline: 2px solid var(--accent-red) !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important; }

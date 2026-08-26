@@ -28,9 +28,48 @@ export function Layout() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
       
-      const activeTag = document.activeElement?.tagName || '';
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
-      
+      const activeElement = document.activeElement as HTMLElement | null;
+      const activeTag = activeElement?.tagName || '';
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
+      const isEditMode = activeElement?.dataset.editMode === "true";
+
+      if (isInput && isEditMode) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          activeElement.removeAttribute('data-edit-mode');
+          return;
+        }
+        
+        const keyLower = e.key.toLowerCase();
+        if (keyLower === 'w' || keyLower === 's') {
+          if (activeTag === 'INPUT' && (activeElement as HTMLInputElement).type === 'number') {
+            e.preventDefault();
+            const input = activeElement as HTMLInputElement;
+            const step = parseFloat(input.step) || 1;
+            const current = parseFloat(input.value) || 0;
+            if (keyLower === 'w') {
+              input.value = String(current + step);
+            } else {
+              input.value = String(Math.max(0, current - step));
+            }
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+          } else if (activeTag === 'SELECT') {
+            e.preventDefault();
+            const select = activeElement as HTMLSelectElement;
+            if (keyLower === 'w' && select.selectedIndex > 0) {
+              select.selectedIndex--;
+            } else if (keyLower === 's' && select.selectedIndex < select.options.length - 1) {
+              select.selectedIndex++;
+            }
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+          }
+        }
+        if (e.key !== 'Escape') return;
+      }
+
       switch (e.key) {
         case 'w':
         case 'a':
@@ -43,10 +82,12 @@ export function Layout() {
           handleDirectionalNavigation(e);
           break;
         case 'Enter':
-          if (document.activeElement) {
-            const tag = document.activeElement.tagName;
-            if (!['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) {
-              (document.activeElement as HTMLElement).click();
+          if (activeElement) {
+            if (isInput) {
+              e.preventDefault();
+              activeElement.dataset.editMode = "true";
+            } else if (!['BUTTON', 'A'].includes(activeTag)) {
+              activeElement.click();
             }
           }
           break;
@@ -77,8 +118,19 @@ export function Layout() {
       }
     };
 
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+        target.dataset.editMode = "true";
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('mousedown', handleMouseDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('mousedown', handleMouseDown);
+    };
   }, [navigate]);
 
   useEffect(() => {

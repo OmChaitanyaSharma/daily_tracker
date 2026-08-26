@@ -3,7 +3,9 @@ export function handleDirectionalNavigation(e: KeyboardEvent) {
   if (!['w', 'a', 's', 'd'].includes(key)) return;
 
   const activeTag = document.activeElement?.tagName || '';
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+    if (document.activeElement?.hasAttribute('data-edit-mode')) return;
+  }
 
   const focusableSelectors = 'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
   const elements = Array.from(document.querySelectorAll<HTMLElement>(focusableSelectors))

@@ -44,7 +44,9 @@ export function ProductivityHabits() {
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (e.key === 'Backspace') {
           const activeTag = document.activeElement?.tagName || '';
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+            if (document.activeElement?.hasAttribute('data-edit-mode')) return;
+          }
         }
 
         if (isAddingHabit || activeMenuHabitId || editingHabit || archivingHabit || deletingHabit || showManageCategories) {

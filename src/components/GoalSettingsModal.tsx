@@ -25,14 +25,13 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
         e.stopPropagation();
         onClose();
       } else if (e.key === 'Backspace') {
-        // Only intercept Backspace if we are NOT inside a text input.
-        // If we are in an input, backspace should just delete text!
         const activeTag = document.activeElement?.tagName || '';
-        if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
-          e.preventDefault();
-          e.stopPropagation();
-          onClose();
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+          if (document.activeElement?.hasAttribute('data-edit-mode')) return;
         }
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
       }
     };
     
