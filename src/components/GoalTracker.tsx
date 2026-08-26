@@ -25,59 +25,65 @@ export function GoalRow({
   validMeasurements.sort((a, b) => b.date.localeCompare(a.date));
   const currentMeasurementValue = validMeasurements.length > 0 ? validMeasurements[0].value : startingValue;
   
-  const currentActualDate = validMeasurements.length > 0 ? validMeasurements[0].date : dates[0];
-  let nextLogDateStr: string | null = dates.find(d => d > currentActualDate) || null;
-
   const renderValue = (val: string | number | undefined) => {
-    if (val === undefined || val === null || val === '') return '—';
+    if (val === undefined || val === null || val === '') return '???';
     return `${val}${goal.unit ? ` ${goal.unit}` : ''}`;
   };
 
-  const nextLogHasPassed = nextLogDateStr && nextLogDateStr < getTodayStr();
+  const isNumeric = goal.type === 'numeric' || goal.type === 'percentage';
+  const progressPercent = useMemo(() => {
+    if (!isNumeric || !goal.targetValue || isNaN(Number(currentMeasurementValue)) || isNaN(Number(startingValue))) return null;
+    const current = Number(currentMeasurementValue);
+    const target = Number(goal.targetValue);
+    const start = Number(startingValue);
+    if (target === start) return 100;
+    
+    const range = Math.abs(target - start);
+    const progress = Math.abs(current - start);
+    const rawPercent = (progress / range) * 100;
+    return Math.min(Math.max(rawPercent, 0), 100);
+  }, [isNumeric, currentMeasurementValue, goal.targetValue, startingValue]);
 
   return (
-    <div className="bg-bg-surface border border-border-strong rounded-2xl p-5 hover:bg-bg-surface-hover transition-colors flex flex-col md:flex-row gap-4 items-start md:items-center justify-between group">
-      <div className="flex-1 flex items-center gap-3">
-        <button onClick={onClick} className="flex-1 text-left">
-          <h3 className="text-lg font-medium text-text-main mb-1 hover:underline underline-offset-4">{goal.title}</h3>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-text-muted mt-1">
-            <span>Target: <span className="font-medium text-text-main">{renderValue(goal.targetValue) || 'Qualitative'}</span></span>
+    <div className="bg-bg-surface border border-border-subtle rounded-3xl p-6 md:p-8 hover-lift transition-all flex flex-col group">
+      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between w-full">
+        <div className="flex-1 flex items-center gap-4 w-full">
+          <button onClick={onClick} className="flex-1 text-left">
+            <h3 className="text-xl font-serif text-text-main mb-2 hover:text-accent-blue transition-colors">{goal.title}</h3>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-text-muted">
+              <span>Target: <span className="font-medium text-text-main">{renderValue(goal.targetValue) || 'Qualitative'}</span></span>
+            </div>
+          </button>
+          <button onClick={onEdit} className="p-2.5 text-text-muted hover:text-text-main bg-bg-base border border-border-strong rounded-full transition-colors opacity-0 group-hover:opacity-100 hover:scale-110 shrink-0">
+            <Settings size={16} />
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-8 text-sm cursor-pointer w-full md:w-auto justify-between md:justify-end" onClick={onClick}>
+          <div className="flex flex-col items-end">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-text-muted mb-1 opacity-70">Starting</span>
+            <span className="font-sans font-medium text-lg text-text-main">
+              {renderValue(startingValue)}
+            </span>
           </div>
-        </button>
-        <button onClick={onEdit} className="p-2 text-text-muted hover:text-text-main bg-bg-base border border-border-strong rounded-lg transition-colors">
-          <Settings size={16} />
-        </button>
-      </div>
-      
-      <div className="flex items-center gap-8 text-sm cursor-pointer" onClick={onClick}>
-        <div className="flex flex-col items-end">
-          <span className="text-xs uppercase tracking-widest text-text-muted mb-1">Starting</span>
-          <span className="font-serif italic text-lg text-text-main">
-            {renderValue(startingValue)}
-          </span>
+          <ChevronRight size={16} className="text-border-strong group-hover:text-accent-blue transition-colors group-hover:translate-x-1" />
+          <div className="flex flex-col items-start">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-text-muted mb-1 opacity-70">Current</span>
+            <span className="font-sans font-medium text-lg text-text-main">
+              {renderValue(currentMeasurementValue)}
+            </span>
+          </div>
         </div>
+      </div>
 
-        <div className="flex flex-col items-end">
-          <span className="text-xs uppercase tracking-widest text-text-muted mb-1">Current</span>
-          <span className="font-serif italic text-lg text-text-main">
-            {renderValue(currentMeasurementValue)}
-          </span>
+      {progressPercent !== null && (
+        <div className="w-full h-1.5 bg-bg-base rounded-full mt-6 overflow-hidden border border-border-subtle">
+          <div 
+            className="h-full bg-accent-blue transition-all duration-1000 ease-out rounded-full"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
-        
-        <div className="flex flex-col items-end">
-          <span className="text-xs uppercase tracking-widest text-text-muted mb-1">Next Log</span>
-          <span className={clsx("font-medium", nextLogHasPassed ? "text-accent-red" : "text-text-main")}>
-            {nextLogDateStr ? (
-              <>
-                {format(new Date(nextLogDateStr), 'MMM d')}
-                {nextLogHasPassed && <span className="block text-xs font-normal">Missed</span>}
-              </>
-            ) : 'Completed'}
-          </span>
-        </div>
-        
-        <ChevronRight className="text-border-strong group-hover:text-text-main transition-colors" />
-      </div>
+      )}
     </div>
   );
 }

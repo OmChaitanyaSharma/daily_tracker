@@ -43,28 +43,33 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-bg-base text-text-main transition-colors duration-300 font-sans selection:bg-accent-red-bg selection:text-accent-red">
+    <div className="min-h-screen w-full bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col">
       
-      {/* Minimal Top Navigation */}
-      <header className="sticky top-0 z-50 bg-bg-base/80 backdrop-blur-md border-b border-border-subtle transition-colors duration-300">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold tracking-tight text-text-main">
+      {/* Floating Pill Navigation */}
+      <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="glass-panel px-6 h-14 rounded-full flex items-center justify-between gap-8 shadow-sm">
+          <Link to="/" className="text-lg font-serif italic font-semibold text-text-main hover:opacity-80 transition-opacity">
             Progress<span className="text-accent-red">.</span>
           </Link>
           
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={toggleTheme}
-              className="p-2 text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface focus:outline-none"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-          </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
+            <Link to="/highlight" className="hover:text-text-main transition-colors">Highlight</Link>
+            <Link to="/habits" className="hover:text-text-main transition-colors">Habits</Link>
+            <Link to="/goals" className="hover:text-text-main transition-colors">Goals</Link>
+            <Link to="/logs" className="hover:text-text-main transition-colors">Logs</Link>
+          </nav>
+
+          <button 
+            onClick={toggleTheme}
+            className="p-2 text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none"
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-32 pb-20 w-full animate-fade-in flex-1">
         <Outlet />
       </main>
     </div>

@@ -16,13 +16,13 @@ export function Goals() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Link to="/goals/end-of-year" className="block group">
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 hover:bg-bg-surface-hover transition-colors h-full flex flex-col items-center justify-center text-center gap-6">
-            <div className="w-16 h-16 bg-bg-base rounded-full border border-border-strong flex items-center justify-center text-text-main group-hover:scale-110 transition-transform duration-300">
-              <Target size={32} />
+          <div className="bg-bg-surface border border-border-subtle rounded-3xl p-10 hover-lift transition-all h-full flex flex-col items-center justify-center text-center gap-6">
+            <div className="w-20 h-20 bg-accent-yellow-bg rounded-full text-accent-yellow flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+              <Target size={32} strokeWidth={1.5} />
             </div>
             <div>
-              <h2 className="text-2xl font-serif italic text-text-main mb-3">Goals Till End of Year</h2>
-              <p className="text-text-muted max-w-sm mx-auto leading-relaxed">
+              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">End of Year</h2>
+              <p className="text-text-muted text-sm max-w-sm mx-auto leading-relaxed">
                 Track everything I want to achieve before the end of the year.
               </p>
             </div>
@@ -30,13 +30,13 @@ export function Goals() {
         </Link>
 
         <Link to="/goals/health" className="block group">
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 hover:bg-bg-surface-hover transition-colors h-full flex flex-col items-center justify-center text-center gap-6">
-            <div className="w-16 h-16 bg-bg-base rounded-full border border-border-strong flex items-center justify-center text-[#ef4444] group-hover:scale-110 transition-transform duration-300">
-              <Heart size={32} />
+          <div className="bg-bg-surface border border-border-subtle rounded-3xl p-10 hover-lift transition-all h-full flex flex-col items-center justify-center text-center gap-6">
+            <div className="w-20 h-20 bg-accent-red-bg rounded-full text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+              <Heart size={32} strokeWidth={1.5} />
             </div>
             <div>
-              <h2 className="text-2xl font-serif italic text-text-main mb-3">Health Goals</h2>
-              <p className="text-text-muted max-w-sm mx-auto leading-relaxed">
+              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">Health & Fitness</h2>
+              <p className="text-text-muted text-sm max-w-sm mx-auto leading-relaxed">
                 Track physical measurements, fitness and health-related progress.
               </p>
             </div>

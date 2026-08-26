@@ -116,11 +116,7 @@ export function Habits() {
     }
   };
 
-  const renderCell = (status: string | undefined) => {
-    if (status === 'completed') return <span className="text-xl">●</span>;
-    if (status === 'partial') return <span className="text-xl">◐</span>;
-    return <span className="text-xl text-transparent">○</span>; // transparent placeholder for sizing
-  };
+
 
   const handleAddHours = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -296,26 +292,26 @@ export function Habits() {
             {/* Habit Columns */}
             {visibleHabits.map(habit => (
               <div key={habit.id} className="w-14 shrink-0 border-r border-border-subtle flex flex-col items-center group/col">
-                <div className="h-40 w-full flex flex-col items-center justify-end pb-4 border-b border-border-strong relative sticky top-0 bg-bg-surface z-20 group/header">
+                <div className="h-40 w-full flex flex-col items-center justify-end pb-4 border-b-2 border-border-subtle relative sticky top-0 bg-bg-surface z-20 group/header">
                   
                   {/* Management Menu Trigger */}
-                  <div className="absolute top-0 left-0 right-0 flex justify-center z-30 bg-bg-surface pt-2 pb-1">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 opacity-0 group-hover/header:opacity-100 transition-opacity duration-300">
                     <div className="relative">
                       <button 
                         onClick={() => setActiveMenuHabitId(activeMenuHabitId === habit.id ? null : habit.id)}
                         className={clsx(
-                          "p-1 rounded text-text-muted hover:text-text-main hover:bg-bg-surface-hover transition-all",
-                          activeMenuHabitId === habit.id ? "opacity-100 bg-bg-surface-hover" : "opacity-0 group-hover/header:opacity-100"
+                          "p-1.5 rounded-full text-text-muted hover:text-text-main bg-bg-base/80 backdrop-blur shadow-sm border border-border-subtle transition-all hover:scale-110",
+                          activeMenuHabitId === habit.id ? "opacity-100 ring-2 ring-accent-blue/30" : ""
                         )}
                       >
                         <MoreHorizontal size={14} />
                       </button>
                       
-                      {/* Menu Dropdown */}
+                      {/* Menu Dropdown - Floating Pill */}
                       {activeMenuHabitId === habit.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setActiveMenuHabitId(null)} />
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-32 bg-bg-base border border-border-strong rounded-xl shadow-lg z-50 overflow-hidden text-sm">
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-36 glass-panel rounded-2xl shadow-lg z-50 overflow-hidden text-sm flex flex-col animate-slide-up">
                             <button 
                               onClick={() => {
                                 setEditName(habit.name);
@@ -323,7 +319,7 @@ export function Habits() {
                                 setEditingHabit(habit);
                                 setActiveMenuHabitId(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-text-main hover:bg-bg-surface-hover transition-colors"
+                              className="px-4 py-2.5 text-left text-text-main hover:bg-bg-surface-hover flex items-center gap-2 transition-colors font-medium"
                             >
                               <Edit2 size={14} /> Edit
                             </button>
@@ -332,7 +328,7 @@ export function Habits() {
                                 setArchivingHabit(habit);
                                 setActiveMenuHabitId(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-accent-red hover:bg-accent-red-bg transition-colors"
+                              className="px-4 py-2.5 text-left text-text-main hover:bg-bg-surface-hover flex items-center gap-2 transition-colors border-t border-border-subtle font-medium"
                             >
                               <Archive size={14} /> Archive
                             </button>
@@ -341,7 +337,7 @@ export function Habits() {
                                 setDeletingHabit(habit);
                                 setActiveMenuHabitId(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-accent-red hover:bg-accent-red-bg transition-colors border-t border-border-strong"
+                              className="px-4 py-2.5 text-left text-accent-red hover:bg-accent-red-bg flex items-center gap-2 transition-colors border-t border-border-subtle font-medium"
                             >
                               <Trash2 size={14} /> Delete
                             </button>
@@ -352,7 +348,7 @@ export function Habits() {
                   </div>
 
                   <span 
-                    className="rotate-180 text-sm font-serif italic text-text-main whitespace-nowrap opacity-90 max-h-24 overflow-hidden"
+                    className="rotate-180 text-[13px] font-sans tracking-wide text-text-main whitespace-nowrap opacity-80 max-h-24 overflow-hidden mt-6"
                     style={{ writingMode: 'vertical-rl' }}
                   >
                     {habit.name}
@@ -361,6 +357,7 @@ export function Habits() {
                 {daysInMonth.map(date => {
                   const dateStr = format(date, 'yyyy-MM-dd');
                   const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
+                  const currentStatus = log?.status || 'none';
                   const startDateStr = habit.startDate || '2000-01-01';
                   const isEligible = dateStr >= startDateStr;
                   
@@ -370,12 +367,17 @@ export function Habits() {
                       disabled={!isEligible}
                       onClick={() => toggleHabit(habit.id, dateStr, log?.status, log?.id)}
                       className={clsx(
-                        "h-10 w-full flex items-center justify-center border-b border-border-subtle transition-colors",
-                        isEligible ? "hover:bg-bg-surface-hover cursor-pointer" : "opacity-30 cursor-default bg-bg-base/50",
+                        "w-full h-10 border-b border-border-subtle flex items-center justify-center transition-all group",
+                        !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
                         isToday(date) && "bg-accent-red-bg/20"
                       )}
                     >
-                      {isEligible ? renderCell(log?.status) : <span className="text-sm font-medium text-border-strong">-</span>}
+                      <span className={clsx(
+                        "text-xl transition-transform duration-300 group-active:scale-75",
+                        isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
+                      )}>
+                        {isEligible ? (currentStatus === 'completed' ? '●' : currentStatus === 'partial' ? '◐' : '○') : '-'}
+                      </span>
                     </button>
                   );
                 })}
@@ -448,10 +450,10 @@ export function Habits() {
         </div>
 
         {/* Progress Graph integrated inside the container */}
-        <div className="border-t border-border-subtle pt-12">
-          <h2 className="text-xl font-serif italic text-text-main mb-8">Hours Tracked</h2>
+        <div className="border-t border-border-subtle pt-16">
+          <h2 className="text-2xl font-serif text-text-main mb-10 font-medium">Hours Tracked</h2>
           
-          <div className="h-[300px] w-full">
+          <div className="h-[360px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={graphData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
@@ -459,24 +461,30 @@ export function Habits() {
                   dataKey="date" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
                   dy={10}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--bg-base)', borderColor: 'var(--border-strong)', borderRadius: '8px' }}
-                  itemStyle={{ fontSize: '14px' }}
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(var(--bg-surface), 0.8)', 
+                    backdropFilter: 'blur(12px)',
+                    borderColor: 'var(--border-strong)', 
+                    borderRadius: '16px',
+                    boxShadow: 'var(--shadow-soft)'
+                  }}
+                  itemStyle={{ fontSize: '14px', fontWeight: 600 }}
                   labelStyle={{ fontWeight: 'bold', color: 'var(--text-main)', marginBottom: '4px' }}
                 />
-                <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '14px', color: 'var(--text-main)' }} />
+                <Legend verticalAlign="top" height={40} wrapperStyle={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 500 }} />
                 
-                <Line type="linear" dataKey="WebDev" stroke="#ef4444" strokeWidth={2} dot={{ r: 6, strokeWidth: 2 }} activeDot={{ r: 8 }} />
-                <Line type="linear" dataKey="Study" stroke="#3b82f6" strokeWidth={2} dot={{ r: 6, strokeWidth: 2 }} activeDot={{ r: 8 }} />
-                <Line type="linear" dataKey="DSA" stroke="#10b981" strokeWidth={2} dot={{ r: 6, strokeWidth: 2 }} activeDot={{ r: 8 }} />
+                <Line type="monotone" dataKey="WebDev" stroke="var(--accent-red)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6, fill: "var(--accent-red)", strokeWidth: 0, style: { filter: 'drop-shadow(0 0 8px var(--accent-red))' } }} />
+                <Line type="monotone" dataKey="Study" stroke="var(--accent-blue)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6, fill: "var(--accent-blue)", strokeWidth: 0, style: { filter: 'drop-shadow(0 0 8px var(--accent-blue))' } }} />
+                <Line type="monotone" dataKey="DSA" stroke="var(--accent-green)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6, fill: "var(--accent-green)", strokeWidth: 0, style: { filter: 'drop-shadow(0 0 8px var(--accent-green))' } }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
