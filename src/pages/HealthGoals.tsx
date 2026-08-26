@@ -1,3 +1,4 @@
+const EMPTY_ARRAY: any[] = [];
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Goal } from '../db';
@@ -11,8 +12,8 @@ export function HealthGoals() {
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
-  const goals = useLiveQuery(() => db.goals.where('category').equals('health').toArray()) || [];
-  const measurements = useLiveQuery(() => db.goalMeasurements.toArray()) || [];
+  const goals = useLiveQuery(() => db.goals.where('category').equals('health').toArray()) ?? EMPTY_ARRAY;
+  const measurements = useLiveQuery(() => db.goalMeasurements.toArray()) ?? EMPTY_ARRAY;
 
   const handleCreateGoal = async () => {
     const newGoal: Goal = {
