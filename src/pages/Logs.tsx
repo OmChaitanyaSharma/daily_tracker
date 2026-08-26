@@ -5,8 +5,6 @@ import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, 
 import { ChevronLeft, ChevronRight, ArrowLeft, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
-import { getTodayStr } from '../utils/dateUtils';
-
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
 
 const MOOD_EMOJIS: Record<string, string> = {
@@ -130,25 +128,16 @@ export function Logs() {
       end = endOfYear(currentDate);
     }
 
-    let appStartDateStr = '2026-08-27';
-    allHabits.forEach(h => {
-      if (h.startDate && h.startDate < appStartDateStr) appStartDateStr = h.startDate;
-    });
-    allGoals.forEach(g => {
-      if (g.startDate && g.startDate < appStartDateStr) appStartDateStr = g.startDate;
-    });
-    allEntries.forEach(e => {
-      if (e.date < appStartDateStr) appStartDateStr = e.date;
-    });
-
     const rangeStartStr = format(start, 'yyyy-MM-dd');
     const rangeEndStr = format(end, 'yyyy-MM-dd');
-    const todayStr = getTodayStr();
+    
+    // Tracking starts strictly from August 27th, 2026
+    const appStartDateStr = '2026-08-27';
 
     const periodEntries = allEntries.filter(e => e.date >= rangeStartStr && e.date <= rangeEndStr);
 
     const effectiveStartStr = rangeStartStr > appStartDateStr ? rangeStartStr : appStartDateStr;
-    const effectiveEndStr = rangeEndStr < todayStr ? rangeEndStr : todayStr;
+    const effectiveEndStr = rangeEndStr; // Full calendar capacity for the period
 
     let totalDaysInPeriod = 0;
     if (effectiveStartStr <= effectiveEndStr) {
@@ -175,7 +164,7 @@ export function Logs() {
       totalDays: totalDaysInPeriod,
       avgMood: avgMoodScore > 0 ? avgMoodScore.toFixed(1) : '0'
     };
-  }, [currentDate, period, allEntries, allHabits, allGoals]);
+  }, [currentDate, period, allEntries]);
 
   return (
     <div className="max-w-5xl mx-auto pb-24 animate-fade-in flex flex-col gap-16">

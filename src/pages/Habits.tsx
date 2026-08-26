@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Habit } from '../db';
+import { db, type Habit, type HourCategory } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO } from 'date-fns';
 import { getTodayStr } from '../utils/dateUtils';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
@@ -25,8 +25,16 @@ export function Habits() {
 
   // Hours input state
   const [hoursDate, setHoursDate] = useState(getTodayStr());
-  const [hoursType, setHoursType] = useState<'studyHours' | 'webDevHours' | 'dsaHours'>('studyHours');
+  const [hoursType, setHoursType] = useState<string>('');
   const [hoursAmount, setHoursAmount] = useState('');
+
+  // Category management state
+  const [showManageCategories, setShowManageCategories] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatColor, setNewCatColor] = useState('#8b5cf6');
+  const [editingCat, setEditingCat] = useState<HourCategory | null>(null);
+  const [editCatName, setEditCatName] = useState('');
+  const [editCatColor, setEditCatColor] = useState('');
 
   const allHabits = useLiveQuery(() => db.habits.toArray()) || [];
   
@@ -44,6 +52,10 @@ export function Habits() {
   const hourLogs = useLiveQuery(() => 
     db.hourLogs.where('date').between(monthStartStr, monthEndStr, true, true).toArray()
   , [monthStartStr, monthEndStr]) || [];
+
+  const hourCategories = useLiveQuery(() => db.hourCategories.toArray()) || [];
+
+  // Streak logic moved to Home.tsx
 
   // Determine which habits to show: active ones, PLUS archived ones if they have logs this month
   const visibleHabits = useMemo(() => {
@@ -118,15 +130,77 @@ export function Habits() {
 
 
 
+  const handleAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return;
+    await db.hourCategories.add({
+      id: crypto.randomUUID(),
+      name: newCatName.trim(),
+      color: newCatColor,
+      createdAt: new Date().toISOString()
+    });
+    setNewCatName('');
+  };
+
+  const handleEditCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCat || !editCatName.trim()) return;
+    
+    // Also update all hour logs that used the old name
+    const oldName = editingCat.name;
+    const newName = editCatName.trim();
+    
+    if (oldName !== newName) {
+      const logsToUpdate = await db.hourLogs.filter(l => l.activity === oldName).toArray();
+      for (const log of logsToUpdate) {
+        await db.hourLogs.update(log.id, { activity: newName });
+      }
+    }
+    
+    await db.hourCategories.update(editingCat.id, {
+      name: newName,
+      color: editCatColor
+    });
+    setEditingCat(null);
+  };
+
+  const handleDeleteCategory = async (cat: HourCategory) => {
+    if (confirm(`Delete category "${cat.name}"? This will ALSO delete all historical hours logged under this category. This cannot be undone.`)) {
+      const logsToDelete = await db.hourLogs.filter(l => l.activity === cat.name).toArray();
+      const keys = logsToDelete.map(l => l.id);
+      await db.hourLogs.bulkDelete(keys);
+      await db.hourCategories.delete(cat.id);
+    }
+  };
+
+  const [errorMsg, setErrorMsg] = useState('');
+
   const handleAddHours = async (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(hoursAmount);
     if (isNaN(amount) || amount <= 0) return;
 
+    const dateHourLogs = await db.hourLogs.where('date').equals(hoursDate).toArray();
+    const currentTotal = dateHourLogs.reduce((acc, curr) => acc + curr.hours, 0);
+    if (currentTotal + amount > 12) {
+      setErrorMsg('Maximum 12 hours total can be logged per day.');
+      setTimeout(() => setErrorMsg(''), 5000);
+      return;
+    }
+    setErrorMsg('');
+
+    const selectedActivity = hoursType || hourCategories[0]?.name;
+    
+    if (!selectedActivity) {
+      setErrorMsg('Please select an activity.');
+      setTimeout(() => setErrorMsg(''), 5000);
+      return;
+    }
+
     await db.hourLogs.add({
       id: crypto.randomUUID(),
       date: hoursDate,
-      activity: hoursType === 'studyHours' ? 'Study' : hoursType === 'webDevHours' ? 'WebDev' : 'DSA',
+      activity: selectedActivity,
       hours: amount
     });
     setHoursAmount('');
@@ -138,19 +212,20 @@ export function Habits() {
       const dateStr = format(date, 'yyyy-MM-dd');
       const dailyHours = hourLogs.filter(log => log.date === dateStr);
       
-      const studyHours = dailyHours.filter(l => l.activity === 'Study').reduce((acc, curr) => acc + curr.hours, 0);
-      const webDevHours = dailyHours.filter(l => l.activity === 'WebDev').reduce((acc, curr) => acc + curr.hours, 0);
-      const dsaHours = dailyHours.filter(l => l.activity === 'DSA').reduce((acc, curr) => acc + curr.hours, 0);
-
-      return {
+      const dataPoint: any = {
         date: format(date, 'd'),
         fullDate: dateStr,
-        Study: studyHours,
-        WebDev: webDevHours,
-        DSA: dsaHours
       };
+
+      // Populate dynamic categories
+      hourCategories.forEach(cat => {
+        const hours = dailyHours.filter(l => l.activity === cat.name).reduce((acc, curr) => acc + curr.hours, 0);
+        dataPoint[cat.name] = hours > 0 ? hours : null;
+      });
+
+      return dataPoint;
     });
-  }, [daysInMonth, hourLogs]);
+  }, [daysInMonth, hourLogs, hourCategories]);
 
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in relative">
@@ -238,7 +313,7 @@ export function Habits() {
           <Link to="/" className="text-text-muted hover:text-text-main transition-colors">
             <ArrowLeft size={24} />
           </Link>
-          <div>
+          <div className="flex items-center gap-4">
             <h1 className="text-3xl font-serif italic text-text-main">Habit Tracker</h1>
           </div>
         </div>
@@ -272,17 +347,22 @@ export function Habits() {
               <div className="h-40 flex items-end justify-center pb-4 text-xs font-semibold tracking-widest uppercase text-text-muted border-b border-border-strong sticky top-0 bg-bg-surface z-40">
                 Day
               </div>
-              {daysInMonth.map(date => (
-                <div 
-                  key={date.toISOString()} 
-                  className={clsx(
-                    "h-10 flex items-center justify-center text-sm font-medium border-b border-border-subtle",
-                    isToday(date) ? "text-accent-red bg-accent-red-bg/50" : "text-text-main"
-                  )}
-                >
-                  {format(date, 'd')}
-                </div>
-              ))}
+              {daysInMonth.map(date => {
+                const isSunday = date.getDay() === 0;
+                return (
+                  <div 
+                    key={date.toISOString()} 
+                    className={clsx(
+                      "h-10 flex items-center justify-center gap-1.5 text-sm font-medium",
+                      isToday(date) ? "text-accent-red bg-accent-red-bg/50" : "text-text-main",
+                      isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
+                    )}
+                  >
+                    <span className="text-[10px] text-text-muted font-bold opacity-60 w-3">{format(date, 'eeeee')}</span>
+                    <span className="w-5 text-left">{format(date, 'd')}</span>
+                  </div>
+                )
+              })}
               {/* Score Placeholder */}
               <div className="h-16 flex items-center justify-center text-[10px] font-semibold tracking-widest uppercase text-text-muted pt-2">
                 Score
@@ -360,6 +440,7 @@ export function Habits() {
                   const currentStatus = log?.status || 'none';
                   const startDateStr = habit.startDate || '2000-01-01';
                   const isEligible = dateStr >= startDateStr;
+                  const isSunday = date.getDay() === 0;
                   
                   return (
                     <button
@@ -367,9 +448,10 @@ export function Habits() {
                       disabled={!isEligible}
                       onClick={() => toggleHabit(habit.id, dateStr, log?.status, log?.id)}
                       className={clsx(
-                        "w-full h-10 border-b border-border-subtle flex items-center justify-center transition-all group",
+                        "w-full h-10 flex items-center justify-center transition-all group",
                         !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
-                        isToday(date) && "bg-accent-red-bg/20"
+                        isToday(date) && "bg-accent-red-bg/20",
+                        isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
                       )}
                     >
                       <span className={clsx(
@@ -456,17 +538,17 @@ export function Habits() {
           <div className="h-[360px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={graphData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-subtle)" />
+                <CartesianGrid strokeDasharray="none" vertical={true} stroke="var(--border-strong)" />
                 <XAxis 
                   dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
+                  axisLine={{ stroke: 'var(--border-strong)' }} 
+                  tickLine={{ stroke: 'var(--border-strong)' }} 
                   tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
                   dy={10}
                 />
                 <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
+                  axisLine={{ stroke: 'var(--border-strong)' }} 
+                  tickLine={{ stroke: 'var(--border-strong)' }} 
                   tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
                 />
                 <Tooltip 
@@ -482,15 +564,135 @@ export function Habits() {
                 />
                 <Legend verticalAlign="top" height={40} wrapperStyle={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 500 }} />
                 
-                <Line type="monotone" dataKey="WebDev" stroke="var(--accent-red)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6, fill: "var(--accent-red)", strokeWidth: 0, style: { filter: 'drop-shadow(0 0 8px var(--accent-red))' } }} />
-                <Line type="monotone" dataKey="Study" stroke="var(--accent-blue)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6, fill: "var(--accent-blue)", strokeWidth: 0, style: { filter: 'drop-shadow(0 0 8px var(--accent-blue))' } }} />
-                <Line type="monotone" dataKey="DSA" stroke="var(--accent-green)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6, fill: "var(--accent-green)", strokeWidth: 0, style: { filter: 'drop-shadow(0 0 8px var(--accent-green))' } }} />
+                {hourCategories.map(cat => (
+                  <Line 
+                    key={cat.id}
+                    type="linear" 
+                    dataKey={cat.name} 
+                    stroke={cat.color} 
+                    strokeWidth={2} 
+                    connectNulls={false}
+                    dot={(props: any) => props.value ? <circle key={props.key || props.index} cx={props.cx} cy={props.cy} r={4} fill={props.stroke} stroke="var(--bg-surface)" strokeWidth={1} /> : null} 
+                    activeDot={{ r: 6, fill: cat.color, strokeWidth: 0, style: { filter: `drop-shadow(0 0 8px ${cat.color})` } }} 
+                  />
+                ))}
               </LineChart>
             </ResponsiveContainer>
           </div>
 
+          {/* Category Management */}
+          <div className="mt-8 pt-8 border-t border-border-subtle">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold tracking-widest uppercase text-text-muted">Graph Categories</h3>
+              <button 
+                onClick={() => setShowManageCategories(!showManageCategories)}
+                className="text-xs font-semibold text-accent-blue hover:underline"
+              >
+                {showManageCategories ? 'Hide' : 'Manage'}
+              </button>
+            </div>
+            
+            {showManageCategories && (
+              <div className="bg-bg-base border border-border-strong rounded-xl p-4 mb-6 space-y-6">
+                
+                {/* Existing Categories */}
+                <div className="flex flex-wrap gap-2">
+                  {hourCategories.map(cat => (
+                    <div key={cat.id} className="flex items-center gap-2 bg-bg-surface border border-border-subtle rounded-lg px-3 py-1.5 text-sm">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
+                      <span className="font-medium text-text-main">{cat.name}</span>
+                      
+                      <button 
+                        onClick={() => {
+                          let hex = cat.color;
+                          if (hex === 'var(--accent-red)') hex = '#ff7e79';
+                          if (hex === 'var(--accent-purple)') hex = '#a78bfa';
+                          if (hex === 'var(--accent-green)') hex = '#4fb693';
+                          if (hex === 'var(--accent-yellow)') hex = '#f1db75';
+                          if (hex === 'var(--accent-blue)') hex = '#6ea8fe';
+                          setEditingCat(cat);
+                          setEditCatName(cat.name);
+                          setEditCatColor(hex);
+                        }}
+                        className="text-text-muted hover:text-text-main ml-2"
+                        title="Edit"
+                      >
+                        <Edit2 size={12} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCategory(cat)}
+                        className="text-text-muted hover:text-accent-red"
+                        title="Delete"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Edit Category Form */}
+                {editingCat && (
+                  <form onSubmit={handleEditCategory} className="flex flex-wrap items-end gap-3 p-3 bg-bg-surface-hover rounded-lg border border-border-subtle">
+                    <div className="space-y-1">
+                      <label className="text-xs text-text-muted">Edit Name</label>
+                      <input 
+                        type="text" 
+                        value={editCatName}
+                        onChange={e => setEditCatName(e.target.value)}
+                        className="block bg-bg-base border border-border-strong rounded-lg px-3 py-1.5 text-sm outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-text-muted">Edit Color</label>
+                      <div className="flex items-center gap-2 bg-bg-base border border-border-strong rounded-lg px-2 py-1">
+                        <input 
+                          type="color" 
+                          value={editCatColor}
+                          onChange={e => setEditCatColor(e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                        />
+                        <span className="text-sm font-mono text-text-muted uppercase">{editCatColor}</span>
+                      </div>
+                    </div>
+                    <button type="submit" className="bg-text-main text-bg-base px-4 py-1.5 rounded-lg text-sm font-medium h-9">Save</button>
+                    <button type="button" onClick={() => setEditingCat(null)} className="text-text-muted text-sm font-medium hover:text-text-main h-9">Cancel</button>
+                  </form>
+                )}
+
+                {/* Add Category Form */}
+                {!editingCat && (
+                  <form onSubmit={handleAddCategory} className="flex flex-wrap items-end gap-3 pt-4 border-t border-border-subtle">
+                    <div className="space-y-1">
+                      <label className="text-xs text-text-muted">New Category</label>
+                      <input 
+                        type="text" 
+                        value={newCatName}
+                        onChange={e => setNewCatName(e.target.value)}
+                        placeholder="e.g. Reading"
+                        className="block bg-bg-base border border-border-strong rounded-lg px-3 py-1.5 text-sm outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs text-text-muted">Color</label>
+                      <div className="flex items-center gap-2 bg-bg-base border border-border-strong rounded-lg px-2 py-1">
+                        <input 
+                          type="color" 
+                          value={newCatColor}
+                          onChange={e => setNewCatColor(e.target.value)}
+                          className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
+                        />
+                        <span className="text-sm font-mono text-text-muted uppercase">{newCatColor}</span>
+                      </div>
+                    </div>
+                    <button type="submit" className="bg-text-main text-bg-base px-4 py-1.5 rounded-lg text-sm font-medium h-9">Add</button>
+                  </form>
+                )}
+              </div>
+            )}
+          </div>
+
           {/* Add Hours Control */}
-          <div className="mt-8 pt-8 border-t border-border-subtle flex flex-wrap items-end gap-4">
+          <div className="pt-4 flex flex-wrap items-end gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Date</label>
               <input 
@@ -503,26 +705,32 @@ export function Habits() {
             <div className="space-y-2">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Activity</label>
               <select 
-                value={hoursType}
-                onChange={e => setHoursType(e.target.value as any)}
+                value={hoursType || (hourCategories.length > 0 ? hourCategories[0].name : '')}
+                onChange={e => setHoursType(e.target.value)}
                 className="block bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
               >
-                <option value="webDevHours">WebDev</option>
-                <option value="studyHours">Study</option>
-                <option value="dsaHours">DSA</option>
+                {hourCategories.map(cat => (
+                  <option key={cat.id} value={cat.name}>{cat.name}</option>
+                ))}
               </select>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Hours to add</label>
               <input 
                 type="number" 
                 step="0.5"
                 min="0.5"
+                max="12"
                 value={hoursAmount}
                 onChange={e => setHoursAmount(e.target.value)}
                 placeholder="e.g. 1.5"
                 className="block w-24 bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
               />
+              {errorMsg && (
+                <div className="absolute top-full left-0 mt-2 w-max bg-accent-red-bg border border-accent-red/20 text-accent-red px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm animate-slide-up z-50">
+                  {errorMsg}
+                </div>
+              )}
             </div>
             <button 
               onClick={handleAddHours}
@@ -547,12 +755,12 @@ export function Habits() {
                     />
                     <select 
                       value={log.activity}
-                      onChange={async (e) => await db.hourLogs.update(log.id, { activity: e.target.value as any })}
+                      onChange={async (e) => await db.hourLogs.update(log.id, { activity: e.target.value })}
                       className="bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none"
                     >
-                      <option value="WebDev">WebDev</option>
-                      <option value="Study">Study</option>
-                      <option value="DSA">DSA</option>
+                      {hourCategories.map(cat => (
+                        <option key={cat.id} value={cat.name}>{cat.name}</option>
+                      ))}
                     </select>
                     <input 
                       type="number"

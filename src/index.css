@@ -17,14 +17,17 @@
     --accent-red-hover: #ba3f3a;
     --accent-red-bg: rgba(211, 74, 68, 0.08);
 
-    --accent-blue: #9ab4d6; /* Soft sky blue */
-    --accent-blue-bg: rgba(154, 180, 214, 0.15);
+    --accent-blue: #3b82f6;
+    --accent-blue-bg: rgba(59, 130, 246, 0.1);
 
-    --accent-yellow: #f5e495; /* Butter yellow highlight */
-    --accent-yellow-bg: rgba(245, 228, 149, 0.3);
+    --accent-purple: #8b5cf6; /* Vibrant Purple */
+    --accent-purple-bg: rgba(139, 92, 246, 0.1);
 
-    --accent-green: #375442;
-    --accent-green-bg: rgba(55, 84, 66, 0.08);
+    --accent-yellow: #eab308; /* Vibrant golden yellow */
+    --accent-yellow-bg: rgba(234, 179, 8, 0.15);
+
+    --accent-green: #32735d; /* Rich Viridian */
+    --accent-green-bg: rgba(50, 115, 93, 0.1);
 
     --shadow-soft: 0 4px 20px rgba(20, 25, 21, 0.04), 0 2px 8px rgba(20, 25, 21, 0.02);
   }
@@ -41,18 +44,21 @@
     --border-subtle: rgba(240, 237, 230, 0.05);
     --border-strong: rgba(240, 237, 230, 0.12);
     
-    --accent-red: #e66863;
-    --accent-red-hover: #ff7e79;
-    --accent-red-bg: rgba(230, 104, 99, 0.15);
+    --accent-red: #ff7e79;
+    --accent-red-hover: #ff9490;
+    --accent-red-bg: rgba(255, 126, 121, 0.15);
 
-    --accent-blue: #84a2c9;
-    --accent-blue-bg: rgba(132, 162, 201, 0.15);
+    --accent-blue: #6ea8fe;
+    --accent-blue-bg: rgba(110, 168, 254, 0.15);
 
-    --accent-yellow: #d1bf73;
-    --accent-yellow-bg: rgba(209, 191, 115, 0.15);
+    --accent-purple: #a78bfa; /* Vibrant Purple */
+    --accent-purple-bg: rgba(167, 139, 250, 0.15);
 
-    --accent-green: #719680;
-    --accent-green-bg: rgba(113, 150, 128, 0.15);
+    --accent-yellow: #f1db75; /* Vibrant gold */
+    --accent-yellow-bg: rgba(241, 219, 117, 0.15);
+
+    --accent-green: #4fb693; /* Bright Viridian */
+    --accent-green-bg: rgba(79, 182, 147, 0.15);
 
     --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3);
   }
@@ -167,4 +173,16 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+@keyframes fire-flicker {
+  0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+  25% { transform: scale(1.05) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 10px var(--accent-yellow)); }
+  50% { transform: scale(0.95) rotate(-3deg); opacity: 0.8; }
+  75% { transform: scale(1.02) rotate(1deg); opacity: 0.95; }
+  100% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+}
+
+.animate-fire {
+  animation: fire-flicker 1.5s infinite ease-in-out;
+  transform-origin: bottom center;
 }

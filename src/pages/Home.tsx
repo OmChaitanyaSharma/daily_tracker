@@ -1,34 +1,11 @@
 import { Link } from 'react-router-dom';
-import { PenTool, CheckSquare, Target, LineChart } from 'lucide-react';
+import { PenTool, CheckSquare, Target, LineChart, Flame } from 'lucide-react';
 import { format } from 'date-fns';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db';
-import { getTodayStr } from '../utils/dateUtils';
-import { useMemo } from 'react';
+import { useStreak } from '../hooks/useStreak';
+import clsx from 'clsx';
 
 export function Home() {
-  const allEntries = useLiveQuery(() => db.dayEntries.toArray()) || [];
-  
-  const streak = useMemo(() => {
-    if (allEntries.length === 0) return 0;
-    const sortedDates = allEntries.map(e => e.date).sort().reverse();
-    let currentStreak = 0;
-    const todayStr = getTodayStr();
-    
-    let checkDate = new Date();
-    if (!sortedDates.includes(todayStr)) {
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
-    
-    let checkDateStr = format(checkDate, 'yyyy-MM-dd');
-    while (sortedDates.includes(checkDateStr)) {
-      currentStreak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-      checkDateStr = format(checkDate, 'yyyy-MM-dd');
-    }
-    
-    return currentStreak;
-  }, [allEntries]);
+  const streak = useStreak();
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 animate-fade-in max-w-4xl mx-auto pt-4">
@@ -40,13 +17,23 @@ export function Home() {
         <p className="text-text-muted uppercase tracking-[0.2em] text-sm font-medium">
           Welcome to your daily journal
         </p>
-        {streak > 2 && (
-          <div className="inline-flex items-center justify-center animate-slide-up mt-8">
-            <div className="px-4 py-2 rounded-full border border-accent-yellow bg-accent-yellow-bg text-accent-yellow text-sm font-semibold tracking-widest uppercase shadow-sm">
-              ✨ {streak} Day Streak
-            </div>
+        <div className="inline-flex items-center justify-center animate-slide-up mt-8">
+          <div className={clsx(
+            "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-500",
+            streak > 0 
+              ? "border-accent-yellow bg-accent-yellow-bg text-accent-yellow"
+              : "border-border-strong bg-bg-surface text-text-muted opacity-60"
+          )}>
+            <Flame 
+              size={20} 
+              className={clsx(
+                "transition-all duration-500",
+                streak > 0 ? "fill-accent-yellow text-accent-yellow animate-fire" : "text-text-muted"
+              )} 
+            />
+            <span>{streak} Day Streak</span>
           </div>
-        )}
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -45,7 +45,7 @@ export interface HabitLog {
 export interface HourLog {
   id: string; // UUID
   date: string; // YYYY-MM-DD
-  activity: 'WebDev' | 'Study' | 'DSA';
+  activity: string; // Category name matching HourCategory
   hours: number;
 }
 
@@ -69,12 +69,20 @@ export interface GoalMeasurement {
   notes?: string;
 }
 
+export interface HourCategory {
+  id: string; // UUID
+  name: string; // User-defined name
+  color: string; // CSS variable or hex
+  createdAt: string; // ISO string
+}
+
 export class DailyTrackerDB extends Dexie {
   dayEntries!: Table<DayEntry, string>;
   tasks!: Table<Task, string>;
   habits!: Table<Habit, string>;
   habitLogs!: Table<HabitLog, string>;
   hourLogs!: Table<HourLog, string>;
+  hourCategories!: Table<HourCategory, string>;
   goals!: Table<Goal, string>;
   goalMeasurements!: Table<GoalMeasurement, string>;
 
@@ -105,10 +113,7 @@ export class DailyTrackerDB extends Dexie {
       const oldHabitLogs = await tx.table('habitLogs').toArray();
       await tx.table('habitLogs').clear();
       for (const log of oldHabitLogs) {
-        // If ID contains an underscore (e.g., old format "habitId_date"), replace it with UUID
-        if (log.id.includes('_')) {
-          log.id = crypto.randomUUID();
-        }
+        if (log.id.includes('_')) log.id = crypto.randomUUID();
         await tx.table('habitLogs').add(log);
       }
 
@@ -116,9 +121,7 @@ export class DailyTrackerDB extends Dexie {
       const oldMeasurements = await tx.table('goalMeasurements').toArray();
       await tx.table('goalMeasurements').clear();
       for (const m of oldMeasurements) {
-        if (m.id.includes('_')) {
-          m.id = crypto.randomUUID();
-        }
+        if (m.id.includes('_')) m.id = crypto.randomUUID();
         await tx.table('goalMeasurements').add(m);
       }
 
@@ -154,7 +157,6 @@ export class DailyTrackerDB extends Dexie {
       const habits = await tx.table('habits').toArray();
       for (const habit of habits) {
         if (!habit.startDate) {
-          // Parse the ISO string to YYYY-MM-DD local
           try {
             const d = new Date(habit.createdAt);
             const year = d.getFullYear();
@@ -162,7 +164,6 @@ export class DailyTrackerDB extends Dexie {
             const day = String(d.getDate()).padStart(2, '0');
             habit.startDate = `${year}-${month}-${day}`;
           } catch(e) {
-            // Fallback to today if creation date is corrupted
             const d = new Date();
             habit.startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           }
@@ -184,11 +185,30 @@ export class DailyTrackerDB extends Dexie {
       const habits = await tx.table('habits').toArray();
       for (const habit of habits) {
         if (habit.startDate && habit.startDate.includes('NaN')) {
-          // Fallback to a safe past date for corrupted start dates
-          // Using 2024-01-01 so historical logs are visible
           habit.startDate = '2024-01-01';
           await tx.table('habits').put(habit);
         }
+      }
+    });
+
+    // Version 6 schema definition (Dynamic Hour Categories)
+    this.version(6).stores({
+      dayEntries: 'date',
+      tasks: 'id, date, completed',
+      habits: 'id, archived',
+      habitLogs: 'id, date, habitId, status',
+      hourLogs: 'id, date, activity',
+      hourCategories: 'id, name',
+      goals: 'id, category',
+      goalMeasurements: 'id, goalId, date'
+    }).upgrade(async tx => {
+      const defaultCategories = [
+        { id: crypto.randomUUID(), name: 'WebDev', color: 'var(--accent-red)', createdAt: new Date().toISOString() },
+        { id: crypto.randomUUID(), name: 'Study', color: 'var(--accent-purple)', createdAt: new Date().toISOString() },
+        { id: crypto.randomUUID(), name: 'DSA', color: 'var(--accent-green)', createdAt: new Date().toISOString() },
+      ];
+      for (const cat of defaultCategories) {
+        await tx.table('hourCategories').add(cat);
       }
     });
   }
