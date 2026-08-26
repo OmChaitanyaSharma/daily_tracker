@@ -3,6 +3,8 @@ import { Moon, Sun } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 
+import { handleDirectionalNavigation } from '../utils/spatialNavigation';
+
 export function Layout() {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
@@ -30,6 +32,24 @@ export function Layout() {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) return;
       
       switch (e.key) {
+        case 'w':
+        case 'a':
+        case 's':
+        case 'd':
+        case 'W':
+        case 'A':
+        case 'S':
+        case 'D':
+          handleDirectionalNavigation(e);
+          break;
+        case 'Enter':
+          if (document.activeElement) {
+            const tag = document.activeElement.tagName;
+            if (!['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT'].includes(tag)) {
+              (document.activeElement as HTMLElement).click();
+            }
+          }
+          break;
         case 'Escape': 
         case 'Backspace':
           e.preventDefault();

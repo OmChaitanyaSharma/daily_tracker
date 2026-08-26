@@ -186,3 +186,10 @@
   animation: fire-flicker 1.5s infinite ease-in-out;
   transform-origin: bottom center;
 }
+/* Global spatial navigation focus outline */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 4px;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  transition: outline-color 0.2s, box-shadow 0.2s;
+}
