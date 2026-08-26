@@ -31,8 +31,8 @@ describe('useLevelSystem logic', () => {
       const stats = calculateStats(hourLogs, [], []);
       expect(stats.totalHours).toBe(3.5);
       // XP = floor(3.5 * 100) = 350
-      // sqrt(3.5) = 1.87 => level 2
-      expect(stats.dev.level).toBe(2);
+      // 3.5 ^ (1/1.75) = 2.04 => level 3
+      expect(stats.dev.level).toBe(3);
       expect(stats.dev.xp).toBe(350);
     });
 

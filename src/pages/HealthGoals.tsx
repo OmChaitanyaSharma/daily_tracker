@@ -15,6 +15,49 @@ export function HealthGoals() {
   const goals = useLiveQuery(() => db.goals.where('category').equals('health').toArray()) ?? EMPTY_ARRAY;
   const measurements = useLiveQuery(() => db.goalMeasurements.toArray()) ?? EMPTY_ARRAY;
 
+  const [draggedGoalId, setDraggedGoalId] = useState<string | null>(null);
+
+  const sortedGoals = useMemo(() => {
+    return [...goals].sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+      if (a.order !== undefined) return -1;
+      if (b.order !== undefined) return 1;
+      return a.startDate.localeCompare(b.startDate);
+    });
+  }, [goals]);
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedGoalId(id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedGoalId || draggedGoalId === targetId) return;
+
+    const oldIndex = sortedGoals.findIndex(g => g.id === draggedGoalId);
+    const newIndex = sortedGoals.findIndex(g => g.id === targetId);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newGoals = [...sortedGoals];
+    const [draggedGoal] = newGoals.splice(oldIndex, 1);
+    newGoals.splice(newIndex, 0, draggedGoal);
+
+    const updates = newGoals.map((goal, index) => ({
+      ...goal,
+      order: index
+    }));
+
+    await db.goals.bulkPut(updates);
+    setDraggedGoalId(null);
+  };
+
   const handleCreateGoal = async () => {
     const newGoal: Goal = {
       id: crypto.randomUUID(),
@@ -112,14 +155,22 @@ export function HealthGoals() {
                 <p className="text-text-muted italic font-serif">No health goals defined yet.</p>
               </div>
             ) : (
-              goals.map(goal => (
-                <GoalRow 
-                  key={goal.id} 
-                  goal={goal} 
-                  measurements={measurements.filter(m => m.goalId === goal.id)}
-                  onClick={() => setSelectedGoalId(goal.id)}
-                  onEdit={() => setEditingGoal(goal)}
-                />
+              sortedGoals.map(goal => (
+                <div 
+                  key={goal.id}
+                  className={draggedGoalId === goal.id ? "opacity-40" : ""}
+                >
+                  <GoalRow 
+                    goal={goal} 
+                    measurements={measurements.filter(m => m.goalId === goal.id)}
+                    onClick={() => setSelectedGoalId(goal.id)}
+                    onEdit={() => setEditingGoal(goal)}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, goal.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, goal.id)}
+                  />
+                </div>
               ))
             )}
           </div>

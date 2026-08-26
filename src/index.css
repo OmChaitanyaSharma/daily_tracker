@@ -3,9 +3,9 @@
 @layer base {
   :root {
     /* LIGHT WARM EDITORIAL THEME */
-    --bg-base: #fbf9f5;
-    --bg-surface: #ffffff;
-    --bg-surface-hover: #f3f0e8;
+    --bg-base: #f2efe9;
+    --bg-surface: #fcfbf8;
+    --bg-surface-hover: #e8e5dc;
     
     --text-main: #141915; /* Deep charcoal/forest black */
     --text-muted: #6b706c;
@@ -186,3 +186,12 @@
   animation: fire-flicker 1.5s infinite ease-in-out;
   transform-origin: bottom center;
 }
+/* Global spatial navigation focus outline */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 4px;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  transition: outline-color 0.2s, box-shadow 0.2s;
+}
+
+*:focus-visible[data-edit-mode='true'] { outline: 2px solid var(--accent-red) !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important; }

@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
-import { Save, ArrowLeft, CheckCircle2, Edit2 } from 'lucide-react';
+import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 
 const MOODS = [
-  { value: 'excellent', label: 'Excellent', emoji: '😄' },
-  { value: 'good', label: 'Good', emoji: '🙂' },
-  { value: 'okay', label: 'Okay', emoji: '😐' },
-  { value: 'not-great', label: 'Not great', emoji: '😕' },
-  { value: 'bad', label: 'Bad', emoji: '😞' },
+  { value: 'excellent', label: 'Excellent', Icon: Sparkles, color: 'text-accent-yellow' },
+  { value: 'good', label: 'Good', Icon: Smile, color: 'text-accent-green' },
+  { value: 'okay', label: 'Okay', Icon: Meh, color: 'text-text-muted' },
+  { value: 'not-great', label: 'Not great', Icon: Frown, color: 'text-accent-purple' },
+  { value: 'bad', label: 'Bad', Icon: CloudRain, color: 'text-accent-red' },
 ];
 
 export function Highlight() {
@@ -34,6 +34,7 @@ export function Highlight() {
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Navigating to a specific date loads its data
   useEffect(() => {
@@ -63,6 +64,12 @@ export function Highlight() {
   }, [originalDate]);
 
   const attemptSave = async () => {
+    if (!entry.mood || !entry.highlight || entry.highlight.trim() === '') {
+      setErrorMsg('Mood and Daily Highlight are required to save.');
+      setTimeout(() => setErrorMsg(''), 5000);
+      return;
+    }
+
     // 1. Check for future date
     const today = getTodayDateString();
     if (entry.date && entry.date > today) {
@@ -187,14 +194,19 @@ export function Highlight() {
         </div>
         
         {!isCompletedView && (
-          <button 
-            onClick={attemptSave}
-            disabled={isSaving}
-            className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 rounded-full font-medium text-sm hover:opacity-90 transition-all active:scale-95 shrink-0"
-          >
-            <Save size={16} />
-            {isSaving ? 'Saving...' : 'Save Entry'}
-          </button>
+          <div className="flex items-center gap-4">
+            {errorMsg && (
+              <span className="text-accent-red text-sm font-medium animate-fade-in">{errorMsg}</span>
+            )}
+            <button 
+              onClick={attemptSave}
+              disabled={isSaving}
+              className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 rounded-full font-medium text-sm hover:opacity-90 transition-all active:scale-95 shrink-0"
+            >
+              <Save size={16} />
+              {isSaving ? 'Saving...' : 'Save Entry'}
+            </button>
+          </div>
         )}
       </header>
 
@@ -235,7 +247,7 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">How was your day?</h3>
               <p className="text-xl text-text-main flex items-center gap-2">
-                <span className="text-2xl">{moodObj.emoji}</span> {moodObj.label}
+                <span className={moodObj.color}><moodObj.Icon size={24} /></span> {moodObj.label}
               </p>
             </div>
           )}
@@ -283,48 +295,58 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
 
 function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry: (e: Partial<DayEntry>) => void }) {
   return (
-    <div className="space-y-20 animate-fade-in max-w-3xl mx-auto pt-4">
+    <div className="space-y-12 animate-fade-in max-w-3xl mx-auto pt-6">
+      
       {/* Mood Selector */}
-      <section className="space-y-6 text-center">
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted">How was your day?</h2>
-        <div className="flex flex-wrap justify-center gap-4">
+      <section className="bg-bg-surface border border-border-strong rounded-3xl p-8 shadow-sm">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-6 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
+          Mood <span className="text-accent-red ml-1">*</span>
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {MOODS.map(m => (
             <button
               key={m.value}
               onClick={() => setEntry({ ...entry, mood: m.value as any })}
               className={clsx(
-                "flex items-center gap-3 px-6 py-4 rounded-full border transition-all duration-500 ease-out",
+                "flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300",
                 entry.mood === m.value 
                   ? "border-accent-blue bg-accent-blue-bg text-text-main shadow-md scale-105" 
-                  : "border-border-strong bg-bg-surface text-text-muted hover:border-text-muted hover:bg-bg-surface-hover hover:scale-[1.02]"
+                  : "border-border-subtle bg-transparent text-text-muted hover:border-border-strong hover:bg-bg-surface-hover hover:scale-[1.02]"
               )}
             >
-              <span className="text-2xl">{m.emoji}</span>
-              <span className="font-medium">{m.label}</span>
+              <m.Icon size={32} className={clsx("transition-colors", entry.mood === m.value ? m.color : "text-text-muted")} />
+              <span className="text-xs font-medium">{m.label}</span>
             </button>
           ))}
         </div>
       </section>
 
       {/* Highlight of the day */}
-      <section className="space-y-6">
-        <div className="text-center">
-          <h2 className="text-3xl font-serif text-text-main">Highlight</h2>
-          <p className="text-text-muted text-sm mt-2 font-medium">What made today worth remembering?</p>
+      <section className="bg-bg-surface border border-border-strong rounded-3xl overflow-hidden shadow-sm flex flex-col">
+        <div className="p-8 pb-4 border-b border-border-subtle bg-bg-surface-hover/50">
+           <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted flex items-center gap-2">
+             <span className="w-2 h-2 rounded-full bg-accent-yellow"></span>
+             Daily Highlight <span className="text-accent-red ml-1">*</span>
+           </h2>
+           <p className="text-sm font-medium text-text-main mt-2">What made today worth remembering?</p>
         </div>
         <textarea
           value={entry.highlight || ''}
           onChange={e => setEntry({ ...entry, highlight: e.target.value })}
-          placeholder="Write freely..."
-          className="w-full min-h-[240px] p-8 bg-bg-surface border border-border-subtle rounded-3xl resize-none focus:outline-none focus:border-accent-blue focus:ring-4 focus:ring-accent-blue-bg transition-all text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40 shadow-sm"
+          placeholder="Start writing freely..."
+          className="w-full min-h-[220px] p-8 bg-transparent border-none resize-none focus:outline-none text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40"
         />
       </section>
 
       {/* Lightweight Reflections */}
-      <section className="space-y-10 pt-12">
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted text-center border-b border-border-subtle pb-6">Daily Reflection</h2>
+      <section>
+        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-6 flex items-center gap-2 px-2">
+           <span className="w-2 h-2 rounded-full bg-accent-purple"></span>
+           Daily Reflection
+        </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ReflectionField 
             label="What went well?" 
             value={entry.wentWell} 
@@ -347,7 +369,7 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
           />
         </div>
 
-        <div className="pt-6">
+        <div className="mt-4">
            <ReflectionField 
             label="What do I want to do tomorrow?" 
             value={entry.tomorrowPriorities} 
@@ -362,13 +384,14 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
 
 function ReflectionField({ label, value, onChange }: { label: string, value: string | undefined, onChange: (val: string) => void }) {
   return (
-    <div className="space-y-3 group">
-      <label className="block font-serif text-lg text-text-main">{label}</label>
+    <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg group shadow-sm hover:border-text-muted">
+      <label className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-3 group-focus-within:text-accent-blue transition-colors">{label}</label>
       <textarea
         value={value || ''}
         onChange={e => onChange(e.target.value)}
-        rows={2}
-        className="w-full bg-transparent border-b border-border-strong focus:border-accent-blue py-2 resize-none focus:outline-none transition-colors text-text-main text-base"
+        rows={3}
+        placeholder="Tap to write..."
+        className="w-full bg-transparent border-none resize-none focus:outline-none text-text-main text-base placeholder:text-text-muted/30"
       />
     </div>
   );

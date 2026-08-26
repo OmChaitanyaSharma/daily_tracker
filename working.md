@@ -19,36 +19,35 @@ The application converts daily productivity and exercise tracking into a quantif
   - **Time-based Exercises (Cardio):**
     - `1 Minute = 10 XP`
 
-### Level Formula
-A standard RPG polynomial curve is used to ensure early levels are achieved quickly to build momentum, while higher levels require significantly more effort (a "grind").
+### Level Formula & Titles
+The application uses differing polynomial curves to ensure appropriate scaling for both mental and physical effort.
 
-`Level = floor(sqrt(TotalXP / 100)) + 1`
+**Developer Level Curve (`^1.75` exponent)**
+`Level = floor( (TotalXP / 100) ^ (1 / 1.75) ) + 1`
+Because hours take longer to accumulate than reps, the developer scaling was softened to `^1.75` to provide a steadier sense of progression.
 
-**Examples (Developer XP):**
-- 0 hours = 0 XP = Level 1
-- 1 hour = 100 XP = Level 2
-- 4 hours = 400 XP = Level 3
-- 9 hours = 900 XP = Level 4
-- 25 hours = 2,500 XP = Level 6
-- 100 hours = 10,000 XP = Level 11
+**Fitness Level Curve (`^2.0` exponent)**
+`Level = floor( sqrt(TotalXP / 100) ) + 1`
+Requires exponentially more effort to level up to reflect physiological adaptation.
 
-Progress towards the next level is calculated as a percentage between the base XP of the current level and the base XP of the next level.
+**RPG Titles**
+Based on the computed level (1 to 100+), users earn dynamic titles ranging from *Logic Initiate* and *Iron Novice* at lower ranks, up to *Digital God* and *God of Iron* at Level 100+.
 
-## 2. Streak Calculations
+## 2. Streak Calculations & Freezes
 
-### Productivity Streak (Habits)
-The productivity streak is binary.
-- A day is considered "active" if at least one habit was marked as either `partial` or `completed`.
-- The streak function starts from "today" and walks backward day by day.
-- If it encounters a day with 0 habits checked, the streak breaks.
-- If today has no habits checked yet, it does *not* break the streak, but checking yesterday will.
+### Streak Rules
+- **Productivity Streak (Habits & Hours):** 
+  - To maintain the streak, a user must achieve at least a **75% completion score** across all active habits (1.0 for completed, 0.5 for partial).
+  - AND log **greater than 3.0 total hours** for the day.
+- **Exercise Streak:** 
+  - The strict tracking start date is enforced as August 27, 2026.
+  - A user must log **at least 1 rep (or minute) for EVERY un-archived exercise** that existed in their list on that day.
+  - Archiving an exercise removes it from the requirement without breaking historical streaks.
 
-### Exercise Streak (Strict Logic)
-The exercise streak utilizes strict validation logic to ensure discipline.
-- The strict tracking start date is enforced as **August 27, 2026**. Days prior to this date are ignored.
-- For a day to be considered "successful", the user must have logged **at least 1 rep for EVERY un-archived exercise** that existed in their list on that day.
-- If the user had 3 exercises active on Tuesday, and they only logged reps for 2 of them, the streak breaks. 
-- Exception: Archiving an exercise removes it from the daily requirement without breaking historical streaks.
+### Streak Freezes
+To reward consistency while forgiving life's unpredictability, the app features a highly requested **Freeze Token** system.
+- **Earning Freezes:** For every **7 consecutive days** of a perfect streak, the user earns 1 Freeze Token (capped at a maximum of 2).
+- **Consumption:** The streak algorithm crawls chronologically from the user's first log. If a required condition fails on a past day, but the user owns a Freeze Token, the streak does *not* reset to 0. Instead, 1 token is consumed, the streak remains at its previous number (it does not increment on a frozen day), and the timeline continues.
 
 ## 3. Personal Records (PRs) & Hall of Fame
 
@@ -87,3 +86,10 @@ Because everything is local:
 - Read/write operations take ~1-5ms.
 - PRs and Level progression calculations are done iteratively in memory on mount.
 - Data privacy is absolute; the JSON export feature is the only bridge to external storage.
+
+## 7. Keyboard Navigation & Vim-Style Edit Mode
+The application implements custom spatial navigation allowing full usage without a mouse.
+- **Directional Navigation:** W, A, S, D move focus between tiles based on bounding box geometry.
+- **Edit Mode:** To prevent accidental typing while navigating, standard W/A/S/D inputs do not type into focused fields. Pressing Enter on an input enters **Edit Mode** (highlighted by a red focus ring).
+- **Custom Edit Commands:** In Edit Mode, pressing W or S on number inputs increments/decrements the value by its step attribute. On select dropdowns, it cycles through the available options.
+- **Escape / Backspace:** Esc instantly returns to the home view, clearing all modals. Backspace performs a localized back action (closing the uppermost modal or navigating history.back()).
