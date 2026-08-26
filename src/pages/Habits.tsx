@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Habit } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO } from 'date-fns';
 import { getTodayStr } from '../utils/dateUtils';
-import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import clsx from 'clsx';
@@ -21,6 +21,7 @@ export function Habits() {
   const [editStartDate, setEditStartDate] = useState('');
   
   const [archivingHabit, setArchivingHabit] = useState<Habit | null>(null);
+  const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
 
   // Hours input state
   const [hoursDate, setHoursDate] = useState(getTodayStr());
@@ -86,6 +87,14 @@ export function Habits() {
     if (!archivingHabit) return;
     await db.habits.update(archivingHabit.id, { archived: true });
     setArchivingHabit(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingHabit) return;
+    await db.habits.delete(deletingHabit.id);
+    const logsToDelete = await db.habitLogs.where('habitId').equals(deletingHabit.id).toArray();
+    await Promise.all(logsToDelete.map(l => db.habitLogs.delete(l.id)));
+    setDeletingHabit(null);
   };
 
   const toggleHabit = async (habitId: string, date: string, currentStatus: string | undefined, logId?: string) => {
@@ -208,6 +217,26 @@ export function Habits() {
         </div>
       )}
 
+      {/* Delete Habit Modal */}
+      {deletingHabit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
+            <h3 className="text-xl font-semibold text-text-main mb-2">Delete {deletingHabit.name}?</h3>
+            <p className="text-sm text-text-muted mb-8 leading-relaxed">
+              This will permanently remove the habit and all its history. This action cannot be undone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button onClick={() => setDeletingHabit(null)} className="px-6 py-2 rounded-full border border-border-strong text-text-main hover:bg-bg-surface-hover font-medium text-sm">
+                Cancel
+              </button>
+              <button onClick={confirmDelete} className="px-6 py-2 rounded-full bg-accent-red text-bg-base font-medium text-sm hover:opacity-90">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="flex items-center justify-between border-b border-border-subtle pb-6 mb-12">
         <div className="flex items-center gap-6">
           <Link to="/" className="text-text-muted hover:text-text-main transition-colors">
@@ -270,13 +299,13 @@ export function Habits() {
                 <div className="h-40 w-full flex flex-col items-center justify-end pb-4 border-b border-border-strong relative sticky top-0 bg-bg-surface z-20 group/header">
                   
                   {/* Management Menu Trigger */}
-                  <div className="absolute top-2 left-0 right-0 flex justify-center">
+                  <div className="absolute top-0 left-0 right-0 flex justify-center z-30 bg-bg-surface pt-2 pb-1">
                     <div className="relative">
                       <button 
                         onClick={() => setActiveMenuHabitId(activeMenuHabitId === habit.id ? null : habit.id)}
                         className={clsx(
-                          "p-1 rounded text-text-muted hover:text-text-main hover:bg-bg-surface transition-all",
-                          activeMenuHabitId === habit.id ? "opacity-100 bg-bg-surface" : "opacity-0 group-hover/header:opacity-100"
+                          "p-1 rounded text-text-muted hover:text-text-main hover:bg-bg-surface-hover transition-all",
+                          activeMenuHabitId === habit.id ? "opacity-100 bg-bg-surface-hover" : "opacity-0 group-hover/header:opacity-100"
                         )}
                       >
                         <MoreHorizontal size={14} />
@@ -307,6 +336,15 @@ export function Habits() {
                             >
                               <Archive size={14} /> Archive
                             </button>
+                            <button 
+                              onClick={() => {
+                                setDeletingHabit(habit);
+                                setActiveMenuHabitId(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-3 py-2 text-left text-accent-red hover:bg-accent-red-bg transition-colors border-t border-border-strong"
+                            >
+                              <Trash2 size={14} /> Delete
+                            </button>
                           </div>
                         </>
                       )}
@@ -314,7 +352,7 @@ export function Habits() {
                   </div>
 
                   <span 
-                    className="rotate-180 text-sm font-serif italic text-text-main whitespace-nowrap opacity-90"
+                    className="rotate-180 text-sm font-serif italic text-text-main whitespace-nowrap opacity-90 max-h-24 overflow-hidden"
                     style={{ writingMode: 'vertical-rl' }}
                   >
                     {habit.name}
@@ -341,9 +379,7 @@ export function Habits() {
                     </button>
                   );
                 })}
-                {/* Total Score Block */}
                 {(() => {
-                  const todayStr = getTodayStr();
                   const startDateStr = habit.startDate || '2000-01-01';
                   
                   let score = 0;
@@ -351,7 +387,7 @@ export function Habits() {
                   
                   daysInMonth.forEach(date => {
                     const dateStr = format(date, 'yyyy-MM-dd');
-                    if (dateStr >= startDateStr && dateStr <= todayStr) {
+                    if (dateStr >= startDateStr) {
                       eligibleDays++;
                       const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                       if (log?.status === 'completed') score += 1;
