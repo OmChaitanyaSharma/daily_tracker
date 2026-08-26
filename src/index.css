@@ -3,9 +3,9 @@
 @layer base {
   :root {
     /* LIGHT WARM EDITORIAL THEME */
-    --bg-base: #fbf9f5;
-    --bg-surface: #ffffff;
-    --bg-surface-hover: #f3f0e8;
+    --bg-base: #f2efe9;
+    --bg-surface: #fcfbf8;
+    --bg-surface-hover: #e8e5dc;
     
     --text-main: #141915; /* Deep charcoal/forest black */
     --text-muted: #6b706c;
