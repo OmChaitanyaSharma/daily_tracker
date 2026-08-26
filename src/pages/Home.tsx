@@ -1,6 +1,8 @@
+import { useRef, useEffect } from 'react';
+import { LevelUpCelebration } from '../components/LevelUpCelebration';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Dumbbell, X, Check } from 'lucide-react';
+import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
 import { useLevelSystem } from '../hooks/useLevelSystem';
@@ -10,11 +12,29 @@ import { db } from '../db';
 import { getTodayStr } from '../utils/dateUtils';
 
 export function Home() {
-  const streak = useStreak();
+  const { streak, freezesOwned, freezeUsedToday } = useStreak();
   const { dev, fitness, totalHours, totalReps } = useLevelSystem();
   
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
+  const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit', level: number, title: string} | null>(null);
+
+  const prevDevLevel = useRef(dev.level);
+  const prevFitLevel = useRef(fitness.level);
+
+  useEffect(() => {
+    if (dev.level > prevDevLevel.current) {
+      setLevelUpData({ type: 'dev', level: dev.level, title: dev.title });
+    }
+    prevDevLevel.current = dev.level;
+  }, [dev.level, dev.title]);
+
+  useEffect(() => {
+    if (fitness.level > prevFitLevel.current) {
+      setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title });
+    }
+    prevFitLevel.current = fitness.level;
+  }, [fitness.level, fitness.title]);
 
   const todayStr = getTodayStr();
   
@@ -40,8 +60,8 @@ export function Home() {
     return reps === 0;
   });
   
-  const devTitle = dev.level < 11 ? 'Novice Scripter' : dev.level < 21 ? 'Junior Developer' : dev.level < 31 ? 'Mid-Level Engineer' : dev.level < 41 ? 'Senior Architect' : dev.level < 51 ? 'Principal Wizard' : 'Grandmaster';
-  const fitTitle = fitness.level < 11 ? 'Beginner Trainee' : fitness.level < 21 ? 'Active Challenger' : fitness.level < 31 ? 'Fit Warrior' : fitness.level < 41 ? 'Elite Athlete' : fitness.level < 51 ? 'Iron Spartan' : 'Olympian';
+  const devTitle = dev.title;
+  const fitTitle = fitness.title;
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 animate-fade-in max-w-4xl mx-auto pt-4 relative">
@@ -58,19 +78,35 @@ export function Home() {
           <button 
             onClick={() => setShowStreakModal(true)}
             className={clsx(
-              "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-500 cursor-pointer hover:border-accent-yellow",
-              streak > 0 
-                ? "border-accent-yellow bg-accent-yellow-bg text-accent-yellow"
-                : "border-border-strong bg-bg-surface text-text-muted opacity-60 hover:text-text-main"
+              "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-500 cursor-pointer hover:border-accent-yellow relative",
+              freezeUsedToday 
+                ? "border-accent-blue bg-accent-blue/10 text-accent-blue"
+                : streak > 0 
+                  ? "border-accent-yellow bg-accent-yellow-bg text-accent-yellow"
+                  : "border-border-strong bg-bg-surface text-text-muted opacity-60 hover:text-text-main"
             )}>
-            <Flame 
-              size={20} 
-              className={clsx(
-                "transition-all duration-500",
-                streak > 0 ? "fill-accent-yellow text-accent-yellow animate-fire" : "text-text-muted"
-              )} 
-            />
-            <span>{streak} Day Streak</span>
+            {freezeUsedToday ? (
+              <Snowflake size={20} className="text-accent-blue animate-pulse" />
+            ) : (
+              <Flame 
+                size={20} 
+                className={clsx(
+                  "transition-all duration-500",
+                  streak > 0 ? "fill-accent-yellow text-accent-yellow animate-fire" : "text-text-muted"
+                )} 
+              />
+            )}
+            
+            <span>{streak} Day {freezeUsedToday ? 'Frozen' : 'Streak'}</span>
+
+            {/* Freeze Tokens Indicators */}
+            {freezesOwned > 0 && !freezeUsedToday && (
+              <div className="flex gap-0.5 ml-1 opacity-80">
+                {Array.from({ length: freezesOwned }).map((_, i) => (
+                  <Snowflake key={i} size={12} className="text-accent-blue fill-accent-blue/20" />
+                ))}
+              </div>
+            )}
           </button>
 
           <div className="flex gap-4">
@@ -305,9 +341,41 @@ export function Home() {
                   All requirements met! Your streak is secured for today.
                 </p>
               )}
+              
+              {/* Streak Freezes Section */}
+              <div className="bg-bg-base border border-border-subtle rounded-xl p-4 mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-accent-blue flex items-center gap-2">
+                    <Snowflake size={14} /> 
+                    Streak Freezes
+                  </h3>
+                  <div className="flex gap-1">
+                    {[1, 2].map((slot) => (
+                      <div key={slot} className={clsx("w-3 h-3 rounded-full border", slot <= freezesOwned ? "bg-accent-blue border-accent-blue shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "border-border-strong bg-transparent")}></div>
+                    ))}
+                  </div>
+                </div>
+                <p className="text-[11px] text-text-muted leading-relaxed">
+                  Earn 1 freeze for every 7 days of perfect streak (Max 2). Freezes automatically protect your streak from resetting if you miss a day.
+                </p>
+                {freezeUsedToday && (
+                  <p className="text-xs text-accent-blue font-medium mt-3 bg-accent-blue/10 py-1.5 px-3 rounded-md text-center">
+                    A freeze was used today to protect your streak!
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
+      )}
+
+      {levelUpData && (
+        <LevelUpCelebration
+          type={levelUpData.type}
+          level={levelUpData.level}
+          title={levelUpData.title}
+          onClose={() => setLevelUpData(null)}
+        />
       )}
     </div>
   );

@@ -31,6 +31,7 @@ export function Layout() {
       
       switch (e.key) {
         case 'Escape': 
+        case 'Backspace':
           e.preventDefault();
           navigate('/'); 
           break;

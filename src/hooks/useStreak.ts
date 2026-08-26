@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { useMemo } from 'react';
-import { format } from 'date-fns';
+import { format, parseISO, isAfter, addDays } from 'date-fns';
 import { getTodayStr } from '../utils/dateUtils';
 
 export function calculateStreak(
@@ -10,8 +10,11 @@ export function calculateStreak(
   allHourLogsForStreak: any[],
   allExercises: any[],
   allExerciseLogs: any[]
-): number {
+) {
   let streak = 0;
+  let freezesOwned = 0;
+  let freezeUsedToday = false;
+
   const logsByDate = new Map<string, any[]>();
   allHabitLogsForStreak.forEach(log => {
     if (!logsByDate.has(log.date)) logsByDate.set(log.date, []);
@@ -30,9 +33,27 @@ export function calculateStreak(
     exercisesByDate.get(log.date)!.push(log);
   });
 
-  let checkingDate = new Date();
-  while (true) {
-    const dateStr = format(checkingDate, 'yyyy-MM-dd');
+  const todayStr = getTodayStr();
+  let firstDateStr = todayStr;
+  
+  const allDates = [
+    ...allHabitLogsForStreak.map(l => l.date),
+    ...allHourLogsForStreak.map(l => l.date),
+    ...allExerciseLogs.map(l => l.date),
+    ...allHabits.filter(h => h.startDate).map(h => h.startDate)
+  ];
+  
+  if (allDates.length > 0) {
+    firstDateStr = allDates.reduce((min, d) => d < min ? d : min, firstDateStr);
+  }
+
+  let current = parseISO(firstDateStr);
+  const end = parseISO(todayStr);
+
+  while (!isAfter(current, end)) {
+    const dateStr = format(current, 'yyyy-MM-dd');
+    const isToday = dateStr === todayStr;
+    freezeUsedToday = false;
     
     const activeHabitsOnDate = allHabits.filter(h => (!h.startDate || h.startDate <= dateStr) && !h.archived);
     const numActive = activeHabitsOnDate.length;
@@ -65,17 +86,24 @@ export function calculateStreak(
 
     if (habitConditionMet && exerciseConditionMet && hoursConditionMet) {
       streak++;
+      if (streak > 0 && streak % 7 === 0) {
+        freezesOwned = Math.min(2, freezesOwned + 1);
+      }
     } else {
-      if (dateStr !== getTodayStr()) break;
+      if (!isToday) {
+        if (freezesOwned > 0) {
+          freezesOwned--;
+          freezeUsedToday = true;
+        } else {
+          streak = 0;
+        }
+      }
     }
 
-    checkingDate.setDate(checkingDate.getDate() - 1);
-    if (streak > 3650) break; // safety fallback
-    // Stop checking if date is before the app started (simplification)
-    if (numActive === 0 && activeExercisesOnDate.length === 0 && dateStr < getTodayStr()) break;
+    current = addDays(current, 1);
   }
   
-  return streak;
+  return { streak, freezesOwned, freezeUsedToday };
 }
 
 const EMPTY_ARRAY: any[] = [];
@@ -87,7 +115,7 @@ export function useStreak() {
   const allExercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
   const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
 
-  const currentStreak = useMemo(() => {
+  const streakData = useMemo(() => {
     return calculateStreak(
       allHabits,
       allHabitLogsForStreak,
@@ -97,5 +125,5 @@ export function useStreak() {
     );
   }, [allHabits, allHabitLogsForStreak, allHourLogsForStreak, allExercises, allExerciseLogs]);
 
-  return currentStreak;
+  return streakData;
 }
