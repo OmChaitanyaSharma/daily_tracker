@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { type Goal, db } from '../db';
-import { X } from 'lucide-react';
+import { X, Trash2 } from 'lucide-react';
 
 interface Props {
   goal: Goal;
@@ -30,13 +30,24 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
     onClose();
   };
 
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this goal and all its measurements? This action cannot be undone.')) {
+      await db.goals.delete(goal.id);
+      const measurements = await db.goalMeasurements.where('goalId').equals(goal.id).toArray();
+      await db.goalMeasurements.bulkDelete(measurements.map(m => m.id));
+      onClose();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in px-4 py-8 overflow-y-auto">
       <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-md w-full relative">
         <button onClick={onClose} className="absolute top-4 right-4 text-text-muted hover:text-text-main">
           <X size={20} />
         </button>
-        <h3 className="text-xl font-serif italic text-text-main mb-6">Edit Goal Settings</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-serif italic text-text-main">Edit Goal Settings</h3>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Title</label>
@@ -111,7 +122,16 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
             <p className="text-xs text-text-muted mt-1">Fallback baseline if no actual measurement is recorded on the starting date.</p>
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-between items-center pt-6 border-t border-border-strong mt-6">
+            <button 
+              type="button" 
+              onClick={handleDelete}
+              className="flex items-center gap-2 text-accent-red hover:bg-accent-red-bg px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+            >
+              <Trash2 size={16} />
+              Delete Goal
+            </button>
+            
             <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90 transition-opacity">
               Save Changes
             </button>
