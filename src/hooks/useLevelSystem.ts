@@ -15,14 +15,67 @@ const XP_MAP: Record<ExerciseDifficulty, number> = {
 };
 const CARDIO_XP_PER_MIN = 10;
 
-export function calculateLevel(xp: number) {
+function getDevTitle(level: number): string {
+  if (level <= 10) return "Logic Initiate";
+  if (level <= 20) return "Code Apprentice";
+  if (level <= 30) return "Algorithm Adept";
+  if (level <= 40) return "Systems Craftsman";
+  if (level <= 50) return "Lead Architect";
+  if (level <= 60) return "Kernel Hacker";
+  if (level <= 70) return "Machine Whisperer";
+  if (level <= 80) return "Silicon Oracle";
+  if (level <= 90) return "Turing Grandmaster";
+  if (level <= 99) return "Cybernetic Titan";
+  return "Digital God";
+}
+
+function getFitTitle(level: number): string {
+  if (level <= 10) return "Iron Novice";
+  if (level <= 20) return "Bronze Athlete";
+  if (level <= 30) return "Steel Warrior";
+  if (level <= 40) return "Titanium Spartan";
+  if (level <= 50) return "Elite Gladiator";
+  if (level <= 60) return "Apex Predator";
+  if (level <= 70) return "Iron Juggernaut";
+  if (level <= 80) return "Unstoppable Colossus";
+  if (level <= 90) return "Herculean Champion";
+  if (level <= 99) return "Olympian Titan";
+  return "God of Iron";
+}
+
+export function calculateDevLevel(xp: number) {
+  const level = Math.floor(Math.pow(xp / 100, 1 / 1.75)) + 1;
+  const currentLevelBaseXp = 100 * Math.pow(level - 1, 1.75);
+  const nextLevelBaseXp = 100 * Math.pow(level, 1.75);
+  const progress = (xp - currentLevelBaseXp) / (nextLevelBaseXp - currentLevelBaseXp);
+  
+  return { 
+    level, 
+    xp, 
+    currentLevelBaseXp, 
+    nextLevelBaseXp, 
+    progress: progress * 100,
+    title: getDevTitle(level)
+  };
+}
+
+export function calculateFitLevel(xp: number) {
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;
   const currentLevelBaseXp = 100 * Math.pow(level - 1, 2);
   const nextLevelBaseXp = 100 * Math.pow(level, 2);
   const progress = (xp - currentLevelBaseXp) / (nextLevelBaseXp - currentLevelBaseXp);
   
-  return { level, xp, currentLevelBaseXp, nextLevelBaseXp, progress: progress * 100 };
+  return { 
+    level, 
+    xp, 
+    currentLevelBaseXp, 
+    nextLevelBaseXp, 
+    progress: progress * 100,
+    title: getFitTitle(level)
+  };
 }
+
+export const calculateLevel = calculateFitLevel; // For tests that use the old name
 
 export function calculateStats(allHourLogs: any[], allExerciseLogs: any[], allExercises: any[]) {
   const totalHours = allHourLogs.reduce((sum, log) => sum + log.hours, 0);
@@ -47,8 +100,8 @@ export function calculateStats(allHourLogs: any[], allExerciseLogs: any[], allEx
   });
 
   return {
-    dev: calculateLevel(devXp),
-    fitness: calculateLevel(fitnessXp),
+    dev: calculateDevLevel(devXp),
+    fitness: calculateFitLevel(fitnessXp),
     totalHours,
     totalReps
   };

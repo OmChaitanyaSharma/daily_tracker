@@ -40,8 +40,8 @@ export function Home() {
     return reps === 0;
   });
   
-  const devTitle = dev.level < 11 ? 'Novice Scripter' : dev.level < 21 ? 'Junior Developer' : dev.level < 31 ? 'Mid-Level Engineer' : dev.level < 41 ? 'Senior Architect' : dev.level < 51 ? 'Principal Wizard' : 'Grandmaster';
-  const fitTitle = fitness.level < 11 ? 'Beginner Trainee' : fitness.level < 21 ? 'Active Challenger' : fitness.level < 31 ? 'Fit Warrior' : fitness.level < 41 ? 'Elite Athlete' : fitness.level < 51 ? 'Iron Spartan' : 'Olympian';
+  const devTitle = dev.title;
+  const fitTitle = fitness.title;
 
   return (
     <div className="flex flex-col gap-16 md:gap-24 animate-fade-in max-w-4xl mx-auto pt-4 relative">
