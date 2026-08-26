@@ -9,21 +9,22 @@ A digital diary and personal progress tracker designed to log daily highlights, 
 - **Weekly Digest:** Automatically aggregates daily highlights and reflections into a week-by-week masonry layout for easy review.
 
 ### Habit & Exercise Tracking
-- **Productivity Habits:** A monthly habit grid with bottom-to-top layout. Cycle between Not Done, Partially Done, and Fully Done states.
+- **Productivity Habits:** A monthly drag-and-drop habit grid with a bottom-to-top layout. Cycle between Not Done, Partially Done, and Fully Done states.
 - **Exercise Tracking:** A rep-counting system allowing incremental addition (+1, +5, +10) to active exercises.
 - **Difficulty & Cardio Tracking:** Set custom difficulties (Very Easy to Very Hard) that dynamically scale your XP rewards. Switch an exercise from 'Reps' to 'Cardio' to track and earn points by the minute.
 - **Personal Records (PR):** Real-time PR detection that triggers a badge and audio feedback when a daily maximum is surpassed.
-- **Strict Streaks:** Enforces discipline by requiring at least 1 rep (or minute) for every active exercise on a given day to maintain the streak.
+- **Strict Streaks & Freezes:** Enforces discipline by requiring at least a 75% habit completion score and 3+ hours logged for productivity, and at least 1 rep/minute for every active exercise. Earn up to 2 "Freeze Tokens" for every 7 days of perfection to automatically protect your streak if life gets in the way.
 
 ### Gamification & Analytics
-- **RPG Leveling System:** Converts logged hours (1 hour = 100 XP) and exercise output (dynamic XP per rep/minute based on difficulty) into discrete Developer and Fitness levels with progress bars.
+- **RPG Leveling System & Titles:** Converts logged hours and exercise output into discrete Developer and Fitness levels with highly-tuned polynomial curves (Dev `^1.75`, Fit `^2.0`). Unlock dynamic RPG titles like *Code Apprentice*, *Iron Juggernaut*, and *Digital God* as you climb the ranks.
+- **Level-Up Celebrations:** Hitting a new level milestone triggers a massive, classy on-screen celebration with bouncing rank icons and gold/blue confetti.
 - **Activity Heatmap:** A 365-day GitHub-style matrix showing overall activity intensity based on combined habit and exercise volume.
 - **Web Audio Feedback:** Native synthesized audio (via Web Audio API) providing satisfying "pop" clicks and "ding" success sounds on interactions.
 
 ### Long-Term Goals
 - **15-Day Check-ins:** Generates a strict 15-day measurement schedule ending on December 31st.
 - **Chronological Progress System:** Goals track Starting, Current, and Next Log milestones.
-- **End of Year & Health Goals:** Track qualitative goals, numerical goals, percentages, and body metrics.
+- **End of Year & Health Goals:** Track qualitative goals, numerical goals, percentages, and body metrics. Easily drag and drop to rearrange goal priority, and seamlessly toggle goals between categories in the settings panel.
 
 ### UI & Architecture
 - **Warm Editorial Theme:** A minimal light theme featuring beige, ink colors, and distinct accents (Red, Blue, Purple) for maximum clarity and readability.
@@ -31,8 +32,8 @@ A digital diary and personal progress tracker designed to log daily highlights, 
 - **Export & Backup:** Export all historical data (day entries, habit logs, exercise logs, goal measurements) to JSON for backup and portability.
 - **Keyboard Navigation (Gaming Bindings):** Navigate the app entirely using the keyboard! 
   - `W`, `A`, `S`, `D` to spatially navigate between tiles and inputs.
-  - `Enter` to select or enter a tile.
-  - `Backspace` to go back one step (close a modal or go back a page).
+  - **Vim-Style Edit Mode:** Press `Enter` on any input or dropdown to enter Edit Mode (indicated by a red glow). While in edit mode, `W`/`S` dynamically increment numbers or cycle dropdowns. Press `Enter` again to exit back to spatial navigation.
+  - `Backspace` to cleanly go back one step (close a modal or go back a page).
   - `Esc` to instantly reset and return to the home page.
   - `1-4` numeric keys to jump between core sections.
 
