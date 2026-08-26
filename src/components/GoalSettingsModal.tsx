@@ -10,6 +10,7 @@ interface Props {
 export function GoalSettingsModal({ goal, onClose }: Props) {
   const [formData, setFormData] = useState<Partial<Goal>>({
     title: goal.title,
+    category: goal.category,
     type: goal.type,
     unit: goal.unit || '',
     targetValue: goal.targetValue || '',
@@ -21,6 +22,7 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
     e.preventDefault();
     await db.goals.update(goal.id, {
       title: formData.title,
+      category: formData.category,
       type: formData.type,
       unit: formData.unit,
       targetValue: formData.targetValue,
@@ -58,6 +60,26 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
               className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
               required
             />
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Category</label>
+            <div className="grid grid-cols-2 gap-2 bg-bg-base p-1 rounded-lg border border-border-strong">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, category: 'end-of-year' })}
+                className={`py-1.5 text-sm font-medium rounded-md transition-colors ${formData.category === 'end-of-year' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
+              >
+                End of Year
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, category: 'health' })}
+                className={`py-1.5 text-sm font-medium rounded-md transition-colors ${formData.category === 'health' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
+              >
+                Health & Fitness
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
