@@ -11,7 +11,7 @@ describe('calculateStreak', () => {
   it('should return 0 when there are no logs', () => {
     const habits = [{ id: 'h1', startDate: twoDaysAgo, archived: false }];
     const exercises = [{ id: 'e1', archived: false }];
-    expect(calculateStreak(habits, [], [], exercises, [])).toBe(0);
+    expect(calculateStreak(habits, [], [], exercises, []).streak).toBe(0);
   });
 
   it('should return 1 when all conditions are met today', () => {
@@ -21,7 +21,7 @@ describe('calculateStreak', () => {
     const exercises = [{ id: 'e1', archived: false }];
     const exerciseLogs = [{ exerciseId: 'e1', date: today, reps: 10 }];
 
-    expect(calculateStreak(habits, habitLogs, hourLogs, exercises, exerciseLogs)).toBe(1);
+    expect(calculateStreak(habits, habitLogs, hourLogs, exercises, exerciseLogs).streak).toBe(1);
   });
 
   it('should handle partial habits correctly (75% threshold)', () => {
@@ -34,7 +34,7 @@ describe('calculateStreak', () => {
       { habitId: 'h2', date: today, status: 'partial' }
     ];
     const hourLogs = [{ id: 'hl1', date: today, hours: 3.0 }];
-    expect(calculateStreak(habits, habitLogs, hourLogs, [], [])).toBe(1);
+    expect(calculateStreak(habits, habitLogs, hourLogs, [], []).streak).toBe(1);
   });
 
   it('should fail if habit score < 75%', () => {
@@ -46,14 +46,14 @@ describe('calculateStreak', () => {
       { habitId: 'h1', date: today, status: 'partial' }
     ];
     const hourLogs = [{ id: 'hl1', date: today, hours: 3.0 }];
-    expect(calculateStreak(habits, habitLogs, hourLogs, [], [])).toBe(0);
+    expect(calculateStreak(habits, habitLogs, hourLogs, [], []).streak).toBe(0);
   });
 
   it('should fail if hours are < 3.0', () => {
     const habits = [{ id: 'h1', startDate: today, archived: false }];
     const habitLogs = [{ habitId: 'h1', date: today, status: 'completed' }];
     const hourLogs = [{ id: 'hl1', date: today, hours: 2.5 }];
-    expect(calculateStreak(habits, habitLogs, hourLogs, [], [])).toBe(0);
+    expect(calculateStreak(habits, habitLogs, hourLogs, [], []).streak).toBe(0);
   });
 
   it('should pass with multiple days streak', () => {
@@ -68,7 +68,7 @@ describe('calculateStreak', () => {
       { id: 'hl2', date: yesterday, hours: 3.5 },
       { id: 'hl3', date: twoDaysAgo, hours: 4.0 }
     ];
-    expect(calculateStreak(habits, habitLogs, hourLogs, [], [])).toBe(3);
+    expect(calculateStreak(habits, habitLogs, hourLogs, [], []).streak).toBe(3);
   });
 
   it('should correctly ignore archived habits and exercises', () => {
@@ -83,7 +83,7 @@ describe('calculateStreak', () => {
     ];
     const exerciseLogs = [{ exerciseId: 'e2', date: today, reps: 5 }];
     const hourLogs = [{ id: 'hl1', date: today, hours: 3.0 }];
-    expect(calculateStreak(habits, habitLogs, hourLogs, exercises, exerciseLogs)).toBe(1);
+    expect(calculateStreak(habits, habitLogs, hourLogs, exercises, exerciseLogs).streak).toBe(1);
   });
 
   it('should fail if any active exercise has 0 reps', () => {
@@ -93,6 +93,6 @@ describe('calculateStreak', () => {
       { id: 'e2', archived: false }
     ];
     const exerciseLogs = [{ exerciseId: 'e1', date: today, reps: 10 }];
-    expect(calculateStreak([], [], hourLogs, exercises, exerciseLogs)).toBe(0);
+    expect(calculateStreak([], [], hourLogs, exercises, exerciseLogs).streak).toBe(0);
   });
 });
