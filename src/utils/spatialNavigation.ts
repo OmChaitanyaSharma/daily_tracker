@@ -78,12 +78,14 @@ export function handleDirectionalNavigation(e: KeyboardEvent) {
       if (currentCenter.y < rect.top) effectiveDy = rect.top - currentCenter.y;
       else if (currentCenter.y > rect.bottom) effectiveDy = currentCenter.y - rect.bottom;
 
-      // Heuristic distance: heavily penalize true off-axis distance
+      // Heuristic distance: Prioritize the primary axis (direction of travel)
+      // to ensure we jump to the next logical "row" or "column" even if the closest
+      // element in that row/column is far off to the side (e.g. right-aligned buttons).
       let distance = 0;
       if (key === 'w' || key === 's') {
-        distance = absDy + (effectiveDx * 4);
+        distance = (absDy * 10) + effectiveDx;
       } else {
-        distance = absDx + (effectiveDy * 4);
+        distance = (absDx * 10) + effectiveDy;
       }
 
       if (distance < minDistance) {
