@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
-import { Save, ArrowLeft, CheckCircle2, Edit2 } from 'lucide-react';
+import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 
 const MOODS = [
-  { value: 'excellent', label: 'Excellent', emoji: '😄' },
-  { value: 'good', label: 'Good', emoji: '🙂' },
-  { value: 'okay', label: 'Okay', emoji: '😐' },
-  { value: 'not-great', label: 'Not great', emoji: '😕' },
-  { value: 'bad', label: 'Bad', emoji: '😞' },
+  { value: 'excellent', label: 'Excellent', Icon: Sparkles, color: 'text-accent-yellow' },
+  { value: 'good', label: 'Good', Icon: Smile, color: 'text-accent-green' },
+  { value: 'okay', label: 'Okay', Icon: Meh, color: 'text-text-muted' },
+  { value: 'not-great', label: 'Not great', Icon: Frown, color: 'text-accent-purple' },
+  { value: 'bad', label: 'Bad', Icon: CloudRain, color: 'text-accent-red' },
 ];
 
 export function Highlight() {
@@ -235,7 +235,7 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
             <div>
               <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">How was your day?</h3>
               <p className="text-xl text-text-main flex items-center gap-2">
-                <span className="text-2xl">{moodObj.emoji}</span> {moodObj.label}
+                <span className={moodObj.color}><moodObj.Icon size={24} /></span> {moodObj.label}
               </p>
             </div>
           )}
@@ -303,7 +303,7 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
                   : "border-border-subtle bg-transparent text-text-muted hover:border-border-strong hover:bg-bg-surface-hover hover:scale-[1.02]"
               )}
             >
-              <span className="text-3xl filter drop-shadow-sm">{m.emoji}</span>
+              <m.Icon size={32} className={clsx("transition-colors", entry.mood === m.value ? m.color : "text-text-muted")} />
               <span className="text-xs font-medium">{m.label}</span>
             </button>
           ))}
