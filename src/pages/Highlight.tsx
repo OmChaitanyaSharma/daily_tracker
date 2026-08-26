@@ -292,20 +292,20 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
 
 function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry: (e: Partial<DayEntry>) => void }) {
   return (
-    <div className="space-y-16 animate-fade-in">
+    <div className="space-y-20 animate-fade-in max-w-3xl mx-auto pt-4">
       {/* Mood Selector */}
-      <section className="space-y-6">
-        <h2 className="text-sm font-semibold tracking-widest uppercase text-text-muted">How was your day?</h2>
-        <div className="flex flex-wrap gap-4">
+      <section className="space-y-6 text-center">
+        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted">How was your day?</h2>
+        <div className="flex flex-wrap justify-center gap-4">
           {MOODS.map(m => (
             <button
               key={m.value}
               onClick={() => setEntry({ ...entry, mood: m.value as any })}
               className={clsx(
-                "flex items-center gap-3 px-5 py-3 rounded-2xl border transition-all duration-300",
+                "flex items-center gap-3 px-6 py-4 rounded-full border transition-all duration-500 ease-out",
                 entry.mood === m.value 
-                  ? "border-accent-red bg-accent-red-bg text-text-main shadow-sm scale-105" 
-                  : "border-border-strong bg-bg-surface text-text-muted hover:border-text-muted hover:bg-bg-surface-hover"
+                  ? "border-accent-blue bg-accent-blue-bg text-text-main shadow-md scale-105" 
+                  : "border-border-strong bg-bg-surface text-text-muted hover:border-text-muted hover:bg-bg-surface-hover hover:scale-[1.02]"
               )}
             >
               <span className="text-2xl">{m.emoji}</span>
@@ -315,62 +315,62 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
         </div>
       </section>
 
+      {/* One Line Summary */}
+      <section className="space-y-6 relative group">
+        <label className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted block text-center">Today in one line</label>
+        <input
+          type="text"
+          value={entry.oneLineSummary || ''}
+          onChange={e => setEntry({ ...entry, oneLineSummary: e.target.value })}
+          placeholder="e.g. focused work, gym session, and read a book..."
+          className="w-full bg-transparent border-b-2 border-border-subtle py-4 focus:outline-none focus:border-accent-blue transition-colors text-2xl md:text-3xl font-serif text-center text-text-main placeholder:text-text-muted/30 placeholder:italic"
+        />
+      </section>
+
       {/* Highlight of the day */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-2xl font-serif italic text-text-main">Highlight of the day</h2>
-          <p className="text-text-muted text-sm mt-1">What made today worth remembering?</p>
+      <section className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-serif text-text-main">Highlight</h2>
+          <p className="text-text-muted text-sm mt-2 font-medium">What made today worth remembering?</p>
         </div>
         <textarea
           value={entry.highlight || ''}
           onChange={e => setEntry({ ...entry, highlight: e.target.value })}
           placeholder="Write freely..."
-          className="w-full min-h-[160px] p-6 bg-bg-surface border border-border-strong rounded-2xl resize-none focus:outline-none focus:border-text-muted focus:ring-1 focus:ring-text-muted transition-all text-lg text-text-main font-serif leading-relaxed placeholder:text-text-muted/50"
-        />
-      </section>
-
-      {/* One Line Summary */}
-      <section className="space-y-4">
-        <h2 className="text-sm font-semibold tracking-widest uppercase text-text-muted border-b border-border-subtle pb-2">Today in one line</h2>
-        <input
-          type="text"
-          value={entry.oneLineSummary || ''}
-          onChange={e => setEntry({ ...entry, oneLineSummary: e.target.value })}
-          placeholder="e.g. studied cn, worked on my project, exercised and finally fixed my udp code"
-          className="w-full bg-transparent border-b border-border-strong py-3 focus:outline-none focus:border-accent-red transition-colors text-xl font-serif italic text-text-main placeholder:text-text-muted/40"
+          className="w-full min-h-[240px] p-8 bg-bg-surface border border-border-subtle rounded-3xl resize-none focus:outline-none focus:border-accent-blue focus:ring-4 focus:ring-accent-blue-bg transition-all text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40 shadow-sm"
         />
       </section>
 
       {/* Lightweight Reflections */}
-      <section className="space-y-8 pt-8">
-        <h2 className="text-sm font-semibold tracking-widest uppercase text-text-muted border-b border-border-subtle pb-2">Daily Reflection (Optional)</h2>
+      <section className="space-y-10 pt-12">
+        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted text-center border-b border-border-subtle pb-6">Daily Reflection</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
           <ReflectionField 
-            label="what went well?" 
+            label="What went well?" 
             value={entry.wentWell} 
             onChange={val => setEntry({ ...entry, wentWell: val })} 
           />
           <ReflectionField 
-            label="what didn't go well?" 
+            label="What didn't go well?" 
             value={entry.problems} 
             onChange={val => setEntry({ ...entry, problems: val })} 
           />
           <ReflectionField 
-            label="what did i learn?" 
+            label="What did I learn?" 
             value={entry.learned} 
             onChange={val => setEntry({ ...entry, learned: val })} 
           />
           <ReflectionField 
-            label="what do i want to remember?" 
+            label="What do I want to remember?" 
             value={entry.whatIWantToRemember} 
             onChange={val => setEntry({ ...entry, whatIWantToRemember: val })} 
           />
         </div>
 
-        <div className="mt-8">
+        <div className="pt-6">
            <ReflectionField 
-            label="what do i want to do tomorrow?" 
+            label="What do I want to do tomorrow?" 
             value={entry.tomorrowPriorities} 
             onChange={val => setEntry({ ...entry, tomorrowPriorities: val })} 
           />
@@ -383,13 +383,13 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
 
 function ReflectionField({ label, value, onChange }: { label: string, value: string | undefined, onChange: (val: string) => void }) {
   return (
-    <div className="space-y-2 group">
-      <label className="block font-medium text-text-main">{label}</label>
+    <div className="space-y-3 group">
+      <label className="block font-serif text-lg text-text-main">{label}</label>
       <textarea
         value={value || ''}
         onChange={e => onChange(e.target.value)}
-        rows={3}
-        className="w-full bg-bg-surface border border-transparent border-b-border-strong group-hover:bg-bg-surface-hover focus:bg-bg-surface-hover focus:border-b-text-main p-3 resize-none focus:outline-none transition-all text-text-main rounded-t-lg"
+        rows={2}
+        className="w-full bg-transparent border-b border-border-strong focus:border-accent-blue py-2 resize-none focus:outline-none transition-colors text-text-main text-base"
       />
     </div>
   );
