@@ -33,6 +33,7 @@ export interface Habit {
   createdAt: string; // ISO string
   startDate?: string; // YYYY-MM-DD
   archived: boolean;
+  order?: number;
 }
 
 export interface HabitLog {

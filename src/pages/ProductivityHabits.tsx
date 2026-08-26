@@ -65,8 +65,40 @@ export function ProductivityHabits() {
     return allHabits.filter(h => {
       if (!h.archived) return true;
       return habitLogs.some(l => l.habitId === h.id);
+    }).sort((a, b) => {
+      const orderA = a.order !== undefined ? a.order : 9999;
+      const orderB = b.order !== undefined ? b.order : 9999;
+      if (orderA === orderB) {
+        return a.createdAt.localeCompare(b.createdAt);
+      }
+      return orderA - orderB;
     });
   }, [allHabits, habitLogs]);
+
+  const handleHabitDrop = async (e: React.DragEvent, targetHabitId: string) => {
+    e.preventDefault();
+    const draggedHabitId = e.dataTransfer.getData('habitId');
+    if (!draggedHabitId || draggedHabitId === targetHabitId) return;
+
+    const currentOrder = visibleHabits.map(h => h.id);
+    const draggedIndex = currentOrder.indexOf(draggedHabitId);
+    const targetIndex = currentOrder.indexOf(targetHabitId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    currentOrder.splice(draggedIndex, 1);
+    currentOrder.splice(targetIndex, 0, draggedHabitId);
+
+    try {
+      await db.transaction('rw', db.habits, async () => {
+        for (let i = 0; i < currentOrder.length; i++) {
+          await db.habits.update(currentOrder[i], { order: i });
+        }
+      });
+    } catch (err) {
+      console.error("Failed to reorder habits", err);
+    }
+  };
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -376,7 +408,19 @@ export function ProductivityHabits() {
             {/* Habit Columns */}
             {visibleHabits.map(habit => (
               <div key={habit.id} className="w-14 shrink-0 border-r border-border-subtle flex flex-col items-center group/col">
-                <div className="h-40 w-full flex flex-col items-center justify-end pb-4 border-b-2 border-border-subtle relative sticky top-0 bg-bg-surface z-20 group/header">
+                <div 
+                  className="h-40 w-full flex flex-col items-center justify-end pb-4 border-b-2 border-border-subtle relative sticky top-0 bg-bg-surface z-20 group/header cursor-grab active:cursor-grabbing"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('habitId', habit.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                  }}
+                  onDrop={(e) => handleHabitDrop(e, habit.id)}
+                >
                   
                   {/* Management Menu Trigger */}
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 opacity-0 group-hover/header:opacity-100 transition-opacity duration-300">
