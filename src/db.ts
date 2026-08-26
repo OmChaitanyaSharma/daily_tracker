@@ -59,6 +59,7 @@ export interface Goal {
   targetValue?: string | number;
   startDate: string; // YYYY-MM-DD
   startingValue?: string | number; // Added in V3
+  order?: number;
 }
 
 export interface GoalMeasurement {

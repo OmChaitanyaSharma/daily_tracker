@@ -9,12 +9,20 @@ export function GoalRow({
   goal, 
   measurements, 
   onClick, 
-  onEdit 
+  onEdit,
+  draggable,
+  onDragStart,
+  onDragOver,
+  onDrop
 }: { 
   goal: Goal, 
   measurements: GoalMeasurement[], 
   onClick: () => void, 
-  onEdit: () => void 
+  onEdit: () => void,
+  draggable?: boolean,
+  onDragStart?: (e: React.DragEvent) => void,
+  onDragOver?: (e: React.DragEvent) => void,
+  onDrop?: (e: React.DragEvent) => void
 }) {
   const dates = useMemo(() => getMeasurementDates(goal.startDate), [goal.startDate]);
   
@@ -45,7 +53,16 @@ export function GoalRow({
   }, [isNumeric, currentMeasurementValue, goal.targetValue, startingValue]);
 
   return (
-    <div className="bg-bg-surface border border-border-subtle rounded-3xl p-6 md:p-8 hover-lift transition-all flex flex-col group">
+    <div 
+      className={clsx(
+        "bg-bg-surface border border-border-subtle rounded-3xl p-6 md:p-8 hover-lift transition-all flex flex-col group",
+        draggable && "cursor-grab active:cursor-grabbing"
+      )}
+      draggable={draggable}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
       <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between w-full">
         <div className="flex-1 flex items-center gap-4 w-full">
           <button onClick={onClick} className="flex-1 text-left">
