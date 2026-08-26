@@ -51,9 +51,12 @@ export function Layout() {
           }
           break;
         case 'Escape': 
-        case 'Backspace':
           e.preventDefault();
           navigate('/'); 
+          break;
+        case 'Backspace':
+          e.preventDefault();
+          navigate(-1);
           break;
         case '1': 
           e.preventDefault();

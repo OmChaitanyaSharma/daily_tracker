@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { type Goal, db } from '../db';
 import { X, Trash2 } from 'lucide-react';
 
@@ -17,6 +17,28 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
     startDate: goal.startDate,
     startingValue: goal.startingValue || ''
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      } else if (e.key === 'Backspace') {
+        // Only intercept Backspace if we are NOT inside a text input.
+        // If we are in an input, backspace should just delete text!
+        const activeTag = document.activeElement?.tagName || '';
+        if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+          e.preventDefault();
+          e.stopPropagation();
+          onClose();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
