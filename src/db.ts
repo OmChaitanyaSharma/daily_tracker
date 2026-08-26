@@ -70,10 +70,24 @@ export interface GoalMeasurement {
 }
 
 export interface HourCategory {
-  id: string; // UUID
-  name: string; // User-defined name
-  color: string; // CSS variable or hex
+  id: string;
+  name: string;
+  color: string;
+  createdAt: string;
+}
+
+export interface Exercise {
+  id: string;
+  name: string;
   createdAt: string; // ISO string
+  archived: boolean;
+}
+
+export interface ExerciseLog {
+  id: string;
+  date: string; // YYYY-MM-DD
+  exerciseId: string;
+  reps: number;
 }
 
 export class DailyTrackerDB extends Dexie {
@@ -85,6 +99,8 @@ export class DailyTrackerDB extends Dexie {
   hourCategories!: Table<HourCategory, string>;
   goals!: Table<Goal, string>;
   goalMeasurements!: Table<GoalMeasurement, string>;
+  exercises!: Table<Exercise, string>;
+  exerciseLogs!: Table<ExerciseLog, string>;
 
   constructor() {
     super('DailyTrackerDB');
@@ -210,6 +226,20 @@ export class DailyTrackerDB extends Dexie {
       for (const cat of defaultCategories) {
         await tx.table('hourCategories').add(cat);
       }
+    });
+
+    // Version 7 schema definition (Exercise Tracking)
+    this.version(7).stores({
+      dayEntries: 'date',
+      tasks: 'id, date, completed',
+      habits: 'id, archived',
+      habitLogs: 'id, date, habitId, status',
+      hourLogs: 'id, date, activity',
+      hourCategories: 'id, name',
+      goals: 'id, category',
+      goalMeasurements: 'id, goalId, date',
+      exercises: 'id, name, archived',
+      exerciseLogs: 'id, date, exerciseId'
     });
   }
 }

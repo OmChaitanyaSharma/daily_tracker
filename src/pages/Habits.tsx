@@ -35,9 +35,9 @@ export function Habits() {
               <HeartPulse size={32} strokeWidth={1.5} />
             </div>
             <div>
-              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">Health Tracking</h2>
+              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">Exercise Tracking</h2>
               <p className="text-text-muted text-sm max-w-sm mx-auto leading-relaxed">
-                Track physical health, sleep, nutrition, and fitness routines.
+                Count reps for your custom exercises and maintain your workout streak.
               </p>
             </div>
           </div>

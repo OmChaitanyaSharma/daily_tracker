@@ -6,7 +6,7 @@ import { Home } from './pages/Home';
 import { Highlight } from './pages/Highlight';
 import { Habits } from './pages/Habits';
 import { ProductivityHabits } from './pages/ProductivityHabits';
-import { HealthHabits } from './pages/HealthHabits';
+import { ExerciseTracking } from './pages/ExerciseTracking';
 import { Goals } from './pages/Goals';
 import { EndOfYearGoals } from './pages/EndOfYearGoals';
 import { HealthGoals } from './pages/HealthGoals';
@@ -37,7 +37,7 @@ export default function App() {
           <Route path="highlight" element={<Highlight />} />
           <Route path="habits" element={<Habits />} />
           <Route path="habits/productivity" element={<ProductivityHabits />} />
-          <Route path="habits/health" element={<HealthHabits />} />
+          <Route path="habits/health" element={<ExerciseTracking />} />
           <Route path="goals" element={<Goals />} />
           <Route path="goals/end-of-year" element={<EndOfYearGoals />} />
           <Route path="goals/health" element={<HealthGoals />} />
