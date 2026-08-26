@@ -34,6 +34,7 @@ export function Highlight() {
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Navigating to a specific date loads its data
   useEffect(() => {
@@ -63,6 +64,12 @@ export function Highlight() {
   }, [originalDate]);
 
   const attemptSave = async () => {
+    if (!entry.mood || !entry.highlight || entry.highlight.trim() === '') {
+      setErrorMsg('Mood and Daily Highlight are required to save.');
+      setTimeout(() => setErrorMsg(''), 5000);
+      return;
+    }
+
     // 1. Check for future date
     const today = getTodayDateString();
     if (entry.date && entry.date > today) {
@@ -187,14 +194,19 @@ export function Highlight() {
         </div>
         
         {!isCompletedView && (
-          <button 
-            onClick={attemptSave}
-            disabled={isSaving}
-            className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 rounded-full font-medium text-sm hover:opacity-90 transition-all active:scale-95 shrink-0"
-          >
-            <Save size={16} />
-            {isSaving ? 'Saving...' : 'Save Entry'}
-          </button>
+          <div className="flex items-center gap-4">
+            {errorMsg && (
+              <span className="text-accent-red text-sm font-medium animate-fade-in">{errorMsg}</span>
+            )}
+            <button 
+              onClick={attemptSave}
+              disabled={isSaving}
+              className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 rounded-full font-medium text-sm hover:opacity-90 transition-all active:scale-95 shrink-0"
+            >
+              <Save size={16} />
+              {isSaving ? 'Saving...' : 'Save Entry'}
+            </button>
+          </div>
         )}
       </header>
 
@@ -289,7 +301,7 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
       <section className="bg-bg-surface border border-border-strong rounded-3xl p-8 shadow-sm">
         <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-6 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
-          Mood
+          Mood <span className="text-accent-red ml-1">*</span>
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {MOODS.map(m => (
@@ -315,7 +327,7 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
         <div className="p-8 pb-4 border-b border-border-subtle bg-bg-surface-hover/50">
            <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted flex items-center gap-2">
              <span className="w-2 h-2 rounded-full bg-accent-yellow"></span>
-             Daily Highlight
+             Daily Highlight <span className="text-accent-red ml-1">*</span>
            </h2>
            <p className="text-sm font-medium text-text-main mt-2">What made today worth remembering?</p>
         </div>
