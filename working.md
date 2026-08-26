@@ -86,3 +86,10 @@ Because everything is local:
 - Read/write operations take ~1-5ms.
 - PRs and Level progression calculations are done iteratively in memory on mount.
 - Data privacy is absolute; the JSON export feature is the only bridge to external storage.
+
+## 7. Keyboard Navigation & Vim-Style Edit Mode
+The application implements custom spatial navigation allowing full usage without a mouse.
+- **Directional Navigation:** W, A, S, D move focus between tiles based on bounding box geometry.
+- **Edit Mode:** To prevent accidental typing while navigating, standard W/A/S/D inputs do not type into focused fields. Pressing Enter on an input enters **Edit Mode** (highlighted by a red focus ring).
+- **Custom Edit Commands:** In Edit Mode, pressing W or S on number inputs increments/decrements the value by its step attribute. On select dropdowns, it cycles through the available options.
+- **Escape / Backspace:** Esc instantly returns to the home view, clearing all modals. Backspace performs a localized back action (closing the uppermost modal or navigating history.back()).

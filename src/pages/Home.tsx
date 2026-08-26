@@ -36,6 +36,23 @@ export function Home() {
     prevFitLevel.current = fitness.level;
   }, [fitness.level, fitness.title]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        if (levelModal !== null || showStreakModal || levelUpData !== null) {
+          e.preventDefault();
+          e.stopPropagation();
+          setLevelModal(null);
+          setShowStreakModal(false);
+          setLevelUpData(null);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [levelModal, showStreakModal, levelUpData]);
+
   const todayStr = getTodayStr();
   
   // Data for Streak Requirement breakdown

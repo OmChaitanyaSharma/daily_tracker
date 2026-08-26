@@ -30,7 +30,12 @@ A digital diary and personal progress tracker designed to log daily highlights, 
 - **Warm Editorial Theme:** A minimal light theme featuring beige, ink colors, and distinct accents (Red, Blue, Purple) for maximum clarity and readability.
 - **Local-First Data:** Uses Dexie.js (IndexedDB) for completely private, offline-first data persistence.
 - **Export & Backup:** Export all historical data (day entries, habit logs, exercise logs, goal measurements) to JSON for backup and portability.
-- **Keyboard Navigation:** Navigate core sections seamlessly using `1-4` numeric keys, and instantly back out of menus or return home with `Esc` or `Backspace`.
+- **Keyboard Navigation (Gaming Bindings):** Navigate the app entirely using the keyboard! 
+  - `W`, `A`, `S`, `D` to spatially navigate between tiles and inputs.
+  - **Vim-Style Edit Mode:** Press `Enter` on any input or dropdown to enter Edit Mode (indicated by a red glow). While in edit mode, `W`/`S` dynamically increment numbers or cycle dropdowns. Press `Enter` again to exit back to spatial navigation.
+  - `Backspace` to cleanly go back one step (close a modal or go back a page).
+  - `Esc` to instantly reset and return to the home page.
+  - `1-4` numeric keys to jump between core sections.
 
 ## Tech Stack
 

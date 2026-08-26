@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Habit, type HourCategory } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO } from 'date-fns';
@@ -38,6 +38,33 @@ export function ProductivityHabits() {
   const [editingCat, setEditingCat] = useState<HourCategory | null>(null);
   const [editCatName, setEditCatName] = useState('');
   const [editCatColor, setEditCatColor] = useState('');
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Backspace') {
+        if (e.key === 'Backspace') {
+          const activeTag = document.activeElement?.tagName || '';
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
+            if (document.activeElement?.hasAttribute('data-edit-mode')) return;
+          }
+        }
+
+        if (isAddingHabit || activeMenuHabitId || editingHabit || archivingHabit || deletingHabit || showManageCategories) {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsAddingHabit(false);
+          setActiveMenuHabitId(null);
+          setEditingHabit(null);
+          setArchivingHabit(null);
+          setDeletingHabit(null);
+          setShowManageCategories(false);
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isAddingHabit, activeMenuHabitId, editingHabit, archivingHabit, deletingHabit, showManageCategories]);
 
   const allHabits = useLiveQuery(() => db.habits.toArray()) ?? EMPTY_ARRAY;
   
