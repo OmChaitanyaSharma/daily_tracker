@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Code, Dumbbell, Star, ChevronRight } from 'lucide-react';
+import { Code, Dumbbell, Star, ChevronRight, Flame } from 'lucide-react';
 import clsx from 'clsx';
 
 interface LevelUpCelebrationProps {
-  type: 'dev' | 'fit';
+  type: 'dev' | 'fit' | 'streak';
   level: number;
   title: string;
   onClose: () => void;
@@ -12,22 +12,27 @@ interface LevelUpCelebrationProps {
 
 export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCelebrationProps) {
   const isDev = type === 'dev';
-  const Icon = isDev ? Code : Dumbbell;
-  const colorClass = isDev ? 'text-accent-blue' : 'text-accent-green';
-  const bgClass = isDev ? 'bg-accent-blue-bg' : 'bg-accent-green-bg';
-  const glowColor = isDev ? 'rgba(59,130,246,0.2)' : 'rgba(16,185,129,0.2)';
+  const isStreak = type === 'streak';
+  const Icon = isStreak ? Flame : (isDev ? Code : Dumbbell);
+  const colorClass = isStreak ? 'text-accent-yellow' : (isDev ? 'text-accent-blue' : 'text-accent-green');
+  const bgClass = isStreak ? 'bg-accent-yellow-bg' : (isDev ? 'bg-accent-blue-bg' : 'bg-accent-green-bg');
+  const glowColor = isStreak ? 'rgba(234,179,8,0.2)' : (isDev ? 'rgba(59,130,246,0.2)' : 'rgba(16,185,129,0.2)');
 
   useEffect(() => {
     const duration = 2500;
     const end = Date.now() + duration;
 
     const frame = () => {
+      const colors = isStreak 
+        ? ['#eab308', '#fef08a', '#ffffff'] 
+        : (isDev ? ['#3b82f6', '#93c5fd', '#ffffff'] : ['#10b981', '#6ee7b7', '#ffffff']);
+        
       confetti({
         particleCount: 2,
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: isDev ? ['#3b82f6', '#93c5fd', '#ffffff'] : ['#10b981', '#6ee7b7', '#ffffff'],
+        colors,
         disableForReducedMotion: true,
       });
       confetti({
@@ -35,7 +40,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: isDev ? ['#3b82f6', '#93c5fd', '#ffffff'] : ['#10b981', '#6ee7b7', '#ffffff'],
+        colors,
         disableForReducedMotion: true,
       });
 
@@ -44,7 +49,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
       }
     };
     frame();
-  }, [isDev]);
+  }, [type]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in">
@@ -69,15 +74,15 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
         </div>
         
         <p className="text-xs uppercase tracking-[0.3em] font-bold text-text-muted mb-3">
-          {isDev ? 'Developer' : 'Fitness'} Level Up
+          {isStreak ? 'Milestone Reached' : (isDev ? 'Developer Level Up' : 'Fitness Level Up')}
         </p>
         
         <h2 className="text-5xl font-serif text-text-main mb-2">
-          Level {level}
+          {isStreak ? `${level} Days` : `Level ${level}`}
         </h2>
         
         <p className="text-xl text-text-muted mb-10">
-          Rank achieved: <strong className={colorClass}>{title}</strong>
+          {isStreak ? 'Incredible consistency!' : <>Rank achieved: <strong className={colorClass}>{title}</strong></>}
         </p>
         
         <button 

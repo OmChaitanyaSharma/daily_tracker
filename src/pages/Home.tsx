@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { LevelUpCelebration } from '../components/LevelUpCelebration';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
-import { useLevelSystem } from '../hooks/useLevelSystem';
+import { useLevelSystem, DEV_RANKS, FIT_RANKS } from '../hooks/useLevelSystem';
 import clsx from 'clsx';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
@@ -17,24 +17,42 @@ export function Home() {
   
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
-  const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit', level: number, title: string} | null>(null);
-
-  const prevDevLevel = useRef(dev.level);
-  const prevFitLevel = useRef(fitness.level);
+  const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit' | 'streak', level: number, title: string} | null>(null);
 
   useEffect(() => {
-    if (dev.level > prevDevLevel.current) {
-      setLevelUpData({ type: 'dev', level: dev.level, title: dev.title });
+    if (dev.level > 1) {
+      const stored = parseInt(localStorage.getItem('highestDevLevel') || '0', 10);
+      if (stored > 0 && dev.level > stored) {
+        setLevelUpData({ type: 'dev', level: dev.level, title: dev.title });
+      }
+      if (dev.level > stored) {
+        localStorage.setItem('highestDevLevel', dev.level.toString());
+      }
     }
-    prevDevLevel.current = dev.level;
   }, [dev.level, dev.title]);
 
   useEffect(() => {
-    if (fitness.level > prevFitLevel.current) {
-      setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title });
+    if (fitness.level > 1) {
+      const stored = parseInt(localStorage.getItem('highestFitLevel') || '0', 10);
+      if (stored > 0 && fitness.level > stored) {
+        setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title });
+      }
+      if (fitness.level > stored) {
+        localStorage.setItem('highestFitLevel', fitness.level.toString());
+      }
     }
-    prevFitLevel.current = fitness.level;
   }, [fitness.level, fitness.title]);
+
+  useEffect(() => {
+    // Show streak celebrations for every 7 days (7, 14, 21, etc.)
+    if (streak > 0 && streak % 7 === 0) {
+      const stored = parseInt(localStorage.getItem('highestStreakCelebrated') || '0', 10);
+      if (streak > stored) {
+        setLevelUpData({ type: 'streak', level: streak, title: 'Streak Milestone' });
+        localStorage.setItem('highestStreakCelebrated', streak.toString());
+      }
+    }
+  }, [streak]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -260,6 +278,36 @@ export function Home() {
                     : `${fitness.nextLevelBaseXp - fitness.xp} XP to next level`
                   }
                 </p>
+              </div>
+
+              <div className="mt-6 border-t border-border-strong pt-6">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Rank Progression</h3>
+                <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
+                  {(levelModal === 'dev' ? DEV_RANKS : FIT_RANKS).map((rank, idx, arr) => {
+                    const currentLevel = levelModal === 'dev' ? dev.level : fitness.level;
+                    const prevMax = idx === 0 ? 1 : arr[idx - 1].max + 1;
+                    const isCurrent = currentLevel >= prevMax && currentLevel <= rank.max;
+                    const isFuture = currentLevel < prevMax;
+                    
+                    return (
+                      <div key={rank.title} className={clsx(
+                        "flex items-center justify-between p-3 rounded-xl border",
+                        isCurrent ? (levelModal === 'dev' ? "bg-accent-blue-bg border-accent-blue/50" : "bg-accent-green-bg border-accent-green/50") 
+                        : isFuture ? "bg-bg-base border-border-subtle opacity-50" 
+                        : "bg-bg-base border-border-strong"
+                      )}>
+                        <div>
+                          <span className={clsx("text-sm font-bold", isCurrent ? (levelModal === 'dev' ? "text-accent-blue" : "text-accent-green") : "text-text-main")}>
+                            {rank.title}
+                          </span>
+                        </div>
+                        <div className="text-xs font-mono text-text-muted">
+                          {idx === arr.length - 1 ? `Lv ${prevMax}+` : `Lv ${prevMax}-${rank.max}`}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>

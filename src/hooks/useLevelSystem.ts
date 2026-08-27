@@ -15,32 +15,40 @@ const XP_MAP: Record<ExerciseDifficulty, number> = {
 };
 const CARDIO_XP_PER_MIN = 10;
 
-function getDevTitle(level: number): string {
-  if (level <= 10) return "Logic Initiate";
-  if (level <= 20) return "Code Apprentice";
-  if (level <= 30) return "Algorithm Adept";
-  if (level <= 40) return "Systems Craftsman";
-  if (level <= 50) return "Lead Architect";
-  if (level <= 60) return "Kernel Hacker";
-  if (level <= 70) return "Machine Whisperer";
-  if (level <= 80) return "Silicon Oracle";
-  if (level <= 90) return "Turing Grandmaster";
-  if (level <= 99) return "Cybernetic Titan";
-  return "Digital God";
+export const DEV_RANKS = [
+  { max: 10, title: "Logic Initiate" },
+  { max: 20, title: "Code Apprentice" },
+  { max: 30, title: "Algorithm Adept" },
+  { max: 40, title: "Systems Craftsman" },
+  { max: 50, title: "Lead Architect" },
+  { max: 60, title: "Kernel Hacker" },
+  { max: 70, title: "Machine Whisperer" },
+  { max: 80, title: "Silicon Oracle" },
+  { max: 90, title: "Turing Grandmaster" },
+  { max: 99, title: "Cybernetic Titan" },
+  { max: Infinity, title: "Digital God" }
+];
+
+export const FIT_RANKS = [
+  { max: 10, title: "Iron Novice" },
+  { max: 20, title: "Bronze Athlete" },
+  { max: 30, title: "Steel Warrior" },
+  { max: 40, title: "Titanium Spartan" },
+  { max: 50, title: "Elite Gladiator" },
+  { max: 60, title: "Apex Predator" },
+  { max: 70, title: "Iron Juggernaut" },
+  { max: 80, title: "Unstoppable Colossus" },
+  { max: 90, title: "Herculean Champion" },
+  { max: 99, title: "Olympian Titan" },
+  { max: Infinity, title: "God of Iron" }
+];
+
+export function getDevTitle(level: number): string {
+  return DEV_RANKS.find(r => level <= r.max)?.title || "Digital God";
 }
 
-function getFitTitle(level: number): string {
-  if (level <= 10) return "Iron Novice";
-  if (level <= 20) return "Bronze Athlete";
-  if (level <= 30) return "Steel Warrior";
-  if (level <= 40) return "Titanium Spartan";
-  if (level <= 50) return "Elite Gladiator";
-  if (level <= 60) return "Apex Predator";
-  if (level <= 70) return "Iron Juggernaut";
-  if (level <= 80) return "Unstoppable Colossus";
-  if (level <= 90) return "Herculean Champion";
-  if (level <= 99) return "Olympian Titan";
-  return "God of Iron";
+export function getFitTitle(level: number): string {
+  return FIT_RANKS.find(r => level <= r.max)?.title || "God of Iron";
 }
 
 export function calculateDevLevel(xp: number) {
