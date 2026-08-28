@@ -12,47 +12,50 @@ import { db } from '../db';
 import { getTodayStr } from '../utils/dateUtils';
 
 export function Home() {
-  const { streak, freezesOwned, freezeUsedToday } = useStreak();
-  const { dev, fitness, totalHours, totalReps } = useLevelSystem();
+  const { streak, freezesOwned, freezeUsedToday, isLoading: streakLoading } = useStreak();
+  const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit' | 'streak', level: number, title: string} | null>(null);
 
   useEffect(() => {
-    if (dev.level > 1) {
-      const stored = parseInt(localStorage.getItem('highestDevLevel') || '0', 10);
-      if (stored > 0 && dev.level > stored) {
-        setLevelUpData({ type: 'dev', level: dev.level, title: dev.title });
-      }
-      if (dev.level > stored) {
-        localStorage.setItem('highestDevLevel', dev.level.toString());
-      }
+    if (levelsLoading) return;
+    
+    const stored = parseInt(localStorage.getItem('v3_ack_dev_level') || '0', 10);
+    if (stored === 0) {
+      localStorage.setItem('v3_ack_dev_level', dev.level.toString());
+    } else if (dev.level > stored) {
+      setLevelUpData({ type: 'dev', level: dev.level, title: dev.title });
+      localStorage.setItem('v3_ack_dev_level', dev.level.toString());
     }
-  }, [dev.level, dev.title]);
+  }, [dev.level, dev.title, levelsLoading]);
 
   useEffect(() => {
-    if (fitness.level > 1) {
-      const stored = parseInt(localStorage.getItem('highestFitLevel') || '0', 10);
-      if (stored > 0 && fitness.level > stored) {
-        setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title });
-      }
-      if (fitness.level > stored) {
-        localStorage.setItem('highestFitLevel', fitness.level.toString());
-      }
+    if (levelsLoading) return;
+    
+    const stored = parseInt(localStorage.getItem('v3_ack_fit_level') || '0', 10);
+    if (stored === 0) {
+      localStorage.setItem('v3_ack_fit_level', fitness.level.toString());
+    } else if (fitness.level > stored) {
+      setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title });
+      localStorage.setItem('v3_ack_fit_level', fitness.level.toString());
     }
-  }, [fitness.level, fitness.title]);
+  }, [fitness.level, fitness.title, levelsLoading]);
 
   useEffect(() => {
-    // Show streak celebrations for every 7 days (7, 14, 21, etc.)
-    if (streak > 0 && streak % 7 === 0) {
-      const stored = parseInt(localStorage.getItem('highestStreakCelebrated') || '0', 10);
-      if (streak > stored) {
-        setLevelUpData({ type: 'streak', level: streak, title: 'Streak Milestone' });
-        localStorage.setItem('highestStreakCelebrated', streak.toString());
-      }
+    if (streakLoading) return;
+    
+    const stored = parseInt(localStorage.getItem('v3_ack_streak') || '0', 10);
+    if (stored === 0) {
+      localStorage.setItem('v3_ack_streak', streak.toString());
+    } else if (streak > stored && streak > 0 && streak % 7 === 0) {
+      setLevelUpData({ type: 'streak', level: streak, title: 'Streak Milestone' });
+      localStorage.setItem('v3_ack_streak', streak.toString());
+    } else if (streak > stored) {
+      localStorage.setItem('v3_ack_streak', streak.toString());
     }
-  }, [streak]);
+  }, [streak, streakLoading]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

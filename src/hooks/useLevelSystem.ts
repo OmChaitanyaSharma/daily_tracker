@@ -118,9 +118,17 @@ export function calculateStats(allHourLogs: any[], allExerciseLogs: any[], allEx
 const EMPTY_ARRAY: any[] = [];
 
 export function useLevelSystem() {
-  const allHourLogs = useLiveQuery(() => db.hourLogs.toArray()) ?? EMPTY_ARRAY;
-  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
-  const allExercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
+  const allHourLogs = useLiveQuery(() => db.hourLogs.toArray());
+  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray());
+  const allExercises = useLiveQuery(() => db.exercises.toArray());
 
-  return useMemo(() => calculateStats(allHourLogs, allExerciseLogs, allExercises), [allHourLogs, allExerciseLogs, allExercises]);
+  const isLoading = allHourLogs === undefined || allExerciseLogs === undefined || allExercises === undefined;
+
+  const stats = useMemo(() => calculateStats(
+    allHourLogs ?? EMPTY_ARRAY, 
+    allExerciseLogs ?? EMPTY_ARRAY, 
+    allExercises ?? EMPTY_ARRAY
+  ), [allHourLogs, allExerciseLogs, allExercises]);
+
+  return { ...stats, isLoading };
 }

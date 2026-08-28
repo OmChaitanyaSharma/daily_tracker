@@ -109,21 +109,25 @@ export function calculateStreak(
 const EMPTY_ARRAY: any[] = [];
 
 export function useStreak() {
-  const allHabits = useLiveQuery(() => db.habits.toArray()) ?? EMPTY_ARRAY;
-  const allHabitLogsForStreak = useLiveQuery(() => db.habitLogs.toArray()) ?? EMPTY_ARRAY;
-  const allHourLogsForStreak = useLiveQuery(() => db.hourLogs.toArray()) ?? EMPTY_ARRAY;
-  const allExercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
-  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
+  const allHabits = useLiveQuery(() => db.habits.toArray());
+  const allHabitLogsForStreak = useLiveQuery(() => db.habitLogs.toArray());
+  const allHourLogsForStreak = useLiveQuery(() => db.hourLogs.toArray());
+  const allExercises = useLiveQuery(() => db.exercises.toArray());
+  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray());
+
+  const isLoading = allHabits === undefined || allHabitLogsForStreak === undefined || 
+                    allHourLogsForStreak === undefined || allExercises === undefined || 
+                    allExerciseLogs === undefined;
 
   const streakData = useMemo(() => {
     return calculateStreak(
-      allHabits,
-      allHabitLogsForStreak,
-      allHourLogsForStreak,
-      allExercises,
-      allExerciseLogs
+      allHabits ?? EMPTY_ARRAY,
+      allHabitLogsForStreak ?? EMPTY_ARRAY,
+      allHourLogsForStreak ?? EMPTY_ARRAY,
+      allExercises ?? EMPTY_ARRAY,
+      allExerciseLogs ?? EMPTY_ARRAY
     );
   }, [allHabits, allHabitLogsForStreak, allHourLogsForStreak, allExercises, allExerciseLogs]);
 
-  return streakData;
+  return { ...streakData, isLoading };
 }
