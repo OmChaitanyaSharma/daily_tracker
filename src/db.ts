@@ -76,6 +76,7 @@ export interface HourCategory {
   name: string;
   color: string;
   createdAt: string;
+  archived?: boolean;
 }
 
 export type ExerciseDifficulty = 'very_easy' | 'easy' | 'medium' | 'hard' | 'very_hard';

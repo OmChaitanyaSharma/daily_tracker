@@ -4,7 +4,7 @@ import { db, type Habit, type HourCategory } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO } from 'date-fns';
 const EMPTY_ARRAY: any[] = [];
 import { getTodayStr } from '../utils/dateUtils';
-import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, ArchiveRestore, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import clsx from 'clsx';
@@ -233,6 +233,16 @@ export function ProductivityHabits() {
       const keys = logsToDelete.map(l => l.id);
       await db.hourLogs.bulkDelete(keys);
       await db.hourCategories.delete(cat.id);
+    }
+  };
+
+  const handleToggleArchiveCategory = async (cat: HourCategory) => {
+    await db.hourCategories.update(cat.id, { archived: !cat.archived });
+    if (!cat.archived && hoursType === cat.name) {
+      // If we just archived the currently selected type for new hours, switch it
+      const nextAvailable = hourCategories.find(c => c.id !== cat.id && !c.archived);
+      if (nextAvailable) setHoursType(nextAvailable.name);
+      else setHoursType('');
     }
   };
 
@@ -715,9 +725,9 @@ export function ProductivityHabits() {
                 {/* Existing Categories */}
                 <div className="flex flex-wrap gap-2">
                   {hourCategories.map(cat => (
-                    <div key={cat.id} className="flex items-center gap-2 bg-bg-surface border border-border-subtle rounded-lg px-3 py-1.5 text-sm">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cat.color }} />
-                      <span className="font-medium text-text-main">{cat.name}</span>
+                    <div key={cat.id} className={clsx("flex items-center gap-2 border rounded-lg px-3 py-1.5 text-sm transition-opacity", cat.archived ? "bg-bg-base border-border-subtle opacity-60" : "bg-bg-surface border-border-subtle")}>
+                      <div className={clsx("w-3 h-3 rounded-full", cat.archived && "grayscale")} style={{ backgroundColor: cat.color }} />
+                      <span className={clsx("font-medium text-text-main", cat.archived && "line-through text-text-muted")}>{cat.name}</span>
                       
                       <button 
                         onClick={() => {
@@ -735,6 +745,13 @@ export function ProductivityHabits() {
                         title="Edit"
                       >
                         <Edit2 size={12} />
+                      </button>
+                      <button 
+                        onClick={() => handleToggleArchiveCategory(cat)}
+                        className="text-text-muted hover:text-accent-yellow"
+                        title={cat.archived ? "Unarchive" : "Archive"}
+                      >
+                        {cat.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
                       </button>
                       <button 
                         onClick={() => handleDeleteCategory(cat)}
@@ -822,11 +839,11 @@ export function ProductivityHabits() {
             <div className="space-y-2">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Activity</label>
               <select 
-                value={hoursType || (hourCategories.length > 0 ? hourCategories[0].name : '')}
+                value={hoursType || (hourCategories.filter(c => !c.archived).length > 0 ? hourCategories.filter(c => !c.archived)[0].name : '')}
                 onChange={e => setHoursType(e.target.value)}
                 className="block bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
               >
-                {hourCategories.map(cat => (
+                {hourCategories.filter(c => !c.archived).map(cat => (
                   <option key={cat.id} value={cat.name}>{cat.name}</option>
                 ))}
               </select>
@@ -875,7 +892,7 @@ export function ProductivityHabits() {
                       onChange={async (e) => await handleUpdateLogActivity(log.id, e.target.value, log.date, log.hours)}
                       className="bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none"
                     >
-                      {hourCategories.map(cat => (
+                      {hourCategories.filter(cat => !cat.archived || cat.name === log.activity).map(cat => (
                         <option key={cat.id} value={cat.name}>{cat.name}</option>
                       ))}
                     </select>

@@ -2,71 +2,71 @@
 
 @layer base {
   :root {
-    /* LIGHT WARM EDITORIAL THEME */
-    --bg-base: #f2efe9;
-    --bg-surface: #fcfbf8;
-    --bg-surface-hover: #e8e5dc;
+    /* MONKEYTYPE 9009 THEME (LIGHT) */
+    --bg-base: #eeebe2;
+    --bg-surface: #d3cfc1;
+    --bg-surface-hover: #c4c0b2;
     
-    --text-main: #141915; /* Deep charcoal/forest black */
-    --text-muted: #6b706c;
+    --text-main: #080909; 
+    --text-muted: #99947f; 
     
-    --border-subtle: rgba(20, 25, 21, 0.05);
-    --border-strong: rgba(20, 25, 21, 0.12);
+    --border-subtle: #b5b1a3;
+    --border-strong: #99947f;
     
-    --accent-red: #d34a44;
-    --accent-red-hover: #ba3f3a;
-    --accent-red-bg: rgba(211, 74, 68, 0.08);
+    --accent-red: #c87e74;
+    --accent-red-hover: #b86a60;
+    --accent-red-bg: rgba(200, 126, 116, 0.15);
 
-    --accent-blue: #3b82f6;
-    --accent-blue-bg: rgba(59, 130, 246, 0.1);
+    --accent-blue: #809bc7; 
+    --accent-blue-bg: rgba(128, 155, 199, 0.15);
 
-    --accent-purple: #8b5cf6; /* Vibrant Purple */
-    --accent-purple-bg: rgba(139, 92, 246, 0.1);
+    --accent-purple: #9e85a6;
+    --accent-purple-bg: rgba(158, 133, 166, 0.15);
 
-    --accent-yellow: #eab308; /* Vibrant golden yellow */
-    --accent-yellow-bg: rgba(234, 179, 8, 0.15);
+    --accent-yellow: #c4a572; 
+    --accent-yellow-bg: rgba(196, 165, 114, 0.15);
 
-    --accent-green: #32735d; /* Rich Viridian */
-    --accent-green-bg: rgba(50, 115, 93, 0.1);
+    --accent-green: #8f9e6a; 
+    --accent-green-bg: rgba(143, 158, 106, 0.15);
 
-    --shadow-soft: 0 4px 20px rgba(20, 25, 21, 0.04), 0 2px 8px rgba(20, 25, 21, 0.02);
+    --shadow-soft: 0 4px 20px rgba(8, 9, 9, 0.04), 0 2px 8px rgba(8, 9, 9, 0.02);
   }
 
   .dark {
-    /* DARK OBSIDIAN THEME */
-    --bg-base: #0c0e10;
-    --bg-surface: #121417;
-    --bg-surface-hover: #1c1e22;
+    /* MONKEYTYPE PHANTOM THEME (DARK) */
+    --bg-base: #000011;
+    --bg-surface: #101224;
+    --bg-surface-hover: #151729;
     
-    --text-main: #f0ede6; /* Soft warm white */
-    --text-muted: #888d92;
+    --text-main: #c0caf5; 
+    --text-muted: #565f89; 
     
-    --border-subtle: rgba(240, 237, 230, 0.05);
-    --border-strong: rgba(240, 237, 230, 0.12);
+    --border-subtle: #24283b;
+    --border-strong: #414868;
     
-    --accent-red: #ff7e79;
-    --accent-red-hover: #ff9490;
-    --accent-red-bg: rgba(255, 126, 121, 0.15);
+    --accent-red: #f7768e;
+    --accent-red-hover: #db6177;
+    --accent-red-bg: rgba(247, 118, 142, 0.15);
 
-    --accent-blue: #6ea8fe;
-    --accent-blue-bg: rgba(110, 168, 254, 0.15);
+    --accent-blue: #7aa2f7; 
+    --accent-blue-bg: rgba(122, 162, 247, 0.15);
 
-    --accent-purple: #a78bfa; /* Vibrant Purple */
-    --accent-purple-bg: rgba(167, 139, 250, 0.15);
+    --accent-purple: #bb9af7;
+    --accent-purple-bg: rgba(187, 154, 247, 0.15);
 
-    --accent-yellow: #f1db75; /* Vibrant gold */
-    --accent-yellow-bg: rgba(241, 219, 117, 0.15);
+    --accent-yellow: #e0af68; 
+    --accent-yellow-bg: rgba(224, 175, 104, 0.15);
 
-    --accent-green: #4fb693; /* Bright Viridian */
-    --accent-green-bg: rgba(79, 182, 147, 0.15);
+    --accent-green: #9ece6a; 
+    --accent-green-bg: rgba(158, 206, 106, 0.15);
 
-    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.4), 0 4px 10px rgba(0, 0, 0, 0.3);
+    --shadow-soft: 0 8px 30px rgba(0, 0, 10, 0.6), 0 4px 10px rgba(0, 0, 10, 0.4);
   }
 
   html, body {
     background-color: var(--bg-base);
     color: var(--text-main);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Varela Round', system-ui, -apple-system, sans-serif;
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
     @apply antialiased;
   }
@@ -96,8 +96,8 @@
   --color-accent-green: var(--accent-green);
   --color-accent-green-bg: var(--accent-green-bg);
 
-  --font-serif: 'Newsreader', ui-serif, Georgia, serif;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-sans: 'Varela Round', 'Inter', ui-sans-serif, system-ui, sans-serif;
 
   --animate-fade-in: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-scale-in: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
