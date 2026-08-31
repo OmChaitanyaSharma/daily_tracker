@@ -93,7 +93,7 @@ export function Home() {
   const habitConditionMet = activeHabits.length > 0 ? (habitScore / activeHabits.length >= 0.75) : true;
   
   const todaysTotalHours = todaysHourLogs.reduce((acc, log) => acc + log.hours, 0);
-  const hoursConditionMet = todaysTotalHours >= 3.0;
+  const hoursConditionMet = todaysTotalHours >= 6.0;
 
   const pendingExercises = activeExercises.filter(ex => {
     const reps = todaysExerciseLogs.find(l => l.exerciseId === ex.id)?.reps || 0;
@@ -377,7 +377,7 @@ export function Home() {
                     <div className="w-6 h-6 rounded-full border-2 border-border-strong shrink-0"></div>
                   )}
                   <span className={clsx("text-sm", hoursConditionMet ? "text-text-muted line-through" : "text-text-main")}>
-                    Log at least 3.0 Hours (Current: {todaysTotalHours.toFixed(1)}h)
+                    Log at least 6.0 Hours (Current: {todaysTotalHours.toFixed(1)}h)
                   </span>
                 </div>
               </div>
