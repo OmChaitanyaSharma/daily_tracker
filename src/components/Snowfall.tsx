@@ -18,7 +18,7 @@ export function Snowfall() {
     canvas.width = width;
     canvas.height = height;
 
-    const numParticles = 40;
+    const numParticles = 120; // Slightly more snow
     const flakeChars = ['❄', '❅', '❆'];
     const particles: Array<{
       x: number;
@@ -37,12 +37,12 @@ export function Snowfall() {
         x: Math.random() * width,
         y: Math.random() * height,
         size: Math.random() * 12 + 6, // 6px to 18px
-        speed: Math.random() * 0.4 + 0.1, // very slow
-        wind: (Math.random() - 0.5) * 0.3,
-        opacity: Math.random() * 0.3 + 0.1, // 0.1 to 0.4 opacity
+        speed: Math.random() * 0.8 + 0.2, // slightly faster
+        wind: (Math.random() - 0.5) * 0.5, // slightly more wind
+        opacity: Math.random() * 0.4 + 0.2, // slightly more visible
         char: flakeChars[Math.floor(Math.random() * flakeChars.length)],
         rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.02
+        rotSpeed: (Math.random() - 0.5) * 0.03
       });
     }
 
