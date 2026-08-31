@@ -17,6 +17,7 @@ export function Home() {
   
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
+  const [showWinterArcRules, setShowWinterArcRules] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit' | 'streak', level: number, title: string} | null>(null);
 
   useEffect(() => {
@@ -60,12 +61,13 @@ export function Home() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Backspace') {
-        if (levelModal !== null || showStreakModal || levelUpData !== null) {
+        if (levelModal !== null || showStreakModal || levelUpData !== null || showWinterArcRules) {
           e.preventDefault();
           e.stopPropagation();
           setLevelModal(null);
           setShowStreakModal(false);
           setLevelUpData(null);
+          setShowWinterArcRules(false);
         }
       }
     };
@@ -104,8 +106,15 @@ export function Home() {
   return (
     <div className="flex flex-col gap-16 md:gap-24 animate-fade-in max-w-4xl mx-auto pt-4 relative">
       
-      <header className="text-center space-y-6">
-        <h1 className="text-4xl md:text-6xl font-serif text-text-main tracking-tight">
+      <header className="text-center space-y-6 relative">
+        <button 
+          onClick={() => setShowWinterArcRules(true)}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-text-muted text-xs font-medium tracking-widest uppercase mb-4 shadow-sm hover:border-accent-blue/50 hover:bg-accent-blue/5 transition-colors cursor-pointer"
+        >
+          <Snowflake size={12} className="text-accent-blue opacity-70" />
+          <span>Winter Arc</span>
+        </button>
+        <h1 className="text-4xl md:text-6xl font-serif text-text-main tracking-tight mt-0">
           <span className="marker-highlight font-medium">{format(new Date(), 'EEEE')}</span>, <br className="md:hidden"/> {format(new Date(), 'MMMM do')}
         </h1>
         <p className="text-text-muted uppercase tracking-[0.2em] text-sm font-medium">
@@ -444,6 +453,61 @@ export function Home() {
           title={levelUpData.title}
           onClose={() => setLevelUpData(null)}
         />
+      )}
+
+      {showWinterArcRules && (
+        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowWinterArcRules(false)}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowWinterArcRules(false)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
+              <X size={20} />
+            </button>
+            
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center bg-accent-blue/10 text-accent-blue border border-accent-blue/20">
+                <Snowflake size={24} />
+              </div>
+              <div>
+                <h2 className="text-2xl font-serif text-text-main">
+                  Winter Arc Rules
+                </h2>
+                <p className="text-text-muted text-sm">
+                  The protocol for the season
+                </p>
+              </div>
+            </div>
+
+            <ul className="space-y-4 text-sm font-medium">
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">1</span>
+                <span className="text-text-main">Wake up at 6 am daily / sleep by 10 pm</span>
+              </li>
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">2</span>
+                <span className="text-text-main">Train consistently</span>
+              </li>
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">3</span>
+                <span className="text-text-main">Skin care + hair care</span>
+              </li>
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">4</span>
+                <span className="text-text-main">Work for over 8 hours daily (coding + skills + study)</span>
+              </li>
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">5</span>
+                <span className="text-text-main">Discipline {">>"} Motivation</span>
+              </li>
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">6</span>
+                <span className="text-text-main">Less social media, more books</span>
+              </li>
+              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">7</span>
+                <span className="text-text-main">Count every calorie you eat</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       )}
     </div>
   );

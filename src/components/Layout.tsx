@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { handleDirectionalNavigation } from '../utils/spatialNavigation';
+import { Snowfall } from './Snowfall';
 
 export function Layout() {
   const [isDark, setIsDark] = useState(() => {
@@ -169,7 +170,8 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col">
+    <div className="min-h-screen w-full bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0">
+      <Snowfall />
       
       {/* Floating Pill Navigation */}
       <header 
