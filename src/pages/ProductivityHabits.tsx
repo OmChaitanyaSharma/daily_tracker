@@ -243,15 +243,6 @@ export function ProductivityHabits() {
     const amount = parseFloat(hoursAmount);
     if (isNaN(amount) || amount <= 0) return;
 
-    const dateHourLogs = await db.hourLogs.where('date').equals(hoursDate).toArray();
-    const currentTotal = dateHourLogs.reduce((acc, curr) => acc + curr.hours, 0);
-    if (currentTotal + amount > 12) {
-      setErrorMsg('Maximum 12 hours total can be logged per day.');
-      setTimeout(() => setErrorMsg(''), 5000);
-      return;
-    }
-    setErrorMsg('');
-
     const selectedActivity = hoursType || hourCategories[0]?.name;
     
     if (!selectedActivity) {
@@ -260,6 +251,24 @@ export function ProductivityHabits() {
       return;
     }
 
+    const dateHourLogs = await db.hourLogs.where('date').equals(hoursDate).toArray();
+    const currentTotal = dateHourLogs.reduce((acc, curr) => acc + curr.hours, 0);
+    const subjectTotal = dateHourLogs.filter(log => log.activity === selectedActivity).reduce((acc, curr) => acc + curr.hours, 0);
+
+    if (subjectTotal + amount > 12) {
+      setErrorMsg(`Maximum 12 hours can be logged per subject.`);
+      setTimeout(() => setErrorMsg(''), 5000);
+      return;
+    }
+
+    if (currentTotal + amount > 19) {
+      setErrorMsg(`Maximum 19 hours total can be logged per day.`);
+      setTimeout(() => setErrorMsg(''), 5000);
+      return;
+    }
+
+    setErrorMsg('');
+
     await db.hourLogs.add({
       id: crypto.randomUUID(),
       date: hoursDate,
@@ -267,6 +276,39 @@ export function ProductivityHabits() {
       hours: amount
     });
     setHoursAmount('');
+  };
+
+  const handleUpdateLogHours = async (logId: string, newHours: number, date: string, activity: string) => {
+    if (isNaN(newHours) || newHours <= 0) return;
+    const dateHourLogs = await db.hourLogs.where('date').equals(date).toArray();
+    
+    // We must exclude the CURRENT log we are editing from the totals to see if the NEW amount is valid
+    const currentTotal = dateHourLogs.reduce((acc, curr) => curr.id === logId ? acc : acc + curr.hours, 0);
+    const subjectTotal = dateHourLogs.filter(l => l.activity === activity).reduce((acc, curr) => curr.id === logId ? acc : acc + curr.hours, 0);
+
+    if (subjectTotal + newHours > 12) {
+      alert(`Maximum 12 hours can be logged per subject.`);
+      return;
+    }
+
+    if (currentTotal + newHours > 19) {
+      alert(`Maximum 19 hours total can be logged per day.`);
+      return;
+    }
+
+    await db.hourLogs.update(logId, { hours: newHours });
+  };
+
+  const handleUpdateLogActivity = async (logId: string, newActivity: string, date: string, hours: number) => {
+    const dateHourLogs = await db.hourLogs.where('date').equals(date).toArray();
+    const subjectTotal = dateHourLogs.filter(l => l.activity === newActivity).reduce((acc, curr) => curr.id === logId ? acc : acc + curr.hours, 0);
+
+    if (subjectTotal + hours > 12) {
+      alert(`Maximum 12 hours can be logged per subject.`);
+      return;
+    }
+
+    await db.hourLogs.update(logId, { activity: newActivity });
   };
 
   // Prepare graph data
@@ -830,7 +872,7 @@ export function ProductivityHabits() {
                     />
                     <select 
                       value={log.activity}
-                      onChange={async (e) => await db.hourLogs.update(log.id, { activity: e.target.value })}
+                      onChange={async (e) => await handleUpdateLogActivity(log.id, e.target.value, log.date, log.hours)}
                       className="bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none"
                     >
                       {hourCategories.map(cat => (
@@ -843,7 +885,7 @@ export function ProductivityHabits() {
                       value={log.hours}
                       onChange={async (e) => {
                         const v = parseFloat(e.target.value);
-                        if (!isNaN(v)) await db.hourLogs.update(log.id, { hours: v });
+                        if (!isNaN(v)) await handleUpdateLogHours(log.id, v, log.date, log.activity);
                       }}
                       className="w-16 bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none"
                     />
