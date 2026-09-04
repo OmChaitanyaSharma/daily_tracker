@@ -34,6 +34,9 @@ export interface Habit {
   startDate?: string; // YYYY-MM-DD
   archived: boolean;
   order?: number;
+  frequencyType?: 'daily' | 'weekly_count' | 'specific_days';
+  frequencyCount?: number;
+  frequencyDays?: number[]; // 0=Sun, 1=Mon, etc.
 }
 
 export interface HabitLog {

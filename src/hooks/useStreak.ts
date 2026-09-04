@@ -55,7 +55,16 @@ export function calculateStreak(
     const isToday = dateStr === todayStr;
     freezeUsedToday = false;
     
-    const activeHabitsOnDate = allHabits.filter(h => (!h.startDate || h.startDate <= dateStr) && !h.archived);
+    const activeHabitsOnDate = allHabits.filter(h => {
+      if ((h.startDate && h.startDate > dateStr) || h.archived) return false;
+      
+      // Frequency check
+      if (h.frequencyType === 'specific_days' && h.frequencyDays && h.frequencyDays.length > 0) {
+        const dayOfWeek = current.getDay(); // 0-6
+        if (!h.frequencyDays.includes(dayOfWeek)) return false;
+      }
+      return true;
+    });
     const numActive = activeHabitsOnDate.length;
 
     const dateHabitLogs = logsByDate.get(dateStr) || [];

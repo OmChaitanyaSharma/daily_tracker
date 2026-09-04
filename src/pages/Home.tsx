@@ -80,7 +80,13 @@ export function Home() {
   
   // Data for Streak Requirement breakdown
   const activeExercises = useLiveQuery(() => db.exercises.toArray())?.filter(ex => !ex.archived) || [];
-  const activeHabits = useLiveQuery(() => db.habits.toArray())?.filter(h => (!h.startDate || h.startDate <= todayStr) && !h.archived) || [];
+  const activeHabits = useLiveQuery(() => db.habits.toArray())?.filter(h => {
+    if ((h.startDate && h.startDate > todayStr) || h.archived) return false;
+    if (h.frequencyType === 'specific_days' && h.frequencyDays && h.frequencyDays.length > 0) {
+      if (!h.frequencyDays.includes(new Date().getDay())) return false;
+    }
+    return true;
+  }) || [];
   const todaysExerciseLogs = useLiveQuery(() => db.exerciseLogs.where('date').equals(todayStr).toArray()) || [];
   const todaysHabitLogs = useLiveQuery(() => db.habitLogs.where('date').equals(todayStr).toArray()) || [];
   const todaysHourLogs = useLiveQuery(() => db.hourLogs.where('date').equals(todayStr).toArray()) || [];

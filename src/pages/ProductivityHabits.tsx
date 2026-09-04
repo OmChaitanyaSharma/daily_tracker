@@ -10,6 +10,37 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#2c2e31] text-[#d1d0c5] p-3 rounded-lg shadow-xl border-none font-mono text-sm leading-relaxed min-w-[120px]">
+        <div className="font-bold mb-2 text-lg">{label}</div>
+        {payload.map((entry: any, index: number) => (
+          <div key={`item-${index}`} className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: entry.color }} />
+            <span className="opacity-80">{entry.name}:</span>
+            <span className="font-bold ml-auto">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomLegend = ({ payload }: any) => {
+  return (
+    <div className="flex flex-wrap justify-center gap-6 pt-4 font-mono text-sm text-[#646669]">
+      {payload.map((entry: any, index: number) => (
+        <div key={`item-${index}`} className="flex items-center gap-2">
+          <div className="w-3 h-[2px]" style={{ backgroundColor: entry.color }} />
+          <span>{entry.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export function ProductivityHabits() {
   const { playClick } = useSound();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -22,6 +53,12 @@ export function ProductivityHabits() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [editName, setEditName] = useState('');
   const [editStartDate, setEditStartDate] = useState('');
+
+  const [newHabitFreqType, setNewHabitFreqType] = useState<'daily' | 'specific_days'>('daily');
+  const [newHabitFreqDays, setNewHabitFreqDays] = useState<number[]>([]);
+  
+  const [editFreqType, setEditFreqType] = useState<'daily' | 'specific_days'>('daily');
+  const [editFreqDays, setEditFreqDays] = useState<number[]>([]);
   
   const [archivingHabit, setArchivingHabit] = useState<Habit | null>(null);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
@@ -139,9 +176,13 @@ export function ProductivityHabits() {
       name: newHabitName.trim(),
       createdAt: new Date().toISOString(),
       startDate: getTodayStr(),
-      archived: false
+      archived: false,
+      frequencyType: newHabitFreqType,
+      frequencyDays: newHabitFreqDays
     });
     setNewHabitName('');
+    setNewHabitFreqType('daily');
+    setNewHabitFreqDays([]);
     setIsAddingHabit(false);
   };
 
@@ -150,11 +191,15 @@ export function ProductivityHabits() {
     if (!editingHabit || !editName.trim()) return;
     await db.habits.update(editingHabit.id, { 
       name: editName.trim(),
-      startDate: editStartDate || undefined
+      startDate: editStartDate || undefined,
+      frequencyType: editFreqType,
+      frequencyDays: editFreqDays
     });
     setEditingHabit(null);
     setEditName('');
     setEditStartDate('');
+    setEditFreqType('daily');
+    setEditFreqDays([]);
   };
 
   const confirmArchive = async () => {
@@ -345,6 +390,74 @@ export function ProductivityHabits() {
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in relative">
       
+      {/* Add Habit Modal */}
+      {isAddingHabit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative">
+            <button onClick={() => setIsAddingHabit(false)} className="absolute top-4 right-4 text-text-muted hover:text-text-main">
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-serif italic text-text-main mb-6">New Habit</h3>
+            <form onSubmit={handleAddHabit} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Habit Name</label>
+                <input 
+                  type="text" 
+                  value={newHabitName}
+                  onChange={e => setNewHabitName(e.target.value)}
+                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Frequency Type</label>
+                <select
+                  value={newHabitFreqType}
+                  onChange={e => setNewHabitFreqType(e.target.value as any)}
+                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
+                >
+                  <option value="daily">Every Day</option>
+                  <option value="specific_days">Specific Days</option>
+                </select>
+              </div>
+              {newHabitFreqType === 'specific_days' && (
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Days of Week</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => {
+                          if (newHabitFreqDays.includes(i)) {
+                            setNewHabitFreqDays(newHabitFreqDays.filter(day => day !== i));
+                          } else {
+                            setNewHabitFreqDays([...newHabitFreqDays, i]);
+                          }
+                        }}
+                        className={clsx(
+                          "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border",
+                          newHabitFreqDays.includes(i) 
+                            ? "bg-text-main text-bg-base border-text-main" 
+                            : "bg-bg-base text-text-muted border-border-strong hover:border-text-muted"
+                        )}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div className="flex justify-end pt-4">
+                <button type="submit" disabled={!newHabitName.trim()} className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90 disabled:opacity-50">
+                  Add Habit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Edit Habit Modal */}
       {editingHabit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
@@ -373,6 +486,45 @@ export function ProductivityHabits() {
                   className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
                 />
               </div>
+              <div>
+                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Frequency Type</label>
+                <select
+                  value={editFreqType}
+                  onChange={e => setEditFreqType(e.target.value as any)}
+                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
+                >
+                  <option value="daily">Every Day</option>
+                  <option value="specific_days">Specific Days</option>
+                </select>
+              </div>
+              {editFreqType === 'specific_days' && (
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Days of Week</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d, i) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => {
+                          if (editFreqDays.includes(i)) {
+                            setEditFreqDays(editFreqDays.filter(day => day !== i));
+                          } else {
+                            setEditFreqDays([...editFreqDays, i]);
+                          }
+                        }}
+                        className={clsx(
+                          "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border",
+                          editFreqDays.includes(i) 
+                            ? "bg-text-main text-bg-base border-text-main" 
+                            : "bg-bg-base text-text-muted border-border-strong hover:border-text-muted"
+                        )}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-end pt-4">
                 <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90">
                   Save Changes
@@ -523,6 +675,8 @@ export function ProductivityHabits() {
                               onClick={() => {
                                 setEditName(habit.name);
                                 setEditStartDate(habit.startDate || '');
+                                setEditFreqType(habit.frequencyType || 'daily');
+                                setEditFreqDays(habit.frequencyDays || []);
                                 setEditingHabit(habit);
                                 setActiveMenuHabitId(null);
                               }}
@@ -566,26 +720,29 @@ export function ProductivityHabits() {
                   const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                   const currentStatus = log?.status || 'none';
                   const startDateStr = habit.startDate || '2000-01-01';
-                  const isEligible = dateStr >= startDateStr;
+                  let isEligible = dateStr >= startDateStr;
+                  if (isEligible && habit.frequencyType === 'specific_days' && habit.frequencyDays && habit.frequencyDays.length > 0) {
+                    isEligible = habit.frequencyDays.includes(date.getDay());
+                  }
                   const isSunday = date.getDay() === 0;
                   
                   return (
                     <button
                       key={dateStr}
-                      disabled={!isEligible}
+                      disabled={!isEligible && !log}
                       onClick={() => toggleHabit(habit.id, dateStr, log?.status, log?.id)}
                       className={clsx(
                         "w-full h-10 flex items-center justify-center transition-all group",
-                        !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
+                        !isEligible && !log ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
                         isToday(date) && "bg-accent-red-bg/20",
                         isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
                       )}
                     >
                       <span className={clsx(
                         "text-xl transition-transform duration-300 group-active:scale-75",
-                        isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
+                        currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : (isEligible ? "text-text-muted opacity-20" : "opacity-0")
                       )}>
-                        {isEligible ? (currentStatus === 'completed' ? '●' : currentStatus === 'partial' ? '◐' : '○') : '-'}
+                        {currentStatus === 'completed' ? '●' : currentStatus === 'partial' ? '◐' : (isEligible ? '·' : '')}
                       </span>
                     </button>
                   );
@@ -599,10 +756,17 @@ export function ProductivityHabits() {
                   daysInMonth.forEach(date => {
                     const dateStr = format(date, 'yyyy-MM-dd');
                     if (dateStr >= startDateStr) {
-                      eligibleDays++;
+                      let dayIsEligible = true;
+                      if (habit.frequencyType === 'specific_days' && habit.frequencyDays && habit.frequencyDays.length > 0) {
+                        dayIsEligible = habit.frequencyDays.includes(date.getDay());
+                      }
+                      
                       const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
-                      if (log?.status === 'completed') score += 1;
-                      if (log?.status === 'partial') score += 0.5;
+                      if (dayIsEligible || log) {
+                        if (dayIsEligible) eligibleDays++;
+                        if (log?.status === 'completed') score += 1;
+                        if (log?.status === 'partial') score += 0.5;
+                      }
                     }
                   });
 
@@ -627,28 +791,12 @@ export function ProductivityHabits() {
             {/* Add Habit Column */}
             <div className="w-16 shrink-0 flex flex-col items-center">
               <div className="h-40 w-full flex items-end justify-center pb-4 border-b border-border-strong sticky top-0 bg-bg-surface z-20">
-                {isAddingHabit ? (
-                  <form onSubmit={handleAddHabit} className="flex flex-col items-center gap-2">
-                    <input
-                      autoFocus
-                      type="text"
-                      value={newHabitName}
-                      onChange={e => setNewHabitName(e.target.value)}
-                      onBlur={() => {
-                        if (!newHabitName) setIsAddingHabit(false);
-                      }}
-                      placeholder="Name"
-                      className="w-24 -rotate-90 origin-bottom-left absolute translate-x-12 translate-y-[-40px] text-sm bg-bg-base border border-border-strong rounded px-2 py-1 outline-none shadow-sm"
-                    />
-                  </form>
-                ) : (
-                  <button 
-                    onClick={() => setIsAddingHabit(true)}
-                    className="p-1.5 rounded-full text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-strong transition-all"
-                  >
-                    <Plus size={18} />
-                  </button>
-                )}
+                <button 
+                  onClick={() => setIsAddingHabit(true)}
+                  className="p-1.5 rounded-full text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-strong transition-all"
+                >
+                  <Plus size={18} />
+                </button>
               </div>
               {daysInMonth.map(date => (
                 <div key={date.toISOString()} className="h-10 border-b border-border-subtle w-full" />
@@ -665,42 +813,32 @@ export function ProductivityHabits() {
           <div className="h-[360px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={graphData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="none" vertical={true} stroke="var(--border-strong)" />
+                <CartesianGrid strokeDasharray="none" vertical={true} horizontal={false} stroke="var(--border-strong)" opacity={0.5} />
                 <XAxis 
                   dataKey="date" 
-                  axisLine={{ stroke: 'var(--border-strong)' }} 
-                  tickLine={{ stroke: 'var(--border-strong)' }} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'monospace', opacity: 0.7 }}
                   dy={10}
                 />
                 <YAxis 
-                  axisLine={{ stroke: 'var(--border-strong)' }} 
-                  tickLine={{ stroke: 'var(--border-strong)' }} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontFamily: 'monospace', opacity: 0.7 }}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(var(--bg-surface), 0.8)', 
-                    backdropFilter: 'blur(12px)',
-                    borderColor: 'var(--border-strong)', 
-                    borderRadius: '16px',
-                    boxShadow: 'var(--shadow-soft)'
-                  }}
-                  itemStyle={{ fontSize: '14px', fontWeight: 600 }}
-                  labelStyle={{ fontWeight: 'bold', color: 'var(--text-main)', marginBottom: '4px' }}
-                />
-                <Legend verticalAlign="top" height={40} wrapperStyle={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 500 }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'var(--border-strong)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                <Legend content={<CustomLegend />} />
                 
                 {hourCategories.map(cat => (
                   <Line 
                     key={cat.id}
-                    type="linear" 
-                    dataKey={cat.name} 
-                    stroke={cat.color} 
-                    strokeWidth={2} 
-                    connectNulls={false}
-                    dot={(props: any) => props.value ? <circle key={props.key || props.index} cx={props.cx} cy={props.cy} r={4} fill={props.stroke} stroke="var(--bg-surface)" strokeWidth={1} /> : null} 
-                    activeDot={{ r: 6, fill: cat.color, strokeWidth: 0, style: { filter: `drop-shadow(0 0 8px ${cat.color})` } }} 
+                    type="monotone" 
+                    dataKey={cat.name}
+                    stroke={cat.color}
+                    strokeWidth={2}
+                    dot={{ r: 3, fill: cat.color, strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: cat.color, strokeWidth: 0 }}
+                    connectNulls
                   />
                 ))}
               </LineChart>
