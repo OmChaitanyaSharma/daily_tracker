@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
-import { motion } from 'framer-motion';
+
 
 export function ProductivityHabits() {
   const { playClick } = useSound();

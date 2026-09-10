@@ -302,6 +302,35 @@ export class DailyTrackerDB extends Dexie {
         }
       }
     });
+
+    // Version 9 schema definition (RPG System)
+    this.version(9).stores({
+      dayEntries: 'date',
+      tasks: 'id, date, completed',
+      habits: 'id, archived',
+      habitLogs: 'id, date, habitId, status',
+      hourLogs: 'id, date, activity',
+      hourCategories: 'id, name',
+      goals: 'id, category',
+      goalMeasurements: 'id, goalId, date',
+      exercises: 'id, name, archived',
+      exerciseLogs: 'id, date, exerciseId',
+      events: 'id, date, type',
+      userProfile: 'id',
+      bosses: 'id, weekStr'
+    }).upgrade(async tx => {
+      // Initialize user profile
+      if (await tx.table('userProfile').count() === 0) {
+        await tx.table('userProfile').add({
+          id: 'default',
+          coinsSpent: 0,
+          freezes: 1, // 1 free freeze
+          strExp: 0,
+          intExp: 0,
+          chaExp: 0
+        });
+      }
+    });
   }
 }
 
