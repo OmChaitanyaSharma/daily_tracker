@@ -208,7 +208,7 @@ export function Home() {
         {/* 6. Today's Quests */}
         <div className="md:col-span-12 bg-bg-surface border border-border-strong rounded-[2rem] p-8 shadow-sm">
            <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-6">
-              <h2 className="text-2xl font-serif italic text-text-main">Daily Quests</h2>
+              <h2 className="text-2xl font-serif italic text-text-main">Active Bounties</h2>
               <div className="flex gap-2">
                  <Link to="/habits/productivity" className="px-4 py-2 rounded-full bg-bg-base border border-border-strong text-xs font-bold uppercase tracking-widest text-text-muted hover:text-text-main transition-colors">Habits</Link>
                  <Link to="/habits/health" className="px-4 py-2 rounded-full bg-bg-base border border-border-strong text-xs font-bold uppercase tracking-widest text-text-muted hover:text-text-main transition-colors">Fitness</Link>
@@ -218,7 +218,7 @@ export function Home() {
            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Quest 1: Habits */}
               <div className={clsx("p-6 rounded-2xl border transition-colors", habitConditionMet ? "bg-accent-green-bg/30 border-accent-green/30" : "bg-bg-base border-border-strong")}>
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Quest I: Protocol</h3>
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Bounty I: Protocol</h3>
                  <div className="flex items-center gap-4 mb-4">
                     <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2", habitConditionMet ? "bg-accent-green-bg text-accent-green border-accent-green" : "border-border-strong text-text-muted")}>
                        {habitConditionMet ? <Check size={20} strokeWidth={3}/> : <CheckSquare size={20}/>}
@@ -232,7 +232,7 @@ export function Home() {
 
               {/* Quest 2: Focus Hours */}
               <div className={clsx("p-6 rounded-2xl border transition-colors", hoursConditionMet ? "bg-accent-green-bg/30 border-accent-green/30" : "bg-bg-base border-border-strong")}>
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Quest II: Deep Work</h3>
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Bounty II: Deep Work</h3>
                  <div className="flex items-center gap-4 mb-4">
                     <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2", hoursConditionMet ? "bg-accent-green-bg text-accent-green border-accent-green" : "border-border-strong text-text-muted")}>
                        {hoursConditionMet ? <Check size={20} strokeWidth={3}/> : <LineChart size={20}/>}
@@ -246,7 +246,7 @@ export function Home() {
 
               {/* Quest 3: Exercises */}
               <div className={clsx("p-6 rounded-2xl border transition-colors", pendingExercises.length === 0 ? "bg-accent-green-bg/30 border-accent-green/30" : "bg-bg-base border-border-strong")}>
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Quest III: Physical</h3>
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Bounty III: Physical</h3>
                  <div className="flex items-center gap-4 mb-4">
                     <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2", pendingExercises.length === 0 ? "bg-accent-green-bg text-accent-green border-accent-green" : "border-border-strong text-text-muted")}>
                        {pendingExercises.length === 0 ? <Check size={20} strokeWidth={3}/> : <Dumbbell size={20}/>}

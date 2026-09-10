@@ -13,6 +13,7 @@ export function Layout() {
   });
   
   const [isVisible, setIsVisible] = useState(true);
+  const [zenMode, setZenMode] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   
   const navigate = useNavigate();
@@ -170,8 +171,11 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0">
-      <Snowfall />
+    <div className={clsx(
+      "min-h-screen w-full text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0 transition-colors duration-1000",
+      zenMode ? "bg-[#09090b]" : "bg-bg-base"
+    )}>
+      {!zenMode && <Snowfall />}
       
       {/* Floating Bottom Dock */}
       <div 
@@ -184,23 +188,27 @@ export function Layout() {
       >
         <nav className="bg-bg-surface/80 backdrop-blur-xl border border-border-strong px-4 py-3 rounded-3xl flex items-center gap-2 shadow-2xl">
           <Link to="/" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
-             <span className="text-xl group-hover:scale-125 transition-transform duration-300">🏠</span>
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">??</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HOME</span>
           </Link>
           <div className="w-[1px] h-8 bg-border-strong mx-1" />
           <Link to="/highlight" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
-             <span className="text-xl group-hover:scale-125 transition-transform duration-300">📝</span>
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">??</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">LOG</span>
           </Link>
           <Link to="/habits/productivity" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
-             <span className="text-xl group-hover:scale-125 transition-transform duration-300">⚔️</span>
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">??</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HABITS</span>
           </Link>
           <Link to="/habits/health" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
-             <span className="text-xl group-hover:scale-125 transition-transform duration-300">💪</span>
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">??</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">FIT</span>
           </Link>
           <div className="w-[1px] h-8 bg-border-strong mx-1" />
+          <button onClick={() => setZenMode(!zenMode)} className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">{zenMode ? '???' : '??'}</span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">ZEN</span>
+          </button>
           <button onClick={toggleTheme} className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
              <span className="text-text-muted group-hover:text-text-main group-hover:scale-125 transition-all duration-300">
                {isDark ? <Sun size={20} /> : <Moon size={20} />}
@@ -210,9 +218,30 @@ export function Layout() {
         </nav>
       </div>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-32 w-full animate-fade-in flex-1">
+      <main className={clsx(
+        "max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-32 w-full animate-fade-in flex-1",
+        zenMode && "hidden"
+      )}>
         <Outlet />
       </main>
+
+      {zenMode && (
+        <div className="fixed inset-0 z-40 bg-[#09090b] flex flex-col items-center justify-center animate-fade-in">
+           <div className="text-[#a1a1aa] font-mono text-xs uppercase tracking-[0.5em] mb-12">Focus Mode Activated</div>
+           <h1 className="text-5xl md:text-7xl font-serif text-[#ececf1] mb-16 tracking-tight text-center max-w-2xl leading-tight">
+             Time to execute.<br />Do the next thing.
+           </h1>
+           <button 
+             onClick={() => {
+               const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true });
+               window.dispatchEvent(e);
+             }}
+             className="px-10 py-5 rounded-full border border-[#27272a] hover:border-accent-blue bg-transparent text-[#ececf1] font-mono text-sm uppercase tracking-widest hover:bg-accent-blue/5 hover:text-accent-blue transition-all duration-500 shadow-[0_0_0_rgba(59,130,246,0)] hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+           >
+             Launch Command Palette
+           </button>
+        </div>
+      )}
     </div>
   );
 }

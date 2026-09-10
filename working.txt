@@ -21,3 +21,11 @@ A global overlay that replaces standard click navigation.
 
 ## Testing & Execution
 All components utilize Tailwind CSS for styles, and state is preserved locally via Dexie (IndexedDB) as per the stable branch logic. No database schemas were altered, ensuring total backward compatibility if these UI components are ever cherry-picked into main.
+
+## 4. RPG Quest Log (Gamification)
+- "Daily Quests" have been renamed to "Active Bounties".
+- An "HP Bar" (Shield HP) has been added directly to the Streak Widget on the Home page. It dynamically calculates your HP based on your available "Freeze Tokens" (2 tokens = 100 HP, 1 token = 50 HP, 0 tokens = 10 HP Danger State).
+
+## 5. Zen Focus Mode
+- Added a "Zen Mode" toggle to the floating bottom dock.
+- When activated, it hides all stats, navigation, and charts, plunging the user into a distraction-free, fullscreen dark void with a single directive: "Time to execute." and a button to launch the Command Palette.
