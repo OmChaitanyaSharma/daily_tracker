@@ -42,8 +42,8 @@ describe('Streak Calculation', () => {
       { id: 'h2', activity: 'Web Dev', date: todayStr, hours: 6 }
     ];
     
-    const allExercises = [];
-    const allExerciseLogs = [];
+    const allExercises: any[] = [];
+    const allExerciseLogs: any[] = [];
 
     // Mock localStorage for the test environment
     if (typeof window !== 'undefined') {
@@ -51,7 +51,7 @@ describe('Streak Calculation', () => {
        window.localStorage.setItem('targetHours', '6.0');
     }
 
-    const { streak, freezesOwned } = calculateStreak(
+    const { streak } = calculateStreak(
       allHabits,
       allHabitLogsForStreak,
       allHourLogsForStreak,

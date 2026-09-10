@@ -3,7 +3,7 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, format, addMonths, subMont
 import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
-import type { CalendarEvent } from '../db';
+
 import clsx from 'clsx';
 
 export function Calendar() {
