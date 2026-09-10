@@ -9,6 +9,7 @@ export function AutumnLeaves() {
       left: `${Math.random() * 100}vw`,
       animationDuration: `${Math.random() * 4 + 6}s`,
       animationDelay: `-${Math.random() * 5}s`,
+      spinDuration: `${Math.random() * 2 + 2}s`,
       opacity: Math.random() * 0.6 + 0.4,
       size: `${Math.random() * 10 + 10}px`,
       color: Math.random() > 0.5 ? 'var(--accent-yellow)' : 'var(--accent-red)',
@@ -22,17 +23,24 @@ export function AutumnLeaves() {
       {leaves.map(leaf => (
         <div
           key={leaf.id}
-          className="absolute top-[-10%] rounded-tr-[50%] rounded-bl-[50%]"
+          className="absolute top-[-10%]"
           style={{
             left: leaf.left,
-            width: leaf.size,
-            height: leaf.size,
-            backgroundColor: leaf.color,
-            opacity: leaf.opacity,
-            animation: `fall-leaf ${leaf.animationDuration} ease-in-out infinite alternate, spin-leaf ${leaf.animationDuration} linear infinite`,
+            animation: `fall-leaf ${leaf.animationDuration} linear infinite`,
             animationDelay: leaf.animationDelay,
           }}
-        />
+        >
+          <div 
+             className="rounded-tr-[50%] rounded-bl-[50%]"
+             style={{
+               width: leaf.size,
+               height: leaf.size,
+               backgroundColor: leaf.color,
+               opacity: leaf.opacity,
+               animation: `spin-leaf ${leaf.spinDuration} linear infinite alternate`
+             }}
+          />
+        </div>
       ))}
       <style>{`
         @keyframes fall-leaf {
