@@ -12,6 +12,8 @@ import { HealthGoals } from './pages/HealthGoals';
 import { Logs } from './pages/Logs';
 import { resetAndSeedDatabase } from './seedData';
 
+import { CommandPalette } from './components/CommandPalette';
+
 export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -33,6 +35,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <CommandPalette />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />

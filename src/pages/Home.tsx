@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { LevelUpCelebration } from '../components/LevelUpCelebration';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check } from 'lucide-react';
+import { CheckSquare, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
 import { useLevelSystem, DEV_RANKS, FIT_RANKS } from '../hooks/useLevelSystem';
@@ -12,7 +12,7 @@ import { db } from '../db';
 import { getTodayStr } from '../utils/dateUtils';
 
 export function Home() {
-  const { streak, freezesOwned, freezeUsedToday, isLoading: streakLoading } = useStreak();
+  const { streak, freezesOwned, isLoading: streakLoading } = useStreak();
   const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
@@ -104,342 +104,238 @@ export function Home() {
   const fitTitle = fitness.title;
 
   return (
-    <div className="flex flex-col gap-16 md:gap-24 animate-fade-in max-w-4xl mx-auto pt-4 relative">
-      
-      <header className="text-center space-y-6 relative">
-        <button 
-          onClick={() => setShowWinterArcRules(true)}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-text-muted text-xs font-medium tracking-widest uppercase mb-4 shadow-sm hover:border-accent-blue/50 hover:bg-accent-blue/5 transition-colors cursor-pointer"
-        >
-          <Snowflake size={12} className="text-accent-blue opacity-70" />
-          <span>Winter Arc</span>
-        </button>
-        <h1 className="text-4xl md:text-6xl font-serif text-text-main tracking-tight mt-0">
-          <span className="marker-highlight font-medium">{format(new Date(), 'EEEE')}</span>, <br className="md:hidden"/> {format(new Date(), 'MMMM do')}
-        </h1>
-        <p className="text-text-muted uppercase tracking-[0.2em] text-sm font-medium">
-          Welcome to your daily journal
-        </p>
+    <div className="max-w-6xl mx-auto pt-4 md:pt-12 pb-24 px-4 animate-fade-in relative">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8 animate-slide-up">
+        {/* 1. Welcome & Date */}
+        <div className="md:col-span-8 bg-bg-surface border border-border-strong rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Snowflake size={120} />
+          </div>
           <button 
-            onClick={() => setShowStreakModal(true)}
-            className={clsx(
-              "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-500 cursor-pointer hover:border-accent-yellow relative",
-              freezeUsedToday 
-                ? "border-accent-blue bg-accent-blue/10 text-accent-blue"
-                : streak > 0 
-                  ? "border-accent-yellow bg-accent-yellow-bg text-accent-yellow"
-                  : "border-border-strong bg-bg-surface text-text-muted opacity-60 hover:text-text-main"
-            )}>
-            {freezeUsedToday ? (
-              <Snowflake size={20} className="text-accent-blue animate-pulse" />
-            ) : (
-              <Flame 
-                size={20} 
-                className={clsx(
-                  "transition-all duration-500",
-                  streak > 0 ? "fill-accent-yellow text-accent-yellow animate-fire" : "text-text-muted"
-                )} 
-              />
-            )}
-            
-            <span>{streak} Day {freezeUsedToday ? 'Frozen' : 'Streak'}</span>
-
-            {/* Freeze Tokens Indicators */}
-            {freezesOwned > 0 && !freezeUsedToday && (
-              <div className="flex gap-0.5 ml-1 opacity-80">
-                {Array.from({ length: freezesOwned }).map((_, i) => (
-                  <Snowflake key={i} size={12} className="text-accent-blue fill-accent-blue/20" />
-                ))}
-              </div>
-            )}
+            onClick={() => setShowWinterArcRules(true)}
+            className="self-start inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border-strong bg-bg-base text-text-muted text-xs font-bold tracking-widest uppercase mb-6 shadow-sm hover:border-accent-blue/50 hover:bg-accent-blue/5 transition-colors cursor-pointer z-10"
+          >
+            <Snowflake size={12} className="text-accent-blue" />
+            <span>Winter Arc Active</span>
           </button>
+          <h1 className="text-5xl md:text-7xl font-serif text-text-main tracking-tight mt-0 z-10">
+            <span className="font-medium text-text-muted">{format(new Date(), 'EEEE')},</span><br />
+            {format(new Date(), 'MMMM do')}
+          </h1>
+        </div>
 
-          <div className="flex gap-4">
-            <button onClick={() => setLevelModal('dev')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-blue transition-colors cursor-pointer text-left">
-              <Code size={18} className="text-accent-blue" />
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-text-muted leading-none">Dev Lvl {dev.level}</span>
-                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden">
-                  <div className="h-full bg-accent-blue transition-all duration-1000" style={{ width: `${dev.progress}%` }} />
-                </div>
-              </div>
-            </button>
-
-            <button onClick={() => setLevelModal('fit')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-green transition-colors cursor-pointer text-left">
-              <Dumbbell size={18} className="text-accent-green" />
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-bold text-text-muted leading-none">Fit Lvl {fitness.level}</span>
-                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden">
-                  <div className="h-full bg-accent-green transition-all duration-1000" style={{ width: `${fitness.progress}%` }} />
-                </div>
-              </div>
-            </button>
+        {/* 2. Streak Glass Card */}
+        <div 
+          onClick={() => setShowStreakModal(true)}
+          className="md:col-span-4 bg-gradient-to-br from-bg-surface to-bg-base border border-border-strong rounded-[2rem] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:border-accent-blue/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all group shadow-sm"
+        >
+          <div className="relative mb-4">
+            <Flame size={64} className={clsx("transition-all duration-700", streak > 0 ? "text-accent-blue drop-shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-110" : "text-text-muted opacity-30 grayscale")} />
+          </div>
+          <div className="text-5xl font-bold font-mono tracking-tighter text-text-main mb-2">
+            {streak} <span className="text-2xl text-text-muted font-serif italic">Days</span>
+          </div>
+          <div className="text-xs uppercase tracking-widest font-bold text-text-muted group-hover:text-accent-blue transition-colors">
+            Current Streak
           </div>
         </div>
-      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        <Link to="/highlight" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-red-bg text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <PenTool size={32} strokeWidth={1.5} />
+        {/* 3. Command Palette Trigger */}
+        <div 
+          onClick={() => {
+            const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true });
+            window.dispatchEvent(e);
+          }}
+          className="md:col-span-12 bg-bg-surface border border-border-strong rounded-2xl p-4 md:p-6 flex items-center gap-4 cursor-text hover:border-text-muted transition-colors shadow-sm"
+        >
+          <div className="bg-bg-base p-2 rounded-lg border border-border-subtle">
+            <Search size={20} className="text-text-muted" />
+          </div>
+          <span className="text-text-muted font-mono text-sm md:text-base flex-1">Press <kbd className="bg-bg-base border border-border-subtle px-2 py-1 rounded text-text-main mx-1">Cmd</kbd> + <kbd className="bg-bg-base border border-border-subtle px-2 py-1 rounded text-text-main mx-1">K</kbd> to launch Command Palette...</span>
+        </div>
+
+        {/* 4. RPG Stats: Dev */}
+        <div 
+          onClick={() => setLevelModal('dev')}
+          className="md:col-span-6 bg-bg-surface border border-border-strong rounded-[2rem] p-8 cursor-pointer hover:border-accent-blue/50 transition-all group shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-accent-blue/10 text-accent-blue flex items-center justify-center border border-accent-blue/20 group-hover:scale-110 transition-transform">
+              <Code size={24} />
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-1">Developer Rank</div>
+              <div className="text-xl font-serif font-bold text-accent-blue">{devTitle}</div>
+            </div>
           </div>
           <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Highlight of the Day</h2>
-            <p className="text-text-muted text-sm leading-relaxed max-w-[250px] mx-auto">
-              Reflect on your day, capture what went well, and log your overall mood.
-            </p>
+            <div className="flex justify-between items-end mb-3">
+              <span className="text-sm font-mono text-text-muted">Level {dev.level}</span>
+              <span className="text-xs font-mono text-text-muted">{totalHours.toFixed(1)} hrs total</span>
+            </div>
+            <div className="h-2 bg-bg-base rounded-full overflow-hidden border border-border-subtle">
+              <div className="h-full bg-accent-blue transition-all duration-1000" style={{ width: `${(dev.level % 10) * 10}%` }} />
+            </div>
           </div>
-        </Link>
+        </div>
 
-        <Link to="/habits" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <CheckSquare size={32} strokeWidth={1.5} />
+        {/* 5. RPG Stats: Fitness */}
+        <div 
+          onClick={() => setLevelModal('fit')}
+          className="md:col-span-6 bg-bg-surface border border-border-strong rounded-[2rem] p-8 cursor-pointer hover:border-accent-green/50 transition-all group shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-accent-green-bg text-accent-green flex items-center justify-center border border-accent-green/30 group-hover:scale-110 transition-transform">
+              <Dumbbell size={24} />
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-1">Fitness Rank</div>
+              <div className="text-xl font-serif font-bold text-accent-green">{fitTitle}</div>
+            </div>
           </div>
           <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Habits</h2>
-            <p className="text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
-              Track your daily consistency and view your monthly heatmap.
-            </p>
+            <div className="flex justify-between items-end mb-3">
+              <span className="text-sm font-mono text-text-muted">Level {fitness.level}</span>
+              <span className="text-xs font-mono text-text-muted">{totalReps} reps total</span>
+            </div>
+            <div className="h-2 bg-bg-base rounded-full overflow-hidden border border-border-subtle">
+              <div className="h-full bg-accent-green transition-all duration-1000" style={{ width: `${(fitness.level % 10) * 10}%` }} />
+            </div>
           </div>
-        </Link>
+        </div>
 
-        <Link to="/goals" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-yellow-bg text-accent-yellow flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <Target size={32} strokeWidth={1.5} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Goals</h2>
-            <p className="text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
-              Set long-term objectives and break them down into actionable steps.
-            </p>
-          </div>
-        </Link>
+        {/* 6. Today's Quests */}
+        <div className="md:col-span-12 bg-bg-surface border border-border-strong rounded-[2rem] p-8 shadow-sm">
+           <div className="flex items-center justify-between mb-8 border-b border-border-subtle pb-6">
+              <h2 className="text-2xl font-serif italic text-text-main">Daily Quests</h2>
+              <div className="flex gap-2">
+                 <Link to="/habits/productivity" className="px-4 py-2 rounded-full bg-bg-base border border-border-strong text-xs font-bold uppercase tracking-widest text-text-muted hover:text-text-main transition-colors">Habits</Link>
+                 <Link to="/habits/health" className="px-4 py-2 rounded-full bg-bg-base border border-border-strong text-xs font-bold uppercase tracking-widest text-text-muted hover:text-text-main transition-colors">Fitness</Link>
+              </div>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Quest 1: Habits */}
+              <div className={clsx("p-6 rounded-2xl border transition-colors", habitConditionMet ? "bg-accent-green-bg/30 border-accent-green/30" : "bg-bg-base border-border-strong")}>
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Quest I: Protocol</h3>
+                 <div className="flex items-center gap-4 mb-4">
+                    <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2", habitConditionMet ? "bg-accent-green-bg text-accent-green border-accent-green" : "border-border-strong text-text-muted")}>
+                       {habitConditionMet ? <Check size={20} strokeWidth={3}/> : <CheckSquare size={20}/>}
+                    </div>
+                    <div className="flex-1">
+                       <div className={clsx("text-sm font-bold mb-1", habitConditionMet ? "text-text-muted line-through" : "text-text-main")}>Complete 75% of Habits</div>
+                       <div className="text-xs font-mono text-text-muted">{habitScore} / {activeHabits.length} (Need: {Math.ceil(activeHabits.length * 0.75)})</div>
+                    </div>
+                 </div>
+              </div>
 
-        <Link to="/logs" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-blue-bg text-accent-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <LineChart size={32} strokeWidth={1.5} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Logs</h2>
-            <p className="text-text-muted text-sm leading-relaxed max-w-[250px] mx-auto">
-              Look back at your history, review your journal, and analyze long-term progress.
-            </p>
-          </div>
-        </Link>
+              {/* Quest 2: Focus Hours */}
+              <div className={clsx("p-6 rounded-2xl border transition-colors", hoursConditionMet ? "bg-accent-green-bg/30 border-accent-green/30" : "bg-bg-base border-border-strong")}>
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Quest II: Deep Work</h3>
+                 <div className="flex items-center gap-4 mb-4">
+                    <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2", hoursConditionMet ? "bg-accent-green-bg text-accent-green border-accent-green" : "border-border-strong text-text-muted")}>
+                       {hoursConditionMet ? <Check size={20} strokeWidth={3}/> : <LineChart size={20}/>}
+                    </div>
+                    <div className="flex-1">
+                       <div className={clsx("text-sm font-bold mb-1", hoursConditionMet ? "text-text-muted line-through" : "text-text-main")}>Log 6.0 Focus Hours</div>
+                       <div className="text-xs font-mono text-text-muted">{todaysTotalHours.toFixed(1)} / 6.0 hrs</div>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Quest 3: Exercises */}
+              <div className={clsx("p-6 rounded-2xl border transition-colors", pendingExercises.length === 0 ? "bg-accent-green-bg/30 border-accent-green/30" : "bg-bg-base border-border-strong")}>
+                 <h3 className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-4">Quest III: Physical</h3>
+                 <div className="flex items-center gap-4 mb-4">
+                    <div className={clsx("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2", pendingExercises.length === 0 ? "bg-accent-green-bg text-accent-green border-accent-green" : "border-border-strong text-text-muted")}>
+                       {pendingExercises.length === 0 ? <Check size={20} strokeWidth={3}/> : <Dumbbell size={20}/>}
+                    </div>
+                    <div className="flex-1">
+                       <div className={clsx("text-sm font-bold mb-1", pendingExercises.length === 0 ? "text-text-muted line-through" : "text-text-main")}>Complete Workout</div>
+                       <div className="text-xs font-mono text-text-muted">{activeExercises.length - pendingExercises.length} / {activeExercises.length} Exercises</div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
 
       </div>
 
-      <div className="text-center pt-12 pb-4">
-        <p className="text-[11px] text-text-muted uppercase tracking-[0.2em] font-medium opacity-50">
-          Tip: Press 1-4 to navigate, Esc to return home
-        </p>
-      </div>
-
-      {levelModal && (
-        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setLevelModal(null)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setLevelModal(null)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
+      {/* MODALS */}
+      {showStreakModal && (
+        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowStreakModal(false)}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-sm w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowStreakModal(false)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
               <X size={20} />
             </button>
             
-            <div className="flex items-center gap-4 mb-6">
-              <div className={clsx("w-14 h-14 rounded-full flex items-center justify-center", levelModal === 'dev' ? "bg-accent-blue-bg text-accent-blue" : "bg-accent-green-bg text-accent-green")}>
-                {levelModal === 'dev' ? <Code size={24} /> : <Dumbbell size={24} />}
+            <div className="flex flex-col items-center text-center">
+              <div className="w-20 h-20 bg-accent-blue/10 rounded-full flex items-center justify-center mb-6">
+                <Flame size={40} className="text-accent-blue" />
               </div>
-              <div>
-                <h2 className="text-2xl font-serif text-text-main">
-                  {levelModal === 'dev' ? `Dev Level ${dev.level}` : `Fit Level ${fitness.level}`}
-                </h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={clsx("text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded", levelModal === 'dev' ? "bg-accent-blue-bg text-accent-blue" : "bg-accent-green-bg text-accent-green")}>
-                    {levelModal === 'dev' ? devTitle : fitTitle}
-                  </span>
-                  <p className="text-text-muted text-xs">
-                    • {levelModal === 'dev' ? `${dev.xp} XP` : `${fitness.xp} XP`}
-                  </p>
+              <h2 className="text-3xl font-serif text-text-main mb-2">{streak} Days</h2>
+              <p className="text-text-muted text-sm mb-8">Maintain your streak by completing your Winter Arc rules every day.</p>
+              
+              <div className="w-full bg-bg-base rounded-2xl p-4 border border-border-subtle">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-text-main">Streak Freezes</span>
+                  <div className="flex gap-1">
+                    {[1, 2].map(slot => (
+                      <div key={slot} className={clsx("w-3 h-3 rounded-full border", slot <= freezesOwned ? "bg-accent-blue border-accent-blue" : "border-border-strong")} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-3">Lifetime Stats</h3>
-                <p className="text-text-main">
-                  You have logged <strong className="text-lg mx-1">{levelModal === 'dev' ? totalHours : totalReps}</strong> 
-                  {levelModal === 'dev' ? ' hours of learning & coding.' : ' exercise reps.'}
+                <p className="text-xs text-text-muted text-left">
+                  Earn 1 freeze for every 7 days of perfect streak (Max 2).
                 </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs font-medium text-text-muted mb-2">
-                  <span>Level {levelModal === 'dev' ? dev.level : fitness.level}</span>
-                  <span>Level {levelModal === 'dev' ? dev.level + 1 : fitness.level + 1}</span>
-                </div>
-                <div className="w-full h-3 bg-bg-base border border-border-strong rounded-full overflow-hidden mb-2">
-                  <div 
-                    className={clsx("h-full transition-all duration-1000", levelModal === 'dev' ? "bg-accent-blue" : "bg-accent-green")} 
-                    style={{ width: `${levelModal === 'dev' ? dev.progress : fitness.progress}%` }} 
-                  />
-                </div>
-                <p className="text-xs text-text-muted text-center">
-                  {levelModal === 'dev' 
-                    ? `${dev.nextLevelBaseXp - dev.xp} XP to next level`
-                    : `${fitness.nextLevelBaseXp - fitness.xp} XP to next level`
-                  }
-                </p>
-              </div>
-
-              <div className="mt-6 border-t border-border-strong pt-6">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Rank Progression</h3>
-                <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
-                  {(levelModal === 'dev' ? DEV_RANKS : FIT_RANKS).map((rank, idx, arr) => {
-                    const currentLevel = levelModal === 'dev' ? dev.level : fitness.level;
-                    const prevMax = idx === 0 ? 1 : arr[idx - 1].max + 1;
-                    const isCurrent = currentLevel >= prevMax && currentLevel <= rank.max;
-                    const isFuture = currentLevel < prevMax;
-                    
-                    return (
-                      <div key={rank.title} className={clsx(
-                        "flex items-center justify-between p-3 rounded-xl border",
-                        isCurrent ? (levelModal === 'dev' ? "bg-accent-blue-bg border-accent-blue/50" : "bg-accent-green-bg border-accent-green/50") 
-                        : isFuture ? "bg-bg-base border-border-subtle opacity-50" 
-                        : "bg-bg-base border-border-strong"
-                      )}>
-                        <div>
-                          <span className={clsx("text-sm font-bold", isCurrent ? (levelModal === 'dev' ? "text-accent-blue" : "text-accent-green") : "text-text-main")}>
-                            {rank.title}
-                          </span>
-                        </div>
-                        <div className="text-xs font-mono text-text-muted">
-                          {idx === arr.length - 1 ? `Lv ${prevMax}+` : `Lv ${prevMax}-${rank.max}`}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {showStreakModal && (
-        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowStreakModal(false)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowStreakModal(false)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
+      {levelModal && (
+        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setLevelModal(null)}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-sm w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setLevelModal(null)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
               <X size={20} />
             </button>
             
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center bg-accent-yellow-bg text-accent-yellow">
-                <Flame size={24} />
+            <div className="flex flex-col items-center text-center">
+              <div className={clsx("w-20 h-20 rounded-full flex items-center justify-center mb-6", levelModal === 'dev' ? "bg-accent-blue/10 text-accent-blue" : "bg-accent-green-bg text-accent-green")}>
+                {levelModal === 'dev' ? <Code size={40} /> : <Dumbbell size={40} />}
               </div>
-              <div>
-                <h2 className="text-2xl font-serif text-text-main">
-                  Daily Requirements
-                </h2>
-                <p className="text-text-muted text-sm">
-                  What you need to do today
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Productivity</h3>
-                <div className="flex items-center gap-3">
-                  {habitConditionMet ? (
-                    <div className="w-6 h-6 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center shrink-0">
-                      <Check size={14} strokeWidth={3} />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full border-2 border-border-strong shrink-0"></div>
-                  )}
-                  <span className={clsx("text-sm", habitConditionMet ? "text-text-muted line-through" : "text-text-main")}>
-                    {activeHabits.length > 0 
-                      ? `Score 75% (Current: ${habitScore} / ${activeHabits.length} | Need: ${Math.ceil(activeHabits.length * 0.75)})`
-                      : "No active habits to track."}
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Focus Hours</h3>
-                <div className="flex items-center gap-3">
-                  {hoursConditionMet ? (
-                    <div className="w-6 h-6 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center shrink-0">
-                      <Check size={14} strokeWidth={3} />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full border-2 border-border-strong shrink-0"></div>
-                  )}
-                  <span className={clsx("text-sm", hoursConditionMet ? "text-text-muted line-through" : "text-text-main")}>
-                    Log at least 6.0 Hours (Current: {todaysTotalHours.toFixed(1)}h)
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Fitness Tasks</h3>
-                {activeExercises.length === 0 ? (
-                  <p className="text-sm text-text-muted italic">No active exercises to track.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {activeExercises.map(ex => {
-                      const isPending = pendingExercises.some(p => p.id === ex.id);
-                      return (
-                        <div key={ex.id} className="flex items-center gap-3">
-                          {!isPending ? (
-                            <div className="w-6 h-6 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center shrink-0">
-                              <Check size={14} strokeWidth={3} />
-                            </div>
-                          ) : (
-                            <div className="w-6 h-6 rounded-full border-2 border-border-strong shrink-0"></div>
-                          )}
-                          <span className={clsx("text-sm", !isPending ? "text-text-muted line-through" : "text-text-main font-medium")}>
-                            {ex.name}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              <h2 className="text-3xl font-serif text-text-main mb-2">
+                Level {levelModal === 'dev' ? dev.level : fitness.level}
+              </h2>
+              <p className="text-text-muted text-sm mb-6">
+                {levelModal === 'dev' ? devTitle : fitTitle}
+              </p>
               
-              {(pendingExercises.length > 0 || !habitConditionMet || !hoursConditionMet) ? (
-                <p className="text-xs text-accent-red text-center font-medium bg-accent-red-bg py-2 rounded-lg">
-                  You must complete these to secure your streak!
-                </p>
-              ) : (
-                <p className="text-xs text-accent-green text-center font-medium bg-accent-green-bg py-2 rounded-lg">
-                  All requirements met! Your streak is secured for today.
-                </p>
-              )}
-              
-              {/* Streak Freezes Section */}
-              <div className="bg-bg-base border border-border-subtle rounded-xl p-4 mt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-accent-blue flex items-center gap-2">
-                    <Snowflake size={14} /> 
-                    Streak Freezes
-                  </h3>
-                  <div className="flex gap-1">
-                    {[1, 2].map((slot) => (
-                      <div key={slot} className={clsx("w-3 h-3 rounded-full border", slot <= freezesOwned ? "bg-accent-blue border-accent-blue shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "border-border-strong bg-transparent")}></div>
-                    ))}
-                  </div>
-                </div>
-                <p className="text-[11px] text-text-muted leading-relaxed">
-                  Earn 1 freeze for every 7 days of perfect streak (Max 2). Freezes automatically protect your streak from resetting if you miss a day.
-                </p>
-                {freezeUsedToday && (
-                  <p className="text-xs text-accent-blue font-medium mt-3 bg-accent-blue/10 py-1.5 px-3 rounded-md text-center">
-                    A freeze was used today to protect your streak!
-                  </p>
-                )}
+              <div className="w-full space-y-2">
+                {(levelModal === 'dev' ? DEV_RANKS : FIT_RANKS).map((rank, idx, arr) => {
+                  const currentLevel = levelModal === 'dev' ? dev.level : fitness.level;
+                  const prevMax = idx === 0 ? 1 : arr[idx - 1].max + 1;
+                  const isCurrent = currentLevel >= prevMax && currentLevel <= rank.max;
+                  const isFuture = currentLevel < prevMax;
+                  
+                  return (
+                    <div key={rank.title} className={clsx(
+                      "flex items-center justify-between p-3 rounded-xl border text-left",
+                      isCurrent ? (levelModal === 'dev' ? "bg-accent-blue/10 border-accent-blue/50" : "bg-accent-green-bg border-accent-green/50") 
+                      : isFuture ? "bg-bg-base border-border-subtle opacity-50" 
+                      : "bg-bg-base border-border-strong"
+                    )}>
+                      <span className={clsx("text-sm font-bold", isCurrent ? (levelModal === 'dev' ? "text-accent-blue" : "text-accent-green") : "text-text-main")}>
+                        {rank.title}
+                      </span>
+                      <div className="text-xs font-mono text-text-muted">
+                        {idx === arr.length - 1 ? `Lv ${prevMax}+` : `Lv ${prevMax}-${rank.max}`}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -461,50 +357,30 @@ export function Home() {
             <button onClick={() => setShowWinterArcRules(false)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
               <X size={20} />
             </button>
-            
             <div className="flex items-center gap-4 mb-6">
               <div className="w-14 h-14 rounded-full flex items-center justify-center bg-accent-blue/10 text-accent-blue border border-accent-blue/20">
                 <Snowflake size={24} />
               </div>
               <div>
-                <h2 className="text-2xl font-serif text-text-main">
-                  Winter Arc Rules
-                </h2>
-                <p className="text-text-muted text-sm">
-                  The protocol for the season
-                </p>
+                <h2 className="text-2xl font-serif text-text-main">Winter Arc Rules</h2>
+                <p className="text-text-muted text-sm">The protocol for the season</p>
               </div>
             </div>
-
             <ul className="space-y-4 text-sm font-medium">
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">1</span>
-                <span className="text-text-main">Wake up at 6 am daily / sleep by 10 pm</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">2</span>
-                <span className="text-text-main">Train consistently</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">3</span>
-                <span className="text-text-main">Skin care + hair care</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">4</span>
-                <span className="text-text-main">Work for over 8 hours daily (coding + skills + study)</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">5</span>
-                <span className="text-text-main">Discipline {">>"} Motivation</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">6</span>
-                <span className="text-text-main">Less social media, more books</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">7</span>
-                <span className="text-text-main">Count every calorie you eat</span>
-              </li>
+              {[
+                "Wake up at 6 am daily / sleep by 10 pm",
+                "Train consistently",
+                "Skin care + hair care",
+                "Work for over 8 hours daily (coding + skills + study)",
+                "Discipline >> Motivation",
+                "Less social media, more books",
+                "Count every calorie you eat"
+              ].map((rule, idx) => (
+                <li key={idx} className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                  <span className="text-accent-blue font-bold opacity-80 w-4 text-center">{idx + 1}</span>
+                  <span className="text-text-main">{rule}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
