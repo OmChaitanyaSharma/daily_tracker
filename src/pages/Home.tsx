@@ -154,7 +154,7 @@ export function Home() {
           <div className="bg-bg-base p-2 rounded-lg border border-border-subtle">
             <Search size={20} className="text-text-muted" />
           </div>
-          <span className="text-text-muted font-mono text-sm md:text-base flex-1">Press <kbd className="bg-bg-base border border-border-subtle px-2 py-1 rounded text-text-main mx-1">Cmd</kbd> + <kbd className="bg-bg-base border border-border-subtle px-2 py-1 rounded text-text-main mx-1">K</kbd> to launch Command Palette...</span>
+          <span className="text-text-muted font-mono text-sm md:text-base flex-1">Press <kbd className="bg-bg-base border border-border-subtle px-2 py-1 rounded text-text-main mx-1">Ctrl</kbd> + <kbd className="bg-bg-base border border-border-subtle px-2 py-1 rounded text-text-main mx-1">K</kbd> to launch Command Palette...</span>
         </div>
 
         {/* 4. RPG Stats: Dev */}

@@ -136,6 +136,12 @@ export function CommandPalette() {
                 ref={inputRef}
                 value={success ? feedback : query}
                 onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Shift') {
+                    e.preventDefault();
+                    executeCommand();
+                  }
+                }}
                 placeholder="EXECUTE COMMAND..."
                 disabled={success}
                 className={`flex-1 bg-transparent border-none outline-none text-xl font-mono tracking-widest placeholder:text-[#3f3f46] uppercase ${success ? "text-accent-green" : "text-[#ececf1]"}`}
