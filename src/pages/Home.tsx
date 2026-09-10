@@ -143,6 +143,8 @@ export function Home() {
           </div>
         </div>
 
+
+
         {/* 3. Command Palette Trigger */}
         <div 
           onClick={() => {
@@ -160,7 +162,7 @@ export function Home() {
         {/* 4. RPG Stats: Dev */}
         <div 
           onClick={() => setLevelModal('dev')}
-          className="md:col-span-6 bg-bg-surface border border-border-strong rounded-[2rem] p-8 cursor-pointer hover:border-accent-blue/50 transition-all group shadow-sm flex flex-col justify-between"
+          className="md:col-span-4 bg-bg-surface border border-border-strong rounded-[2rem] p-8 cursor-pointer hover:border-accent-blue/50 transition-all group shadow-sm flex flex-col justify-between"
         >
           <div className="flex justify-between items-start mb-8">
             <div className="w-12 h-12 rounded-2xl bg-accent-blue/10 text-accent-blue flex items-center justify-center border border-accent-blue/20 group-hover:scale-110 transition-transform">
@@ -185,7 +187,7 @@ export function Home() {
         {/* 5. RPG Stats: Fitness */}
         <div 
           onClick={() => setLevelModal('fit')}
-          className="md:col-span-6 bg-bg-surface border border-border-strong rounded-[2rem] p-8 cursor-pointer hover:border-accent-green/50 transition-all group shadow-sm flex flex-col justify-between"
+          className="md:col-span-4 bg-bg-surface border border-border-strong rounded-[2rem] p-8 cursor-pointer hover:border-accent-green/50 transition-all group shadow-sm flex flex-col justify-between"
         >
           <div className="flex justify-between items-start mb-8">
             <div className="w-12 h-12 rounded-2xl bg-accent-green-bg text-accent-green flex items-center justify-center border border-accent-green/30 group-hover:scale-110 transition-transform">

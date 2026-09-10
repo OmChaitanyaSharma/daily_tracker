@@ -195,6 +195,11 @@ export function Layout() {
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HOME</span>
           </Link>
           <div className="w-[1px] h-8 bg-border-strong mx-1" />
+            <Link to="/shop" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+               <span className="text-xl group-hover:scale-125 transition-transform duration-300">🛍️</span>
+               <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">SHOP</span>
+            </Link>
+            <div className="w-[1px] h-8 bg-border-strong mx-1" />
           <Link to="/highlight" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
              <span className="text-xl group-hover:scale-125 transition-transform duration-300">📝</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HIGHLIGHT</span>

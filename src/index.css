@@ -96,13 +96,16 @@
   html, body {
     background-color: var(--bg-base);
     color: var(--text-main);
-    font-family: 'Varela Round', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
     @apply antialiased;
   }
 }
 
 @theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-mono: "JetBrains Mono", monospace;
   --color-bg-base: var(--bg-base);
   --color-bg-surface: var(--bg-surface);
   --color-bg-surface-hover: var(--bg-surface-hover);

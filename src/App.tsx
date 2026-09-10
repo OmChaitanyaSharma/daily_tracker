@@ -11,6 +11,7 @@ import { EndOfYearGoals } from './pages/EndOfYearGoals';
 import { HealthGoals } from './pages/HealthGoals';
 import { Logs } from './pages/Logs';
 import { Calendar } from './pages/Calendar';
+import { Shop } from './pages/Shop';
 import { resetAndSeedDatabase } from './seedData';
 
 import { CommandPalette } from './components/CommandPalette';
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="goals/health" element={<HealthGoals />} />
           <Route path="logs" element={<Logs />} />
           <Route path="calendar" element={<Calendar />} />
+          <Route path="shop" element={<Shop />} />
         </Route>
       </Routes>
     </BrowserRouter>

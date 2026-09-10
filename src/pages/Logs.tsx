@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, ArrowLeft, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { ActivityHeatmap } from '../components/ActivityHeatmap';
+import { CityHeatmap3D } from '../components/CityHeatmap3D';
 import { WeeklyDigest } from '../components/WeeklyDigest';
 
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
@@ -202,6 +203,10 @@ export function Logs() {
       </header>
 
       <ActivityHeatmap />
+
+      <div className="mt-8 mb-12">
+        <CityHeatmap3D logs={allHabitLogs} />
+      </div>
 
       <div className="flex items-center justify-center mb-8">
         <div className="inline-flex items-center p-1 bg-bg-surface border border-border-strong rounded-xl shadow-sm">

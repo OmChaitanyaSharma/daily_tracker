@@ -27,6 +27,24 @@ export interface Task {
   completed: boolean;
 }
 
+export interface UserProfile {
+  id: string; // 'default'
+  coinsSpent: number;
+  freezes: number;
+  strExp: number;
+  intExp: number;
+  chaExp: number;
+}
+
+export interface WeeklyBoss {
+  id: string; // 'week-YYYY-WW'
+  name: string;
+  maxHp: number;
+  hp: number;
+  isDefeated: boolean;
+  weekStr: string; // e.g. "2026-W37"
+}
+
 export interface Habit {
   id: string;
   name: string;
@@ -36,6 +54,7 @@ export interface Habit {
   order?: number;
   frequencyType?: 'daily' | 'specific_days';
   daysOfWeek?: number[]; // 0=Sun, 1=Mon, etc.
+  skillCategory?: 'STR' | 'INT' | 'CHA' | 'DEX' | 'CON';
 }
 
 export interface CalendarEvent {
@@ -120,6 +139,8 @@ export class DailyTrackerDB extends Dexie {
   exercises!: Table<Exercise, string>;
   exerciseLogs!: Table<ExerciseLog, string>;
   events!: Table<CalendarEvent, string>;
+  userProfile!: Table<UserProfile, string>;
+  bosses!: Table<WeeklyBoss, string>;
 
   constructor() {
     super('DailyTrackerDB');
