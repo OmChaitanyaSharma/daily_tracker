@@ -55,14 +55,25 @@ export function calculateStreak(
     const isToday = dateStr === todayStr;
     freezeUsedToday = false;
     
-    const activeHabitsOnDate = allHabits.filter(h => (!h.startDate || h.startDate <= dateStr) && !h.archived);
+    const currentDayOfWeek = current.getDay(); // 0 = Sun, 1 = Mon, etc.
+    const activeHabitsOnDate = allHabits.filter(h => {
+      if (h.archived) return false;
+      if (h.startDate && h.startDate > dateStr) return false;
+      if (h.frequencyType === 'specific_days' && h.daysOfWeek && h.daysOfWeek.length > 0) {
+        if (!h.daysOfWeek.includes(currentDayOfWeek)) return false;
+      }
+      return true;
+    });
     const numActive = activeHabitsOnDate.length;
 
     const dateHabitLogs = logsByDate.get(dateStr) || [];
     let habitScore = 0;
     dateHabitLogs.forEach(log => {
-      if (log.status === 'completed') habitScore += 1.0;
-      else if (log.status === 'partial') habitScore += 0.5;
+      // Only count score if the habit is actually scheduled for today
+      if (activeHabitsOnDate.some(h => h.id === log.habitId)) {
+        if (log.status === 'completed') habitScore += 1.0;
+        else if (log.status === 'partial') habitScore += 0.5;
+      }
     });
 
     const targetHabitPercent = parseFloat(localStorage.getItem('targetHabitPercent') || '0.75');

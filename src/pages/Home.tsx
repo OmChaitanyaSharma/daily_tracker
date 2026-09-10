@@ -76,7 +76,7 @@ export function Home() {
     
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [levelModal, showStreakModal, levelUpData]);
+  }, [levelModal, showStreakModal, levelUpData, showWinterArcRules]);
 
   const todayStr = getTodayStr();
   

@@ -24,7 +24,7 @@ export function formatDisplayDate(dateStr: string, fmt: string = 'MMM d, yyyy'):
   try {
     // Adding T12:00:00 prevents timezone boundary shifts when parsing
     return format(parseISO(`${dateStr}T12:00:00`), fmt);
-  } catch (e) {
+  } catch {
     return dateStr; // fallback
   }
 }
@@ -74,7 +74,7 @@ export function getMeasurementDates(startDateStr: string): string[] {
     }
     
     return dates;
-  } catch(e) {
+  } catch {
     return [];
   }
 }

@@ -1,48 +1,101 @@
-import sys
 import re
 
 with open("src/pages/ProductivityHabits.tsx", "r", encoding="utf-8") as f:
     content = f.read()
 
-# 1. Replace the Unified Tracker Container with Bento Grid Start
-old_container_start = '      {/* Unified Tracker Container */}\n      <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-8 md:p-12 flex flex-col gap-16">'
+# 1. State for Add Modal
+state_old = "  const [isAddingHabit, setIsAddingHabit] = useState(false);"
+state_new = """  const [isAddingHabit, setIsAddingHabit] = useState(false);
+  const [newHabitFrequency, setNewHabitFrequency] = useState<'daily'|'specific_days'>('daily');
+  const [newHabitDays, setNewHabitDays] = useState<number[]>([]);"""
+content = content.replace(state_old, state_new)
 
-new_container_start = '''      {/* Bento Grid Container */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        
-        {/* Habit Grid (Col 1-8) */}
-        <section className="xl:col-span-8 bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">'''
+# 2. State for Edit Modal
+state_edit_old = """    const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+    const [editName, setEditName] = useState('');
+    const [editStartDate, setEditStartDate] = useState('');"""
+state_edit_new = """    const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
+    const [editName, setEditName] = useState('');
+    const [editStartDate, setEditStartDate] = useState('');
+    const [editFrequency, setEditFrequency] = useState<'daily'|'specific_days'>('daily');
+    const [editDays, setEditDays] = useState<number[]>([]);"""
+content = content.replace(state_edit_old, state_edit_new)
 
-content = content.replace(old_container_start, new_container_start)
+# 3. Handle Add
+add_old = """    const handleAddHabit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newHabitName.trim()) return;
+      await db.habits.add({
+        id: crypto.randomUUID(),
+        name: newHabitName.trim(),
+        createdAt: new Date().toISOString(),
+        startDate: getTodayStr(),
+        archived: false
+      });
+      setNewHabitName('');
+      setIsAddingHabit(false);
+    };"""
+add_new = """    const handleAddHabit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!newHabitName.trim()) return;
+      await db.habits.add({
+        id: crypto.randomUUID(),
+        name: newHabitName.trim(),
+        createdAt: new Date().toISOString(),
+        startDate: getTodayStr(),
+        archived: false,
+        frequencyType: newHabitFrequency,
+        daysOfWeek: newHabitFrequency === 'specific_days' ? newHabitDays : undefined
+      });
+      setNewHabitName('');
+      setNewHabitFrequency('daily');
+      setNewHabitDays([]);
+      setIsAddingHabit(false);
+    };"""
+content = content.replace(add_old, add_new)
 
+# 4. Handle Edit
+edit_save_old = """    const saveEditHabit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingHabit || !editName.trim()) return;
+      await db.habits.update(editingHabit.id, { 
+        name: editName.trim(),
+        startDate: editStartDate || undefined
+      });
+      setEditingHabit(null);
+      setEditName('');
+      setEditStartDate('');
+    };"""
+edit_save_new = """    const saveEditHabit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!editingHabit || !editName.trim()) return;
+      await db.habits.update(editingHabit.id, { 
+        name: editName.trim(),
+        startDate: editStartDate || undefined,
+        frequencyType: editFrequency,
+        daysOfWeek: editFrequency === 'specific_days' ? editDays : undefined
+      });
+      setEditingHabit(null);
+      setEditName('');
+      setEditStartDate('');
+      setEditFrequency('daily');
+      setEditDays([]);
+    };"""
+content = content.replace(edit_save_old, edit_save_new)
 
-# 2. End the Habit Grid Section, start the Right Column for Graph
-old_graph_start = '        {/* Progress Graph integrated inside the container */}'
-new_graph_start = '''        </section>
-        
-        {/* Right Column: Graph & Inputs (Col 9-12) */}
-        <div className="xl:col-span-4 flex flex-col gap-6">
-          <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
-            {/* Progress Graph integrated inside the container */}'''
+# 5. Populate Edit State
+edit_trigger_old = """                                  setEditName(habit.name);
+                                  setEditStartDate(habit.startDate || '');
+                                  setEditingHabit(habit);
+                                  setActiveMenuHabitId(null);"""
+edit_trigger_new = """                                  setEditName(habit.name);
+                                  setEditStartDate(habit.startDate || '');
+                                  setEditFrequency(habit.frequencyType || 'daily');
+                                  setEditDays(habit.daysOfWeek || []);
+                                  setEditingHabit(habit);
+                                  setActiveMenuHabitId(null);"""
+content = content.replace(edit_trigger_old, edit_trigger_new)
 
-content = content.replace(old_graph_start, new_graph_start)
-
-
-# 3. End the Right Column and the Bento Grid instead of closing the single section
-old_end = '''          )}
-        </div>
-
-      </section>
-    </div>'''
-
-new_end = '''          )}
-          </section>
-        </div>
-
-      </div>
-    </div>'''
-
-content = content.replace(old_end, new_end)
 
 with open("src/pages/ProductivityHabits.tsx", "w", encoding="utf-8") as f:
     f.write(content)

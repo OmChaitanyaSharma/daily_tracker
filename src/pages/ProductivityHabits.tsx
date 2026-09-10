@@ -17,6 +17,8 @@ export function ProductivityHabits() {
   // Habit Management State
   const [newHabitName, setNewHabitName] = useState('');
   const [isAddingHabit, setIsAddingHabit] = useState(false);
+  const [newHabitFrequency, setNewHabitFrequency] = useState<'daily'|'specific_days'>('daily');
+  const [newHabitDays, setNewHabitDays] = useState<number[]>([]);
   const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(null);
   
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
@@ -346,6 +348,58 @@ export function ProductivityHabits() {
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in relative">
       
       {/* Edit Habit Modal */}
+      
+      {isAddingHabit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative">
+            <button onClick={() => setIsAddingHabit(false)} className="absolute top-4 right-4 text-text-muted hover:text-text-main">
+              <X size={20} />
+            </button>
+            <h3 className="text-xl font-serif italic text-text-main mb-6">Add Habit</h3>
+            <form onSubmit={handleAddHabit} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Habit Name</label>
+                <input 
+                  type="text" 
+                  value={newHabitName}
+                  onChange={e => setNewHabitName(e.target.value)}
+                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
+                  autoFocus
+                />
+              </div>
+              
+              <div>
+                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Frequency</label>
+                <div className="flex gap-2 mb-4">
+                   <button type="button" onClick={() => setNewHabitFrequency('daily')} className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-colors ${newHabitFrequency === 'daily' ? 'bg-text-main text-bg-base border-text-main' : 'bg-bg-base text-text-muted border-border-strong hover:border-text-muted'}`}>Daily</button>
+                   <button type="button" onClick={() => setNewHabitFrequency('specific_days')} className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-colors ${newHabitFrequency === 'specific_days' ? 'bg-text-main text-bg-base border-text-main' : 'bg-bg-base text-text-muted border-border-strong hover:border-text-muted'}`}>Specific Days</button>
+                </div>
+                {newHabitFrequency === 'specific_days' && (
+                  <div className="flex justify-between gap-1">
+                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
+                      <button 
+                        type="button" 
+                        key={idx}
+                        onClick={() => setNewHabitDays(prev => prev.includes(idx) ? prev.filter(d => d !== idx) : [...prev, idx])}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${newHabitDays.includes(idx) ? 'bg-accent-blue text-bg-base border-accent-blue' : 'bg-bg-base text-text-muted border-border-strong hover:border-text-muted'}`}
+                      >
+                        {day}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90">
+                  Create Habit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {editingHabit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative">
@@ -627,40 +681,23 @@ export function ProductivityHabits() {
               </div>
             ))}
 
-            {/* Add Habit Column */}
-            <div className="w-16 shrink-0 flex flex-col items-center">
-              <div className="h-40 w-full flex items-end justify-center pb-4 border-b border-border-strong sticky top-0 bg-bg-surface z-20">
-                {isAddingHabit ? (
-                  <form onSubmit={handleAddHabit} className="flex flex-col items-center gap-2">
-                    <input
-                      autoFocus
-                      type="text"
-                      value={newHabitName}
-                      onChange={e => setNewHabitName(e.target.value)}
-                      onBlur={() => {
-                        if (!newHabitName) setIsAddingHabit(false);
-                      }}
-                      placeholder="Name"
-                      className="w-24 -rotate-90 origin-bottom-left absolute translate-x-12 translate-y-[-40px] text-sm bg-bg-base border border-border-strong rounded px-2 py-1 outline-none shadow-sm"
-                    />
-                  </form>
-                ) : (
-                  <button 
-                    onClick={() => setIsAddingHabit(true)}
-                    className="p-1.5 rounded-full text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-strong transition-all"
-                  >
-                    <Plus size={18} />
-                  </button>
-                )}
+              {/* Add Habit Column */}
+              <div className="w-16 shrink-0 flex flex-col items-center">
+                <div className="h-40 w-full flex items-end justify-center pb-4 border-b border-border-strong sticky top-0 bg-bg-surface z-20">
+                    <button 
+                      onClick={() => setIsAddingHabit(true)}
+                      className="p-1.5 rounded-full text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-strong transition-all"
+                    >
+                      <Plus size={18} />
+                    </button>
+                </div>
+                {daysInMonth.map(date => (
+                  <div key={date.toISOString()} className="h-10 border-b border-border-subtle w-full" />
+                ))}
+                <div className="h-24 w-full pt-2" />
               </div>
-              {daysInMonth.map(date => (
-                <div key={date.toISOString()} className="h-10 border-b border-border-subtle w-full" />
-              ))}
-              <div className="h-24 w-full pt-2" />
             </div>
           </div>
-        </div>
-
         </section>
         
         {/* Right Column: Graph & Inputs (Col 9-12) */}

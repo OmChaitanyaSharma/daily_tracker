@@ -34,6 +34,16 @@ export interface Habit {
   startDate?: string; // YYYY-MM-DD
   archived: boolean;
   order?: number;
+  frequencyType?: 'daily' | 'specific_days';
+  daysOfWeek?: number[]; // 0=Sun, 1=Mon, etc.
+}
+
+export interface CalendarEvent {
+  id: string;
+  date: string; // YYYY-MM-DD
+  type: 'event' | 'deadline';
+  title: string;
+  description?: string;
 }
 
 export interface HabitLog {
@@ -109,6 +119,7 @@ export class DailyTrackerDB extends Dexie {
   goalMeasurements!: Table<GoalMeasurement, string>;
   exercises!: Table<Exercise, string>;
   exerciseLogs!: Table<ExerciseLog, string>;
+  events!: Table<CalendarEvent, string>;
 
   constructor() {
     super('DailyTrackerDB');
@@ -245,6 +256,30 @@ export class DailyTrackerDB extends Dexie {
       goalMeasurements: 'id, goalId, date',
       exercises: 'id, name, archived',
       exerciseLogs: 'id, date, exerciseId'
+    });
+
+    // Version 8 schema definition (Calendar Events & Habit Frequencies)
+    this.version(8).stores({
+      dayEntries: 'date',
+      tasks: 'id, date, completed',
+      habits: 'id, archived',
+      habitLogs: 'id, date, habitId, status',
+      hourLogs: 'id, date, activity',
+      hourCategories: 'id, name',
+      goals: 'id, category',
+      goalMeasurements: 'id, goalId, date',
+      exercises: 'id, name, archived',
+      exerciseLogs: 'id, date, exerciseId',
+      events: 'id, date, type'
+    }).upgrade(async tx => {
+      // Initialize existing habits as 'daily'
+      const habits = await tx.table('habits').toArray();
+      for (const habit of habits) {
+        if (!habit.frequencyType) {
+          habit.frequencyType = 'daily';
+          await tx.table('habits').put(habit);
+        }
+      }
     });
   }
 }

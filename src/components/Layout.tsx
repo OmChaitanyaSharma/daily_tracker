@@ -1,15 +1,22 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
+
 import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { handleDirectionalNavigation } from '../utils/spatialNavigation';
 import { Snowfall } from './Snowfall';
+import { SakuraFall } from './SakuraFall';
+import { AutumnLeaves } from './AutumnLeaves';
 
 export function Layout() {
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [arcTheme, setArcTheme] = useState(() => {
+    const saved = localStorage.getItem('arcTheme');
+    if (saved) return saved;
+    const month = new Date().getMonth();
+    if (month >= 2 && month <= 4) return 'spring';
+    if (month >= 5 && month <= 7) return 'summer';
+    if (month >= 8 && month <= 10) return 'autumn';
+    return 'winter';
   });
   
   const [isVisible, setIsVisible] = useState(true);
@@ -19,12 +26,9 @@ export function Layout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
+    document.documentElement.className = '';
+    document.documentElement.classList.add(`theme-${arcTheme}`);
+  }, [arcTheme]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -160,14 +164,10 @@ export function Layout() {
   }, [lastScrollY]);
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (!isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    const themes = ['winter', 'spring', 'summer', 'autumn'];
+    const nextTheme = themes[(themes.indexOf(arcTheme) + 1) % themes.length];
+    setArcTheme(nextTheme);
+    localStorage.setItem('arcTheme', nextTheme);
   };
 
   return (
@@ -175,7 +175,9 @@ export function Layout() {
       "min-h-screen w-full text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0 transition-colors duration-1000",
       zenMode ? "bg-[#09090b]" : "bg-bg-base"
     )}>
-      {!zenMode && <Snowfall />}
+      {!zenMode && arcTheme === 'winter' && <Snowfall />}
+      {!zenMode && arcTheme === 'spring' && <SakuraFall />}
+      {!zenMode && arcTheme === 'autumn' && <AutumnLeaves />}
       
       {/* Floating Bottom Dock */}
       <div 
@@ -196,6 +198,10 @@ export function Layout() {
              <span className="text-xl group-hover:scale-125 transition-transform duration-300">📝</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">LOG</span>
           </Link>
+          <Link to="/calendar" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">📅</span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">PLAN</span>
+          </Link>
           <Link to="/habits/productivity" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
              <span className="text-xl group-hover:scale-125 transition-transform duration-300">⚔️</span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HABITS</span>
@@ -211,7 +217,7 @@ export function Layout() {
           </button>
           <button onClick={toggleTheme} className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
              <span className="text-text-muted group-hover:text-text-main group-hover:scale-125 transition-all duration-300">
-               {isDark ? <Sun size={20} /> : <Moon size={20} />}
+               {arcTheme === 'winter' ? '??' : arcTheme === 'spring' ? '??' : arcTheme === 'summer' ? '??' : '??'}
              </span>
              <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">THEME</span>
           </button>
