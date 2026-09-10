@@ -68,26 +68,29 @@ export function CommandPalette() {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh] bg-bg-base/80 backdrop-blur-md">
-       <div className="bg-bg-surface border border-border-strong w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
-          <form onSubmit={handleCommand} className="flex items-center px-4 py-4 border-b border-border-subtle">
-             <Terminal className="text-accent-blue mr-3" size={24} />
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] bg-black/60 backdrop-blur-xl">
+       <div className="bg-[#09090b] border border-[#27272a] w-full max-w-2xl rounded-none shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden animate-scale-in relative">
+          
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-accent-blue to-transparent opacity-50" />
+          
+          <form onSubmit={handleCommand} className="flex items-center px-6 py-5 border-b border-[#27272a] bg-[#09090b]">
+             <Terminal className="text-accent-blue mr-4 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" size={20} />
              <input 
                 ref={inputRef}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
-                placeholder="Type a command... (e.g., 'log 2h web dev')"
-                className="flex-1 bg-transparent border-none outline-none text-xl text-text-main font-mono placeholder:text-text-muted/50"
+                placeholder="EXECUTE COMMAND..."
+                className="flex-1 bg-transparent border-none outline-none text-xl text-[#ececf1] font-mono tracking-widest placeholder:text-[#3f3f46] uppercase"
              />
-             <div className="text-xs text-text-muted font-mono bg-bg-base px-2 py-1 rounded">ESC to close</div>
+             <div className="text-[10px] text-[#52525b] font-mono tracking-widest uppercase border border-[#27272a] px-2 py-1 bg-[#18181b]">ESC</div>
           </form>
           
-          <div className="p-4 font-mono text-sm text-text-muted">
-             <div className="mb-2 uppercase tracking-widest text-[10px] text-text-muted/70">Suggested</div>
-             <ul className="space-y-2">
-                <li className="flex items-center gap-2 hover:text-text-main cursor-pointer" onClick={() => setQuery('log 2h web dev')}><ArrowRight size={14}/> log 2h web dev</li>
-                <li className="flex items-center gap-2 hover:text-text-main cursor-pointer" onClick={() => setQuery('go habits')}><ArrowRight size={14}/> go habits</li>
-                <li className="flex items-center gap-2 hover:text-text-main cursor-pointer" onClick={() => setQuery('go exercise')}><ArrowRight size={14}/> go exercise</li>
+          <div className="p-6 font-mono text-sm text-[#a1a1aa] bg-[#09090b]">
+             <div className="mb-4 uppercase tracking-[0.3em] text-[10px] text-[#52525b] font-bold">Suggested Operations</div>
+             <ul className="space-y-3">
+                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => setQuery('log 2h web dev')}><ArrowRight size={14}/> log 2h web dev</li>
+                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => setQuery('go habits')}><ArrowRight size={14}/> go habits</li>
+                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => setQuery('go exercise')}><ArrowRight size={14}/> go exercise</li>
              </ul>
           </div>
        </div>

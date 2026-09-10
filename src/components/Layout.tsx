@@ -173,38 +173,44 @@ export function Layout() {
     <div className="min-h-screen w-full bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0">
       <Snowfall />
       
-      {/* Floating Pill Navigation */}
-      <header 
+      {/* Floating Bottom Dock */}
+      <div 
         className={clsx(
-          "fixed top-6 left-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "fixed bottom-6 left-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
           isVisible 
             ? "-translate-x-1/2 translate-y-0 opacity-100" 
-            : "-translate-x-1/2 -translate-y-24 opacity-0 pointer-events-none"
+            : "-translate-x-1/2 translate-y-24 opacity-0 pointer-events-none"
         )}
       >
-        <div className="glass-panel px-6 h-14 rounded-full flex items-center justify-between gap-8 shadow-sm">
-          <Link to="/" className="text-lg font-serif italic font-semibold text-text-main hover:opacity-80 transition-opacity">
-            Progress<span className="text-accent-red">.</span>
+        <nav className="bg-bg-surface/80 backdrop-blur-xl border border-border-strong px-4 py-3 rounded-3xl flex items-center gap-2 shadow-2xl">
+          <Link to="/" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">🏠</span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HOME</span>
           </Link>
-          
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
-            <Link to="/highlight" className="hover:text-text-main transition-colors">Highlight</Link>
-            <Link to="/habits" className="hover:text-text-main transition-colors">Habits</Link>
-            <Link to="/goals" className="hover:text-text-main transition-colors">Goals</Link>
-            <Link to="/logs" className="hover:text-text-main transition-colors">Logs</Link>
-          </nav>
-
-          <button 
-            onClick={toggleTheme}
-            className="p-2 text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none"
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          <div className="w-[1px] h-8 bg-border-strong mx-1" />
+          <Link to="/highlight" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">📝</span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">LOG</span>
+          </Link>
+          <Link to="/habits/productivity" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">⚔️</span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">HABITS</span>
+          </Link>
+          <Link to="/habits/health" className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-xl group-hover:scale-125 transition-transform duration-300">💪</span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">FIT</span>
+          </Link>
+          <div className="w-[1px] h-8 bg-border-strong mx-1" />
+          <button onClick={toggleTheme} className="group p-3 rounded-2xl hover:bg-bg-base transition-all flex flex-col items-center gap-1 min-w-[64px]">
+             <span className="text-text-muted group-hover:text-text-main group-hover:scale-125 transition-all duration-300">
+               {isDark ? <Sun size={20} /> : <Moon size={20} />}
+             </span>
+             <span className="text-[9px] font-mono font-bold tracking-widest text-text-muted opacity-0 group-hover:opacity-100 transition-opacity">THEME</span>
           </button>
-        </div>
-      </header>
+        </nav>
+      </div>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-32 pb-20 w-full animate-fade-in flex-1">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-32 w-full animate-fade-in flex-1">
         <Outlet />
       </main>
     </div>

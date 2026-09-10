@@ -451,8 +451,11 @@ export function ProductivityHabits() {
         </div>
       </header>
 
-      {/* Unified Tracker Container */}
-      <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-8 md:p-12 flex flex-col gap-16">
+      {/* Bento Grid Container */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        {/* Habit Grid (Col 1-8) */}
+        <section className="xl:col-span-8 bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
         
         {/* Habit Grid */}
         <div className="overflow-x-auto overflow-y-auto max-h-[75vh] pb-6 -mx-4 px-4 md:-mx-8 md:px-8">
@@ -658,8 +661,13 @@ export function ProductivityHabits() {
           </div>
         </div>
 
-        {/* Progress Graph integrated inside the container */}
-        <div className="border-t border-border-subtle pt-16">
+        </section>
+        
+        {/* Right Column: Graph & Inputs (Col 9-12) */}
+        <div className="xl:col-span-4 flex flex-col gap-6">
+          <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
+            {/* Progress Graph integrated inside the container */}
+            <div className="flex flex-col h-full">
           <h2 className="text-2xl font-serif text-text-main mb-10 font-medium">Hours Tracked</h2>
           
           <div className="h-[360px] w-full">
@@ -919,9 +927,11 @@ export function ProductivityHabits() {
               </div>
             </div>
           )}
+          </div>
+          </section>
         </div>
 
-      </section>
+      </div>
     </div>
   );
 }
