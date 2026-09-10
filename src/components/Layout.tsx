@@ -7,6 +7,7 @@ import { handleDirectionalNavigation } from '../utils/spatialNavigation';
 import { Snowfall } from './Snowfall';
 import { SakuraFall } from './SakuraFall';
 import { AutumnLeaves } from './AutumnLeaves';
+import { PomodoroClock } from './PomodoroClock';
 
 export function Layout() {
   const [arcTheme, setArcTheme] = useState(() => {
@@ -243,15 +244,17 @@ export function Layout() {
       {zenMode && (
         <div className="fixed inset-0 z-40 bg-[#09090b] flex flex-col items-center justify-center animate-fade-in">
            <div className="text-[#a1a1aa] font-mono text-xs uppercase tracking-[0.5em] mb-12">Focus Mode Activated</div>
-           <h1 className="text-5xl md:text-7xl font-serif text-[#ececf1] mb-16 tracking-tight text-center max-w-2xl leading-tight">
-             Time to execute.<br />Do the next thing.
+           <h1 className="text-4xl md:text-5xl font-serif text-[#ececf1] mb-8 tracking-tight text-center max-w-2xl leading-tight">
+             Time to execute.
            </h1>
+           <PomodoroClock />
+
            <button 
              onClick={() => {
                const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true });
                window.dispatchEvent(e);
              }}
-             className="px-10 py-5 rounded-full border border-[#27272a] hover:border-accent-blue bg-transparent text-[#ececf1] font-mono text-sm uppercase tracking-widest hover:bg-accent-blue/5 hover:text-accent-blue transition-all duration-500 shadow-[0_0_0_rgba(59,130,246,0)] hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]"
+             className="mt-12 px-10 py-5 rounded-full border border-[#27272a] hover:border-accent-blue bg-transparent text-[#ececf1] font-mono text-sm uppercase tracking-widest hover:bg-accent-blue/5 hover:text-accent-blue transition-all duration-500 shadow-[0_0_0_rgba(59,130,246,0)] hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]"
            >
              Launch Command Palette
            </button>
