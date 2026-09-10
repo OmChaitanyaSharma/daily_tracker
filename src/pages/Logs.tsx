@@ -11,11 +11,11 @@ import { WeeklyDigest } from '../components/WeeklyDigest';
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
 
 const MOOD_EMOJIS: Record<string, string> = {
-  'excellent': '😄',
-  'good': '🙂',
-  'okay': '😐',
-  'not-great': '😕',
-  'bad': '😞'
+  'excellent': '??',
+  'good': '??',
+  'okay': '??',
+  'not-great': '??',
+  'bad': '??'
 };
 
 const EMPTY_ARRAY: any[] = [];
