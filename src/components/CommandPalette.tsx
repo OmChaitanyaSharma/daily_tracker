@@ -84,6 +84,27 @@ export function CommandPalette() {
            return;
         }
     }
+
+    // Natural Language Parsing Logic for Tasks (To-Do)
+    if (cmd.startsWith('todo ') || cmd.startsWith('task ')) {
+        const title = query.trim().substring(5).trim();
+        if (title) {
+           await db.tasks.add({
+             id: crypto.randomUUID(),
+             title: title,
+             date: getTodayStr(),
+             completed: false
+           });
+           setSuccess(true);
+           setFeedback(`ADDED TASK: ${title.toUpperCase()}`);
+           setTimeout(() => {
+              setSuccess(false);
+              setFeedback('');
+              setOpen(false);
+           }, 1000);
+           return;
+        }
+    }
     
     if (cmd === 'go habits') { navigate('/habits'); setOpen(false); return; }
     if (cmd === 'go exercise') { navigate('/exercise'); setOpen(false); return; }
