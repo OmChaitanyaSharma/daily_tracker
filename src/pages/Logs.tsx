@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { ActivityHeatmap } from '../components/ActivityHeatmap';
 import { CityHeatmap3D } from '../components/CityHeatmap3D';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { WeeklyDigest } from '../components/WeeklyDigest';
 
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
@@ -25,6 +27,31 @@ export function Logs() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [period, setPeriod] = useState<Period>('Monthly');
   const [viewMode, setViewMode] = useState<'calendar' | 'digest'>('calendar');
+
+  const handleExportPDF = async () => {
+    const element = document.getElementById('logs-report-container');
+    if (!element) return;
+    
+    try {
+      const canvas = await html2canvas(element, { backgroundColor: '#000011', scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('DailyTracker_Report.pdf');
+    } catch (e) {
+      console.error("PDF generation failed", e);
+    }
+  };
+
 
   // Fetch all data needed for the calendar and stats
   const allEntries = useLiveQuery(() => db.dayEntries.toArray()) ?? EMPTY_ARRAY;
@@ -199,6 +226,12 @@ export function Logs() {
           className="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-main transition-colors bg-bg-surface hover:bg-bg-surface-hover border border-border-strong px-4 py-2 rounded-xl"
         >
           <Download size={16} /> Export JSON
+        </button>
+        <button 
+          onClick={handleExportPDF}
+          className="flex items-center gap-2 px-4 py-2 bg-accent-blue/10 text-accent-blue rounded-xl font-bold font-mono text-sm tracking-widest uppercase hover:bg-accent-blue/20 transition-all border border-accent-blue/20 ml-2"
+        >
+          <Download size={16} /> PDF Report
         </button>
       </header>
 
