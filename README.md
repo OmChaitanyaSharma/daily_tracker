@@ -65,3 +65,9 @@ A digital diary and personal progress tracker designed to log daily highlights, 
 ## Data Privacy
 
 All data is stored locally in the browser using IndexedDB. No data leaves the client. Use the JSON export tool in the Logs tab to backup data before clearing browser cache.
+
+## ?? Experimental Getaway Features (Current Branch)
+This branch (getaway) contains highly aggressive, experimental UI and UX overhauls that push the application's design boundaries.
+- **Bento Box Dashboard:** The home screen has been restructured into a dense, visually stunning CSS grid of glassmorphic tiles, eliminating the need for scrolling.
+- **Global Command Palette:** A cybergoth-themed, mouse-free overlay (accessible via Cmd+K) that parses natural language inputs (e.g., "log 2h web dev") and executes them instantly.
+- **MacOS-Style Floating Dock:** The top navigation pill has been replaced by a dynamic, hovering bottom dock for ultra-clean spatial aesthetics.

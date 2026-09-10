@@ -1,0 +1,23 @@
+# The Getaway Branch - Working Documentation
+
+This branch contains a radical overhaul of the Daily Tracker UI and UX, exploring a highly aesthetic, modern, and developer-centric design paradigm.
+
+## 1. Bento Box Layout (`Home.tsx` & `ProductivityHabits.tsx`)
+The primary UI pattern has been updated from a vertical-scrolling feed to a CSS Grid "Bento Box" layout.
+- The Dashboard (`Home.tsx`) condenses widgets for Streak, Developer Level, Fitness Level, and Daily Quests into a single, scroll-free dense grid of glassmorphic tiles.
+- The Productivity Habits view (`ProductivityHabits.tsx`) splits the Habits Matrix and the Hours Tracked graph into a two-column 8:4 ratio grid layout, massively improving information density on wide screens.
+
+## 2. Command Palette (`CommandPalette.tsx`)
+A global overlay that replaces standard click navigation.
+- Accessible globally via `Cmd + K` (or `Ctrl + K`).
+- Cybergoth styling: True black backgrounds `#09090b`, monospace typography, and neon blue glowing accents.
+- **Natural Language Input**: Type `log Xh [activity]` to instantly log focus hours into the IndexedDB database without opening any forms.
+- **Quick Navigation**: Type `go habits`, `go exercise`, or `go journal` to switch routes instantaneously.
+
+## 3. Floating Bottom Dock (`Layout.tsx`)
+- The old top-floating navigation bar has been replaced with a minimalist macOS-style bottom dock.
+- Hovering over dock items scales the icons and reveals tooltip text.
+- Supports Dark/Light mode toggling natively inside the dock.
+
+## Testing & Execution
+All components utilize Tailwind CSS for styles, and state is preserved locally via Dexie (IndexedDB) as per the stable branch logic. No database schemas were altered, ensuring total backward compatibility if these UI components are ever cherry-picked into main.
