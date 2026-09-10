@@ -13,6 +13,8 @@ import { getTodayStr } from '../utils/dateUtils';
 
 export function Home() {
   const { streak, freezesOwned, isLoading: streakLoading } = useStreak();
+  const [habitPercentSetting, setHabitPercentSetting] = useState(() => localStorage.getItem('targetHabitPercent') || '0.75');
+  const [hoursSetting, setHoursSetting] = useState(() => localStorage.getItem('targetHours') || '6.0');
   const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
@@ -276,20 +278,55 @@ export function Home() {
               </div>
               <h2 className="text-3xl font-serif text-text-main mb-2">{streak} Days</h2>
               <p className="text-text-muted text-sm mb-8">Maintain your streak by completing your Winter Arc rules every day.</p>
-              
-              <div className="w-full bg-bg-base rounded-2xl p-4 border border-border-subtle">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-text-main">Streak Freezes</span>
-                  <div className="flex gap-1">
-                    {[1, 2].map(slot => (
-                      <div key={slot} className={clsx("w-3 h-3 rounded-full border", slot <= freezesOwned ? "bg-accent-blue border-accent-blue" : "border-border-strong")} />
-                    ))}
+                            <div className="w-full bg-bg-base rounded-2xl p-4 border border-border-subtle mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-text-main">Streak Freezes</span>
+                    <div className="flex gap-1">
+                      {[1, 2].map(slot => (
+                        <div key={slot} className={clsx("w-3 h-3 rounded-full border", slot <= freezesOwned ? "bg-accent-blue border-accent-blue" : "border-border-strong")} />
+                      ))}
+                    </div>
                   </div>
+                  <p className="text-xs text-text-muted text-left">
+                    Earn 1 freeze for every 7 days of perfect streak (Max 2).
+                  </p>
                 </div>
-                <p className="text-xs text-text-muted text-left">
-                  Earn 1 freeze for every 7 days of perfect streak (Max 2).
-                </p>
-              </div>
+
+                <div className="w-full bg-bg-base rounded-2xl p-4 border border-border-subtle text-left space-y-3">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted block">Bounty Goals</span>
+                  
+                  <div className="flex items-center justify-between">
+                     <label className="text-sm text-text-main">Habit Target (%)</label>
+                     <input 
+                        type="number" 
+                        step="0.05"
+                        min="0" max="1"
+                        value={habitPercentSetting}
+                        onChange={e => {
+                           setHabitPercentSetting(e.target.value);
+                           localStorage.setItem('targetHabitPercent', e.target.value);
+                           window.dispatchEvent(new Event('storage'));
+                        }}
+                        className="w-16 bg-bg-surface border border-border-strong rounded px-2 py-1 text-xs text-right outline-none"
+                     />
+                  </div>
+                  <div className="flex items-center justify-between">
+                     <label className="text-sm text-text-main">Deep Work (Hours)</label>
+                     <input 
+                        type="number" 
+                        step="0.5"
+                        min="0" max="24"
+                        value={hoursSetting}
+                        onChange={e => {
+                           setHoursSetting(e.target.value);
+                           localStorage.setItem('targetHours', e.target.value);
+                           window.dispatchEvent(new Event('storage'));
+                        }}
+                        className="w-16 bg-bg-surface border border-border-strong rounded px-2 py-1 text-xs text-right outline-none"
+                     />
+                  </div>
+                  <p className="text-[9px] text-text-muted mt-2 leading-relaxed opacity-70">Refresh to apply historical recalculations if you change goals.</p>
+                </div>
             </div>
           </div>
         </div>

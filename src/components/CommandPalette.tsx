@@ -7,6 +7,8 @@ import { getTodayStr } from '../utils/dateUtils';
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [feedback, setFeedback] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -27,6 +29,8 @@ export function CommandPalette() {
   useEffect(() => {
     if (open && inputRef.current) {
       inputRef.current.focus();
+      setSuccess(false);
+      setFeedback('');
     } else {
       setQuery('');
     }
@@ -53,7 +57,13 @@ export function CommandPalette() {
              activity,
              hours
            });
-           setOpen(false);
+           setSuccess(true);
+           setFeedback(`LOGGED ${hours}H OF ${activity.toUpperCase()}`);
+           setTimeout(() => {
+              setSuccess(false);
+              setFeedback('');
+              setOpen(false);
+           }, 1000);
            return;
         }
     }
@@ -73,14 +83,15 @@ export function CommandPalette() {
           
           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-accent-blue to-transparent opacity-50" />
           
-          <form onSubmit={handleCommand} className="flex items-center px-6 py-5 border-b border-[#27272a] bg-[#09090b]">
-             <Terminal className="text-accent-blue mr-4 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" size={20} />
+          <form onSubmit={handleCommand} className="flex items-center px-6 py-5 border-b border-[#27272a] bg-[#09090b] relative">
+             <Terminal className={success ? "text-accent-green mr-4 drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" : "text-accent-blue mr-4 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"} size={20} />
              <input 
                 ref={inputRef}
-                value={query}
+                value={success ? feedback : query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="EXECUTE COMMAND..."
-                className="flex-1 bg-transparent border-none outline-none text-xl text-[#ececf1] font-mono tracking-widest placeholder:text-[#3f3f46] uppercase"
+                disabled={success}
+                className={`flex-1 bg-transparent border-none outline-none text-xl font-mono tracking-widest placeholder:text-[#3f3f46] uppercase ${success ? "text-accent-green" : "text-[#ececf1]"}`}
              />
              <div className="text-[10px] text-[#52525b] font-mono tracking-widest uppercase border border-[#27272a] px-2 py-1 bg-[#18181b]">ESC</div>
           </form>

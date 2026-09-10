@@ -65,11 +65,14 @@ export function calculateStreak(
       else if (log.status === 'partial') habitScore += 0.5;
     });
 
-    const habitConditionMet = numActive > 0 ? (habitScore / numActive >= 0.75) : true;
+    const targetHabitPercent = parseFloat(localStorage.getItem('targetHabitPercent') || '0.75');
+    const targetHours = parseFloat(localStorage.getItem('targetHours') || '6.0');
+
+    const habitConditionMet = numActive > 0 ? (habitScore / numActive >= targetHabitPercent) : true;
 
     const dateHourLogs = hoursByDate.get(dateStr) || [];
     const totalHours = dateHourLogs.reduce((acc, curr) => acc + curr.hours, 0);
-    const hoursConditionMet = totalHours >= 3.0;
+    const hoursConditionMet = totalHours >= targetHours;
 
     const activeExercisesOnDate = allExercises.filter(ex => !ex.archived);
     const dateExerciseLogs = exercisesByDate.get(dateStr) || [];
