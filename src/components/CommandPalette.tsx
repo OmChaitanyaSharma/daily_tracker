@@ -38,11 +38,12 @@ export function CommandPalette() {
 
   if (!open) return null;
 
-  const handleCommand = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const executeCommand = async (overrideQuery?: string) => {
+    const q = overrideQuery || query;
+    if (!q.trim()) return;
+    const cmd = q.toLowerCase().trim();
     
-    const cmd = query.toLowerCase().trim();
+    try {
     
     // Natural Language Parsing Logic
     if (cmd.startsWith('log ') && cmd.includes('h ')) {
@@ -50,7 +51,23 @@ export function CommandPalette() {
         const match = cmd.match(/log ([\d.]+)h (.*)/);
         if (match) {
            const hours = parseFloat(match[1]);
-           const activity = match[2];
+           let activity = match[2];
+           
+           // Match with existing categories case-insensitively
+           const categories = await db.hourCategories.toArray();
+           const foundCat = categories.find(c => c.name.toLowerCase() === activity);
+           if (foundCat) {
+             activity = foundCat.name;
+           } else {
+             // If not found, create it so it's visible
+             await db.hourCategories.add({
+               id: crypto.randomUUID(),
+               name: activity,
+               color: 'var(--accent-blue)',
+               createdAt: new Date().toISOString()
+             });
+           }
+
            await db.hourLogs.add({
              id: crypto.randomUUID(),
              date: getTodayStr(),
@@ -75,6 +92,15 @@ export function CommandPalette() {
     // Fallback
     console.log("Unknown command:", query);
     setOpen(false);
+    } catch (err) {
+      console.error('Command failed:', err);
+      setSuccess(false);
+    }
+  }
+
+  const handleCommand = (e: React.FormEvent) => {
+    e.preventDefault();
+    executeCommand();
   }
 
   return (
@@ -93,15 +119,16 @@ export function CommandPalette() {
                 disabled={success}
                 className={`flex-1 bg-transparent border-none outline-none text-xl font-mono tracking-widest placeholder:text-[#3f3f46] uppercase ${success ? "text-accent-green" : "text-[#ececf1]"}`}
              />
+             <button type="submit" className="hidden">Submit</button>
              <div className="text-[10px] text-[#52525b] font-mono tracking-widest uppercase border border-[#27272a] px-2 py-1 bg-[#18181b]">ESC</div>
           </form>
           
           <div className="p-6 font-mono text-sm text-[#a1a1aa] bg-[#09090b]">
              <div className="mb-4 uppercase tracking-[0.3em] text-[10px] text-[#52525b] font-bold">Suggested Operations</div>
              <ul className="space-y-3">
-                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => setQuery('log 2h web dev')}><ArrowRight size={14}/> log 2h web dev</li>
-                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => setQuery('go habits')}><ArrowRight size={14}/> go habits</li>
-                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => setQuery('go exercise')}><ArrowRight size={14}/> go exercise</li>
+                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => executeCommand('log 2h web dev')}><ArrowRight size={14}/> log 2h web dev</li>
+                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => executeCommand('go habits')}><ArrowRight size={14}/> go habits</li>
+                <li className="flex items-center gap-3 hover:text-accent-blue hover:bg-accent-blue/10 px-3 py-2 -mx-3 transition-colors cursor-pointer border-l-2 border-transparent hover:border-accent-blue" onClick={() => executeCommand('go exercise')}><ArrowRight size={14}/> go exercise</li>
              </ul>
           </div>
        </div>
