@@ -506,10 +506,10 @@ export function ProductivityHabits() {
       </header>
 
       {/* Bento Grid Container */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="flex flex-col gap-6">
         
-        {/* Habit Grid (Col 1-8) */}
-        <section className="xl:col-span-8 bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
+        {/* Habit Grid */}
+        <section className="w-full bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
         
         {/* Habit Grid */}
         <div className="overflow-x-auto overflow-y-auto max-h-[75vh] pb-6 -mx-4 px-4 md:-mx-8 md:px-8">
@@ -700,14 +700,14 @@ export function ProductivityHabits() {
           </div>
         </section>
         
-        {/* Right Column: Graph & Inputs (Col 9-12) */}
-        <div className="xl:col-span-4 flex flex-col gap-6">
-          <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
+        {/* Bottom Section: Graph & Inputs */}
+        <div className="w-full flex flex-col gap-6">
+          <section className="w-full bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 md:p-8 flex flex-col gap-6">
             {/* Progress Graph integrated inside the container */}
             <div className="flex flex-col h-full">
           <h2 className="text-2xl font-serif text-text-main mb-10 font-medium">Hours Tracked</h2>
           
-          <div className="h-[360px] w-full">
+          <div className="h-[450px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={graphData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="none" vertical={true} stroke="var(--border-strong)" />
