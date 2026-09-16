@@ -22,6 +22,8 @@ export function ProductivityHabits() {
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
   const [editName, setEditName] = useState('');
   const [editStartDate, setEditStartDate] = useState('');
+  const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'specific_days'>('daily');
+  const [editSpecificDays, setEditSpecificDays] = useState<number[]>([]);
   
   const [archivingHabit, setArchivingHabit] = useState<Habit | null>(null);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
@@ -148,10 +150,7 @@ export function ProductivityHabits() {
   const saveEditHabit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingHabit || !editName.trim()) return;
-    await db.habits.update(editingHabit.id, { 
-      name: editName.trim(),
-      startDate: editStartDate || undefined
-    });
+    await db.habits.update(editingHabit.id, { name: editName.trim(), startDate: editStartDate || undefined, frequencyType: editFrequencyType, specificDays: editSpecificDays });
     setEditingHabit(null);
     setEditName('');
     setEditStartDate('');
@@ -373,7 +372,29 @@ export function ProductivityHabits() {
                   className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
                 />
               </div>
-              <div className="flex justify-end pt-4">
+              
+                <div>
+                  <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Frequency</label>
+                  <div className="flex gap-2 mb-3">
+                    <button type="button" onClick={() => setEditFrequencyType('daily')} className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${editFrequencyType === 'daily' ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}>Daily</button>
+                    <button type="button" onClick={() => setEditFrequencyType('specific_days')} className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${editFrequencyType === 'specific_days' ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}>Specific Days</button>
+                  </div>
+                  {editFrequencyType === 'specific_days' && (
+                    <div className="flex justify-between gap-1 mt-2">
+                      {['S','M','T','W','T','F','S'].map((day, i) => (
+                        <button 
+                          key={i} 
+                          type="button"
+                          onClick={() => setEditSpecificDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i])}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${editSpecificDays.includes(i) ? 'bg-accent-blue text-bg-base' : 'bg-bg-base border border-border-strong text-text-muted hover:border-text-muted'}`}
+                        >
+                          {day}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex justify-end pt-4">
                 <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90">
                   Save Changes
                 </button>
@@ -522,8 +543,10 @@ export function ProductivityHabits() {
                             <button 
                               onClick={() => {
                                 setEditName(habit.name);
-                                setEditStartDate(habit.startDate || '');
-                                setEditingHabit(habit);
+setEditStartDate(habit.startDate || '');
+setEditFrequencyType(habit.frequencyType || 'daily');
+setEditSpecificDays(habit.specificDays || []);
+setEditingHabit(habit);
                                 setActiveMenuHabitId(null);
                               }}
                               className="px-4 py-2.5 text-left text-text-main hover:bg-bg-surface-hover flex items-center gap-2 transition-colors font-medium"
@@ -566,8 +589,9 @@ export function ProductivityHabits() {
                   const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                   const currentStatus = log?.status || 'none';
                   const startDateStr = habit.startDate || '2000-01-01';
-                  const isEligible = dateStr >= startDateStr;
-                  const isSunday = date.getDay() === 0;
+                  let isEligible = dateStr >= startDateStr;
+if (isEligible && habit.frequencyType === 'specific_days' && habit.specificDays) { isEligible = habit.specificDays.includes(date.getDay()); }
+const isSunday = date.getDay() === 0;
                   
                   return (
                     <button
@@ -598,9 +622,11 @@ export function ProductivityHabits() {
                   
                   daysInMonth.forEach(date => {
                     const dateStr = format(date, 'yyyy-MM-dd');
-                    if (dateStr >= startDateStr) {
-                      eligibleDays++;
-                      const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
+                    let isEligible = dateStr >= startDateStr;
+if (isEligible && habit.frequencyType === 'specific_days' && habit.specificDays) { isEligible = habit.specificDays.includes(date.getDay()); }
+if (isEligible) {
+eligibleDays++;
+const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                       if (log?.status === 'completed') score += 1;
                       if (log?.status === 'partial') score += 0.5;
                     }
