@@ -21,6 +21,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
   useEffect(() => {
     const duration = 2500;
     const end = Date.now() + duration;
+    let animationFrameId: number;
 
     const frame = () => {
       const colors = isStreak 
@@ -45,11 +46,18 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
       });
 
       if (Date.now() < end) {
-        requestAnimationFrame(frame);
+        animationFrameId = requestAnimationFrame(frame);
       }
     };
+    
     frame();
-  }, [type]);
+    
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [type, isStreak, isDev]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in">

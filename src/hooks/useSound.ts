@@ -1,19 +1,37 @@
 import { useCallback } from 'react';
 
+// Singleton audio context to prevent hitting browser hardware limits
+let sharedCtx: AudioContext | null = null;
+
+
+function getAudioContext() {
+  if (typeof window === 'undefined') return null;
+  if (!sharedCtx) {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContextClass) {
+      sharedCtx = new AudioContextClass();
+    }
+  }
+  // If the browser suspended it (autoplay policy), try to wake it up
+  if (sharedCtx && sharedCtx.state === 'suspended') {
+    sharedCtx.resume().catch(() => {});
+  }
+  return sharedCtx;
+}
+
 export function useSound() {
+  // Try to initialize on first user interaction if possible, or just lazily
   const playClick = useCallback(() => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
       
-      const ctx = new AudioContext();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
-      // A satisfying short "pop"
       osc.type = 'sine';
       osc.frequency.setValueAtTime(600, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.05);
@@ -24,11 +42,8 @@ export function useSound() {
 
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.1);
-
-      // Cleanup
-      setTimeout(() => {
-        ctx.close().catch(console.error);
-      }, 150);
+      
+      // Do not close the singleton context! Just let the nodes be garbage collected.
     } catch (e) {
       console.error("Audio playback failed", e);
     }
@@ -36,20 +51,18 @@ export function useSound() {
 
   const playSuccess = useCallback(() => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContext) return;
+      const ctx = getAudioContext();
+      if (!ctx) return;
       
-      const ctx = new AudioContext();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
-      // A small "ding" for PRs or levels
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, ctx.currentTime); // A4
-      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1); // A5
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.1);
 
       gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.02);
@@ -57,10 +70,6 @@ export function useSound() {
 
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.3);
-
-      setTimeout(() => {
-        ctx.close().catch(console.error);
-      }, 350);
     } catch (e) {
       console.error("Audio playback failed", e);
     }

@@ -75,13 +75,20 @@ export function Home() {
     
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [levelModal, showStreakModal, levelUpData]);
+  }, [levelModal, showStreakModal, levelUpData, showWinterArcRules]);
 
   const todayStr = getTodayStr();
   
   // Data for Streak Requirement breakdown
-  const activeExercises = useLiveQuery(() => db.exercises.toArray())?.filter(ex => !ex.archived) || [];
-  const activeHabits = useLiveQuery(() => db.habits.toArray())?.filter(h => (!h.startDate || h.startDate <= todayStr) && !h.archived) || [];
+  const activeExercises = useLiveQuery(async () => {
+    const exs = await db.exercises.toArray();
+    return exs.filter(ex => !ex.archived);
+  }, []) || [];
+  
+  const activeHabits = useLiveQuery(async () => {
+    const habits = await db.habits.toArray();
+    return habits.filter(h => (!h.startDate || h.startDate <= todayStr) && !h.archived);
+  }, [todayStr]) || [];
   const todaysExerciseLogs = useLiveQuery(() => db.exerciseLogs.where('date').equals(todayStr).toArray()) || [];
   const todaysHabitLogs = useLiveQuery(() => db.habitLogs.where('date').equals(todayStr).toArray()) || [];
   const todaysHourLogs = useLiveQuery(() => db.hourLogs.where('date').equals(todayStr).toArray()) || [];
