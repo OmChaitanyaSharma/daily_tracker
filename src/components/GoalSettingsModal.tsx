@@ -91,7 +91,7 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
                 onClick={() => setFormData({ ...formData, category: 'end-of-year' })}
                 className={`py-1.5 text-sm font-medium rounded-md transition-colors ${formData.category === 'end-of-year' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               >
-                End of Year
+                Winter Arc
               </button>
               <button
                 type="button"

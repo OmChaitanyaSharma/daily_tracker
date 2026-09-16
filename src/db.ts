@@ -34,6 +34,8 @@ export interface Habit {
   startDate?: string; // YYYY-MM-DD
   archived: boolean;
   order?: number;
+  frequencyType?: 'daily' | 'specific_days';
+  specificDays?: number[]; // 0=Sun, 1=Mon, etc.
 }
 
 export interface HabitLog {
@@ -245,6 +247,30 @@ export class DailyTrackerDB extends Dexie {
       goalMeasurements: 'id, goalId, date',
       exercises: 'id, name, archived',
       exerciseLogs: 'id, date, exerciseId'
+    });
+
+    // Version 8 schema definition (Habit Frequencies)
+    this.version(8).stores({
+      dayEntries: 'date',
+      tasks: 'id, date, completed',
+      habits: 'id, archived',
+      habitLogs: 'id, date, habitId, status',
+      hourLogs: 'id, date, activity',
+      hourCategories: 'id, name',
+      goals: 'id, category',
+      goalMeasurements: 'id, goalId, date',
+      exercises: 'id, name, archived',
+      exerciseLogs: 'id, date, exerciseId'
+    }).upgrade(async tx => {
+      // Initialize existing habits as 'daily'
+      const habits = await tx.table('habits').toArray();
+      for (const habit of habits) {
+        if (!habit.frequencyType) {
+          habit.frequencyType = 'daily';
+          habit.specificDays = [];
+          await tx.table('habits').put(habit);
+        }
+      }
     });
   }
 }
