@@ -334,7 +334,7 @@ export function ProductivityHabits() {
       // Populate dynamic categories
       hourCategories.forEach(cat => {
         const hours = dailyHours.filter(l => l.activity === cat.name).reduce((acc, curr) => acc + curr.hours, 0);
-        dataPoint[cat.name] = hours > 0 ? hours : null;
+        dataPoint[cat.name] = hours; // Return 0 to ensure the line connects
       });
 
       return dataPoint;
