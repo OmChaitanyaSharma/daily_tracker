@@ -1,7 +1,7 @@
 export interface AppSettings {
   streakTargetHours: number;
   streakTargetHabitPercent: number;
-  streakFitnessRequirementType: 'all' | 'count' | 'reps';
+  streakFitnessRequirementType: 'all' | 'count' | 'reps' | 'xp';
   streakFitnessRequirementValue: number;
   seasonName: string;
   winterArcRules: string[];

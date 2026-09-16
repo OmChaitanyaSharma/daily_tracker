@@ -2,6 +2,8 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { useMemo } from 'react';
 import { format, parseISO, isAfter, addDays } from 'date-fns';
+import { getSettings } from '../utils/settings';
+import { calculateFitnessXPForLogs } from './useLevelSystem';
 import { getTodayStr } from '../utils/dateUtils';
 
 export function calculateStreak(
@@ -65,21 +67,34 @@ export function calculateStreak(
       else if (log.status === 'partial') habitScore += 0.5;
     });
 
-    const habitConditionMet = numActive > 0 ? (habitScore / numActive >= 0.75) : true;
+    const settings = getSettings();
+    const habitConditionMet = numActive > 0 ? (habitScore / numActive >= (settings.streakTargetHabitPercent / 100)) : true;
 
     const dateHourLogs = hoursByDate.get(dateStr) || [];
     const totalHours = dateHourLogs.reduce((acc, curr) => acc + curr.hours, 0);
-    const hoursConditionMet = totalHours >= 3.0;
+    const hoursConditionMet = totalHours >= settings.streakTargetHours;
 
     const activeExercisesOnDate = allExercises.filter(ex => !ex.archived);
     const dateExerciseLogs = exercisesByDate.get(dateStr) || [];
     let exerciseConditionMet = true;
+    
     if (activeExercisesOnDate.length > 0) {
-      for (const ex of activeExercisesOnDate) {
-        const log = dateExerciseLogs.find(l => l.exerciseId === ex.id);
-        if (!log || log.reps === 0) {
-          exerciseConditionMet = false;
-          break;
+      if (settings.streakFitnessRequirementType === 'count') {
+        const completed = dateExerciseLogs.filter(l => l.reps > 0).length;
+        exerciseConditionMet = completed >= settings.streakFitnessRequirementValue;
+      } else if (settings.streakFitnessRequirementType === 'reps') {
+        const totalReps = dateExerciseLogs.reduce((acc, l) => acc + l.reps, 0);
+        exerciseConditionMet = totalReps >= settings.streakFitnessRequirementValue;
+      } else if (settings.streakFitnessRequirementType === 'xp') {
+        const totalXP = calculateFitnessXPForLogs(dateExerciseLogs, activeExercisesOnDate);
+        exerciseConditionMet = totalXP >= settings.streakFitnessRequirementValue;
+      } else {
+        for (const ex of activeExercisesOnDate) {
+          const log = dateExerciseLogs.find(l => l.exerciseId === ex.id);
+          if (!log || log.reps === 0) {
+            exerciseConditionMet = false;
+            break;
+          }
         }
       }
     }

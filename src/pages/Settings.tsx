@@ -62,19 +62,20 @@ export function Settings() {
                 <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Fitness Requirement Type</label>
                 <select 
                   value={settings.streakFitnessRequirementType}
-                  onChange={e => setSettings({...settings, streakFitnessRequirementType: e.target.value as 'all' | 'count' | 'reps'})}
+                  onChange={e => setSettings({...settings, streakFitnessRequirementType: e.target.value as 'all' | 'count' | 'reps' | 'xp'})}
                   className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-2 text-text-main focus:outline-none"
                 >
                   <option value="all">All Active Exercises</option>
                   <option value="count">Specific Number of Exercises</option>
                   <option value="reps">Total Reps/Mins Across Exercises</option>
+                  <option value="xp">Total Fitness XP Gained</option>
                 </select>
               </div>
               
               {settings.streakFitnessRequirementType !== 'all' && (
                 <div>
                   <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">
-                    {settings.streakFitnessRequirementType === 'count' ? 'Exercises Needed' : 'Total Reps/Mins Needed'}
+                    {settings.streakFitnessRequirementType === 'count' ? 'Exercises Needed' : settings.streakFitnessRequirementType === 'reps' ? 'Total Reps/Mins Needed' : 'Total XP Needed'}
                   </label>
                   <input 
                     type="number" min="1" step="1"

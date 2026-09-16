@@ -6,6 +6,7 @@ import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbe
 import { TodoList } from '../components/TodoList';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
+import { calculateFitnessXPForLogs } from '../hooks/useLevelSystem';
 import { useLevelSystem, DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { getSettings } from '../utils/settings';
 import clsx from 'clsx';
@@ -119,11 +120,14 @@ export function Home() {
   const totalRepsToday = todaysExerciseLogs.reduce((acc, log) => acc + log.reps, 0);
   const completedExerciseCount = todaysExerciseLogs.filter(log => log.reps > 0).length;
   
+  const todaysFitnessXP = calculateFitnessXPForLogs(todaysExerciseLogs, activeExercises);
   let fitnessConditionMet = true;
   if (settings.streakFitnessRequirementType === 'count') {
     fitnessConditionMet = completedExerciseCount >= settings.streakFitnessRequirementValue;
   } else if (settings.streakFitnessRequirementType === 'reps') {
     fitnessConditionMet = totalRepsToday >= settings.streakFitnessRequirementValue;
+  } else if (settings.streakFitnessRequirementType === 'xp') {
+    fitnessConditionMet = todaysFitnessXP >= settings.streakFitnessRequirementValue;
   } else {
     // 'all'
     fitnessConditionMet = activeExercises.every(ex => {
@@ -439,8 +443,10 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                     {settings.streakFitnessRequirementType === 'count' 
                       ? `Target: ${settings.streakFitnessRequirementValue} Exs` 
                       : settings.streakFitnessRequirementType === 'reps' 
-                      ? `Target: ${settings.streakFitnessRequirementValue} Total Reps` 
-                      : 'Target: All'}
+                      ? `Target: ${settings.streakFitnessRequirementValue} Total Reps`
+                      : settings.streakFitnessRequirementType === 'xp'
+                      ? `Target: ${settings.streakFitnessRequirementValue} XP`
+                      : 'Target: All Active'}
                   </span>
                 </div>
                 {activeExercises.length === 0 ? (

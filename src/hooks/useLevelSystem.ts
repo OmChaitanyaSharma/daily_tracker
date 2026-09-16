@@ -124,6 +124,22 @@ export function calculateStats(allHourLogs: any[], allExerciseLogs: any[], allEx
 
 const EMPTY_ARRAY: any[] = [];
 
+export function calculateFitnessXPForLogs(logs: any[], exercises: any[]): number {
+  const exMap = new Map(exercises.map(ex => [ex.id, ex]));
+  let fitnessXp = 0;
+  logs.forEach(log => {
+    const ex = exMap.get(log.exerciseId);
+    const diff = (ex?.difficulty || 'easy') as ExerciseDifficulty;
+    const type = ex?.trackingType || 'reps';
+    if (type === 'time') {
+      fitnessXp += log.reps * CARDIO_XP_PER_MIN;
+    } else {
+      fitnessXp += log.reps * XP_MAP[diff];
+    }
+  });
+  return fitnessXp;
+}
+
 export function useLevelSystem() {
   const allHourLogs = useLiveQuery(() => db.hourLogs.toArray());
   const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray());
