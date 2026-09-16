@@ -38,13 +38,18 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
 
   return (
     <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg shadow-sm">
-      <h3 className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-4 group-focus-within:text-accent-blue transition-colors">
-        {title}
-      </h3>
+      {title && (
+        <h3 className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-4 group-focus-within:text-accent-blue transition-colors">
+          {title}
+        </h3>
+      )}
       
       <div className="space-y-3 mb-4">
         {tasks.map(task => (
           <div key={task.id} className="flex items-start gap-3 group/item">
+            <span className="text-sm font-semibold text-text-muted mt-0.5 min-w-[1.2rem] text-right">
+              {tasks.indexOf(task) + 1}.
+            </span>
             <button 
               onClick={() => toggleTask(task)}
               className="mt-0.5 shrink-0 transition-colors"
@@ -68,9 +73,7 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
             )}
           </div>
         ))}
-        {tasks.length === 0 && (
-          <p className="text-sm text-text-muted italic opacity-60">No objectives set yet.</p>
-        )}
+
       </div>
 
       {!readOnly && (
@@ -79,14 +82,17 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
             e.preventDefault();
             handleAddTask();
           }} 
-          className="flex items-center gap-3 mt-4 pt-4 border-t border-border-subtle"
+          className="flex items-center gap-3 mt-4 pt-4 border-t border-border-subtle group-focus-within:border-accent-blue/30 transition-colors"
         >
+          <span className="text-sm font-semibold text-text-muted min-w-[1.2rem] text-right">
+            {tasks.length + 1}.
+          </span>
           <input
             type="text"
             value={newTaskText}
             onChange={e => setNewTaskText(e.target.value)}
             placeholder="Add a new objective..."
-            className="flex-1 bg-transparent text-sm text-text-main focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-text-main focus:outline-none placeholder:text-text-muted/50"
           />
           <button 
             type="submit"

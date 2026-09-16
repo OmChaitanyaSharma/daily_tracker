@@ -341,6 +341,17 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
         />
       </section>
 
+      {/* To-Do List */}
+      <section>
+        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-6 flex items-center gap-2 px-2">
+           <span className="w-2 h-2 rounded-full bg-accent-green"></span>
+           To-Do (Tomorrow)
+        </h2>
+        <div className="group">
+          <TodoList date={format(addDays(parseISO(entry.date!), 1), 'yyyy-MM-dd')} title="" />
+        </div>
+      </section>
+
       {/* Lightweight Reflections */}
       <section>
         <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-6 flex items-center gap-2 px-2">
@@ -371,9 +382,7 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
           />
         </div>
 
-        <div className="mt-4 group">
-          <TodoList date={format(addDays(parseISO(entry.date!), 1), 'yyyy-MM-dd')} />
-        </div>
+
       </section>
       
     </div>
