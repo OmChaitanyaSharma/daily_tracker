@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { getSettings } from '../utils/settings';
 import { db, type Goal } from '../db';
 import { getTodayStr } from '../utils/dateUtils';
 import { ArrowLeft, Plus } from 'lucide-react';
@@ -92,7 +93,7 @@ export function EndOfYearGoals() {
                 <ArrowLeft size={24} />
               </Link>
               <div>
-                <h1 className="text-3xl font-serif italic text-text-main">Goals Till End of Winter Arc (March 1st)</h1>
+                <h1 className="text-3xl font-serif italic text-text-main">Goals Till End of {getSettings().seasonName} (March 1st)</h1>
               </div>
             </div>
             

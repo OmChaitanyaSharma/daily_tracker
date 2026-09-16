@@ -14,6 +14,7 @@ describe('settings logic', () => {
     const s = getSettings();
     expect(s.streakTargetHours).toBe(6.0);
     expect(s.streakTargetHabitPercent).toBe(75);
+    expect(s.seasonName).toBe('Winter Arc');
     expect(s.winterArcRules.length).toBe(7);
     expect(s.devRanksNames.length).toBe(11);
     expect(s.fitRanksNames.length).toBe(11);
@@ -34,6 +35,7 @@ describe('settings logic', () => {
     const s = getSettings();
     expect(s.streakTargetHours).toBe(2.0);
     expect(s.streakTargetHabitPercent).toBe(75);
+    expect(s.seasonName).toBe('Winter Arc');
     expect(s.winterArcRules.length).toBe(7);
   });
 });

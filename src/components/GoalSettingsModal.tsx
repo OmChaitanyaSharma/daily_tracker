@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { type Goal, db } from '../db';
 import { X, Trash2 } from 'lucide-react';
+import { getSettings } from '../utils/settings';
 
 interface Props {
   goal: Goal;
@@ -91,7 +92,7 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
                 onClick={() => setFormData({ ...formData, category: 'end-of-year' })}
                 className={`py-1.5 text-sm font-medium rounded-md transition-colors ${formData.category === 'end-of-year' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               >
-                Winter Arc
+                {getSettings().seasonName}
               </button>
               <button
                 type="button"

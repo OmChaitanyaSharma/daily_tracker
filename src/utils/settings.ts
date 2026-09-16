@@ -1,6 +1,9 @@
 export interface AppSettings {
   streakTargetHours: number;
   streakTargetHabitPercent: number;
+  streakFitnessRequirementType: 'all' | 'count' | 'reps';
+  streakFitnessRequirementValue: number;
+  seasonName: string;
   winterArcRules: string[];
   devRanksNames: string[];
   fitRanksNames: string[];
@@ -36,6 +39,9 @@ export function getSettings(): AppSettings {
       return {
         streakTargetHours: parsed.streakTargetHours ?? 6.0,
         streakTargetHabitPercent: parsed.streakTargetHabitPercent ?? 75,
+        streakFitnessRequirementType: parsed.streakFitnessRequirementType || 'all',
+        streakFitnessRequirementValue: parsed.streakFitnessRequirementValue ?? 0,
+        seasonName: parsed.seasonName || 'Winter Arc',
         winterArcRules: parsed.winterArcRules || DEFAULT_WINTER_ARC,
         devRanksNames: parsed.devRanksNames || DEFAULT_DEV,
         fitRanksNames: parsed.fitRanksNames || DEFAULT_FIT
@@ -45,6 +51,9 @@ export function getSettings(): AppSettings {
   return {
     streakTargetHours: 6.0,
     streakTargetHabitPercent: 75,
+    streakFitnessRequirementType: 'all',
+    streakFitnessRequirementValue: 0,
+    seasonName: 'Winter Arc',
     winterArcRules: DEFAULT_WINTER_ARC,
     devRanksNames: DEFAULT_DEV,
     fitRanksNames: DEFAULT_FIT

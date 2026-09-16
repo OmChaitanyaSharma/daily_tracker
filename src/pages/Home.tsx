@@ -98,6 +98,24 @@ export function Home() {
   const todaysTotalHours = todaysHourLogs.reduce((acc, log) => acc + log.hours, 0);
   const hoursConditionMet = todaysTotalHours >= settings.streakTargetHours;
 
+  // Evaluate Fitness Streak Condition based on settings
+  const totalRepsToday = todaysExerciseLogs.reduce((acc, log) => acc + log.reps, 0);
+  const completedExerciseCount = todaysExerciseLogs.filter(log => log.reps > 0).length;
+  
+  let fitnessConditionMet = true;
+  if (settings.streakFitnessRequirementType === 'count') {
+    fitnessConditionMet = completedExerciseCount >= settings.streakFitnessRequirementValue;
+  } else if (settings.streakFitnessRequirementType === 'reps') {
+    fitnessConditionMet = totalRepsToday >= settings.streakFitnessRequirementValue;
+  } else {
+    // 'all'
+    fitnessConditionMet = activeExercises.every(ex => {
+      const reps = todaysExerciseLogs.find(l => l.exerciseId === ex.id)?.reps || 0;
+      return reps > 0;
+    });
+  }
+
+  // We still calculate pendingExercises to show what hasn't been started for the UI checklist
   const pendingExercises = activeExercises.filter(ex => {
     const reps = todaysExerciseLogs.find(l => l.exerciseId === ex.id)?.reps || 0;
     return reps === 0;
@@ -115,7 +133,7 @@ export function Home() {
           className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-text-muted text-xs font-medium tracking-widest uppercase mb-4 shadow-sm hover:border-accent-blue/50 hover:bg-accent-blue/5 transition-colors cursor-pointer"
         >
           <Snowflake size={12} className="text-accent-blue opacity-70" />
-          <span>Winter Arc</span>
+          <span>{settings.seasonName}</span>
         </button>
         <h1 className="text-4xl md:text-6xl font-serif text-text-main tracking-tight mt-0">
           <span className="marker-highlight font-medium">{format(new Date(), 'EEEE')}</span>, <br className="md:hidden"/> {format(new Date(), 'MMMM do')}
@@ -388,7 +406,16 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
               </div>
 
               <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Fitness Tasks</h3>
+                <div className="flex justify-between items-end mb-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Fitness Tasks</h3>
+                  <span className="text-[10px] uppercase font-bold text-accent-green">
+                    {settings.streakFitnessRequirementType === 'count' 
+                      ? `Target: ${settings.streakFitnessRequirementValue} Exs` 
+                      : settings.streakFitnessRequirementType === 'reps' 
+                      ? `Target: ${settings.streakFitnessRequirementValue} Total Reps` 
+                      : 'Target: All'}
+                  </span>
+                </div>
                 {activeExercises.length === 0 ? (
                   <p className="text-sm text-text-muted italic">No active exercises to track.</p>
                 ) : (
@@ -414,7 +441,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                 )}
               </div>
               
-              {(pendingExercises.length > 0 || !habitConditionMet || !hoursConditionMet) ? (
+              {(!fitnessConditionMet || !habitConditionMet || !hoursConditionMet) ? (
                 <p className="text-xs text-accent-red text-center font-medium bg-accent-red-bg py-2 rounded-lg">
                   You must complete these to secure your streak!
                 </p>
@@ -473,7 +500,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
               </div>
               <div>
                 <h2 className="text-2xl font-serif text-text-main">
-                  Winter Arc Rules
+                  {settings.seasonName} Rules
                 </h2>
                 <p className="text-text-muted text-sm">
                   The protocol for the season

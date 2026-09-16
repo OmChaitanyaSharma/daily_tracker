@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getSettings } from '../utils/settings';
 import { Target, Heart, ArrowLeft } from 'lucide-react';
 
 export function Goals() {
@@ -21,9 +22,9 @@ export function Goals() {
               <Target size={32} strokeWidth={1.5} />
             </div>
             <div>
-              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">End of Winter Arc</h2>
+              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">End of {getSettings().seasonName}</h2>
               <p className="text-text-muted text-sm max-w-sm mx-auto leading-relaxed">
-                Track everything I want to achieve before the end of the winter arc (March 1st).
+                Track everything I want to achieve before the end of the {getSettings().seasonName.toLowerCase()} (March 1st).
               </p>
             </div>
           </div>
