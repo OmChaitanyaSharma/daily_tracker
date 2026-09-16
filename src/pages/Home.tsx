@@ -61,7 +61,7 @@ export function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === 'Backspace') {
+      if (e.key.toLowerCase() === 'escape' || e.key.toLowerCase() === 'backspace') {
         if (levelModal !== null || showStreakModal || levelUpData !== null || showWinterArcRules) {
           e.preventDefault();
           e.stopPropagation();

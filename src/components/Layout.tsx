@@ -71,7 +71,7 @@ export function Layout() {
         if (e.key !== 'Escape') return;
       }
 
-      switch (e.key) {
+      switch (e.key.toLowerCase()) {
         case 'w':
         case 'a':
         case 's':
@@ -82,21 +82,22 @@ export function Layout() {
         case 'D':
           handleDirectionalNavigation(e);
           break;
-        case 'Enter':
+        case 'enter':
           if (activeElement) {
             if (isInput) {
               e.preventDefault();
               activeElement.dataset.editMode = "true";
-            } else if (!['BUTTON', 'A'].includes(activeTag)) {
+            } else {
+              e.preventDefault();
               activeElement.click();
             }
           }
           break;
-        case 'Escape': 
+        case 'escape': 
           e.preventDefault();
           navigate('/'); 
           break;
-        case 'Backspace':
+        case 'backspace':
           e.preventDefault();
           navigate(-1);
           break;
