@@ -13,11 +13,23 @@ describe('dateUtils', () => {
     expect(range).toEqual(['2026-08-20', '2026-08-21', '2026-08-22']);
   });
 
-  it('getMeasurementDates should return 15-day intervals up to end of year', () => {
+  it('getMeasurementDates should target March 1st of next year if starting late in year', () => {
     const dates = getMeasurementDates('2026-12-10');
     // Start: 2026-12-10
-    // Next: 2026-12-25
-    // End: 2026-12-31
+    // +15: 2026-12-25
+    // +15: 2027-01-09
+    // +15: 2027-01-24
+    // +15: 2027-02-08
+    // +15: 2027-02-23
+    // End is 2027-03-01
     expect(dates[0]).toEqual('2026-12-10');
+    expect(dates[1]).toEqual('2026-12-25');
+    expect(dates[dates.length - 1]).toEqual('2027-03-01');
+  });
+
+  it('getMeasurementDates should target March 1st of current year if starting in Jan/Feb', () => {
+    const dates = getMeasurementDates('2027-01-15');
+    expect(dates[0]).toEqual('2027-01-15');
+    expect(dates[dates.length - 1]).toEqual('2027-03-01');
   });
 });
