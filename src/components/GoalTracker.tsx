@@ -66,7 +66,7 @@ export function GoalRow({
       <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between w-full">
         <div className="flex-1 flex items-center gap-4 w-full">
           <button onClick={onClick} className="flex-1 text-left">
-            <h3 className="text-xl font-serif text-text-main mb-2 hover:text-accent-blue transition-colors">{goal.title}</h3>
+            <h3 className="text-xl font-serif text-text-main mb-2 hover:text-accent-blue transition-colors break-words line-clamp-2" title={goal.title}>{goal.title}</h3>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-text-muted">
               <span>Target: <span className="font-medium text-text-main">{renderValue(goal.targetValue) || 'Qualitative'}</span></span>
             </div>

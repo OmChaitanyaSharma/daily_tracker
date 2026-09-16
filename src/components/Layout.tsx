@@ -192,6 +192,7 @@ export function Layout() {
             <Link to="/habits" className="hover:text-text-main transition-colors">Habits</Link>
             <Link to="/goals" className="hover:text-text-main transition-colors">Goals</Link>
             <Link to="/logs" className="hover:text-text-main transition-colors">Logs</Link>
+            <Link to="/settings" className="hover:text-text-main transition-colors">Settings</Link>
           </nav>
 
           <button 

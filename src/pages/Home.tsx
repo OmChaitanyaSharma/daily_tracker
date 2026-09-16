@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
-import { useLevelSystem, DEV_RANKS, FIT_RANKS } from '../hooks/useLevelSystem';
+import { useLevelSystem, DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
+import { getSettings } from '../utils/settings';
 import clsx from 'clsx';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
@@ -90,10 +91,12 @@ export function Home() {
     if (log.status === 'completed') habitScore += 1.0;
     else if (log.status === 'partial') habitScore += 0.5;
   });
-  const habitConditionMet = activeHabits.length > 0 ? (habitScore / activeHabits.length >= 0.75) : true;
+  const settings = getSettings();
+  const targetPercent = settings.streakTargetHabitPercent / 100;
+  const habitConditionMet = activeHabits.length > 0 ? (habitScore / activeHabits.length >= targetPercent) : true;
   
   const todaysTotalHours = todaysHourLogs.reduce((acc, log) => acc + log.hours, 0);
-  const hoursConditionMet = todaysTotalHours >= 6.0;
+  const hoursConditionMet = todaysTotalHours >= settings.streakTargetHours;
 
   const pendingExercises = activeExercises.filter(ex => {
     const reps = todaysExerciseLogs.find(l => l.exerciseId === ex.id)?.reps || 0;
@@ -295,14 +298,16 @@ export function Home() {
               <div className="mt-6 border-t border-border-strong pt-6">
                 <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Rank Progression</h3>
                 <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
-                  {(levelModal === 'dev' ? DEV_RANKS : FIT_RANKS).map((rank, idx, arr) => {
+                  {(levelModal === 'dev' ? DEFAULT_DEV_RANKS : DEFAULT_FIT_RANKS).map((rank, idx, arr) => {
+const settings = getSettings();
+const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settings.fitRanksNames[idx];
                     const currentLevel = levelModal === 'dev' ? dev.level : fitness.level;
                     const prevMax = idx === 0 ? 1 : arr[idx - 1].max + 1;
                     const isCurrent = currentLevel >= prevMax && currentLevel <= rank.max;
                     const isFuture = currentLevel < prevMax;
                     
                     return (
-                      <div key={rank.title} className={clsx(
+                      <div key={dynamicTitle || rank.title} className={clsx(
                         "flex items-center justify-between p-3 rounded-xl border",
                         isCurrent ? (levelModal === 'dev' ? "bg-accent-blue-bg border-accent-blue/50" : "bg-accent-green-bg border-accent-green/50") 
                         : isFuture ? "bg-bg-base border-border-subtle opacity-50" 
@@ -310,7 +315,7 @@ export function Home() {
                       )}>
                         <div>
                           <span className={clsx("text-sm font-bold", isCurrent ? (levelModal === 'dev' ? "text-accent-blue" : "text-accent-green") : "text-text-main")}>
-                            {rank.title}
+                            {dynamicTitle || rank.title}
                           </span>
                         </div>
                         <div className="text-xs font-mono text-text-muted">
@@ -377,7 +382,7 @@ export function Home() {
                     <div className="w-6 h-6 rounded-full border-2 border-border-strong shrink-0"></div>
                   )}
                   <span className={clsx("text-sm", hoursConditionMet ? "text-text-muted line-through" : "text-text-main")}>
-                    Log at least 6.0 Hours (Current: {todaysTotalHours.toFixed(1)}h)
+                    Log at least {settings.streakTargetHours.toFixed(1)} Hours (Current: {todaysTotalHours.toFixed(1)}h)
                   </span>
                 </div>
               </div>
@@ -477,34 +482,12 @@ export function Home() {
             </div>
 
             <ul className="space-y-4 text-sm font-medium">
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">1</span>
-                <span className="text-text-main">Wake up at 6 am daily / sleep by 10 pm</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">2</span>
-                <span className="text-text-main">Train consistently</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">3</span>
-                <span className="text-text-main">Skin care + hair care</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">4</span>
-                <span className="text-text-main">Work for over 8 hours daily (coding + skills + study)</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">5</span>
-                <span className="text-text-main">Discipline {">>"} Motivation</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">6</span>
-                <span className="text-text-main">Less social media, more books</span>
-              </li>
-              <li className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                <span className="text-accent-blue font-bold opacity-80 w-4 text-center">7</span>
-                <span className="text-text-main">Count every calorie you eat</span>
-              </li>
+              {settings.winterArcRules.map((rule, idx) => (
+                <li key={idx} className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
+                  <span className="text-accent-blue font-bold opacity-80 w-4 text-center">{idx + 1}</span>
+                  <span className="text-text-main">{rule}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

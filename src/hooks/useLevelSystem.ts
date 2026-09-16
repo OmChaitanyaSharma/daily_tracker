@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type ExerciseDifficulty } from '../db';
+import { getSettings } from '../utils/settings';
 
 // 1 Hour = 100 XP
 const XP_PER_HOUR = 100;
@@ -15,7 +16,7 @@ const XP_MAP: Record<ExerciseDifficulty, number> = {
 };
 const CARDIO_XP_PER_MIN = 10;
 
-export const DEV_RANKS = [
+export const DEFAULT_DEV_RANKS = [
   { max: 10, title: "Logic Initiate" },
   { max: 20, title: "Code Apprentice" },
   { max: 30, title: "Algorithm Adept" },
@@ -29,26 +30,32 @@ export const DEV_RANKS = [
   { max: Infinity, title: "Digital God" }
 ];
 
-export const FIT_RANKS = [
-  { max: 10, title: "Iron Novice" },
-  { max: 20, title: "Bronze Athlete" },
-  { max: 30, title: "Steel Warrior" },
-  { max: 40, title: "Titanium Spartan" },
-  { max: 50, title: "Elite Gladiator" },
-  { max: 60, title: "Apex Predator" },
-  { max: 70, title: "Iron Juggernaut" },
-  { max: 80, title: "Unstoppable Colossus" },
-  { max: 90, title: "Herculean Champion" },
-  { max: 99, title: "Olympian Titan" },
-  { max: Infinity, title: "God of Iron" }
+
+export const DEFAULT_FIT_RANKS = [
+  { max: 10, title: "Couch Potato" },
+  { max: 20, title: "Walker" },
+  { max: 30, title: "Jogger" },
+  { max: 40, title: "Athlete" },
+  { max: 50, title: "Warrior" },
+  { max: 60, title: "Spartan" },
+  { max: 70, title: "Olympian" },
+  { max: 80, title: "Demigod" },
+  { max: 90, title: "Hercules" },
+  { max: 99, title: "Atlas" },
+  { max: Infinity, title: "Aesthetic God" }
 ];
 
+
 export function getDevTitle(level: number): string {
-  return DEV_RANKS.find(r => level <= r.max)?.title || "Digital God";
+  const settings = getSettings();
+  const ranks = DEFAULT_DEV_RANKS.map((r, i) => ({ ...r, title: settings.devRanksNames[i] || r.title }));
+  return ranks.find(r => level <= r.max)?.title || "Digital God";
 }
 
 export function getFitTitle(level: number): string {
-  return FIT_RANKS.find(r => level <= r.max)?.title || "God of Iron";
+  const settings = getSettings();
+  const ranks = DEFAULT_FIT_RANKS.map((r, i) => ({ ...r, title: settings.fitRanksNames[i] || r.title }));
+  return ranks.find(r => level <= r.max)?.title || "God of Iron";
 }
 
 export function calculateDevLevel(xp: number) {

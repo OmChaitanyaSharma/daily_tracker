@@ -10,6 +10,7 @@ import { Goals } from './pages/Goals';
 import { EndOfYearGoals } from './pages/EndOfYearGoals';
 import { HealthGoals } from './pages/HealthGoals';
 import { Logs } from './pages/Logs';
+import { Settings } from './pages/Settings';
 import { resetAndSeedDatabase } from './seedData';
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
           <Route path="goals/end-of-year" element={<EndOfYearGoals />} />
           <Route path="goals/health" element={<HealthGoals />} />
           <Route path="logs" element={<Logs />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>
