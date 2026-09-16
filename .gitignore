@@ -27,3 +27,39 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Large Media & Asset Files (To prevent GH001 errors)
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.flac
+*.pdf
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.iso
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.dump
+*.csv
+
+# OS generated files
+Thumbs.db
+
+# Accidental personal documents
+*.docx
+*.xlsx
+*.pptx
+
+# Design files
+*.psd
+*.ai
+*.fig
