@@ -92,7 +92,7 @@ export function EndOfYearGoals() {
                 <ArrowLeft size={24} />
               </Link>
               <div>
-                <h1 className="text-3xl font-serif italic text-text-main">Goals Till End of Year</h1>
+                <h1 className="text-3xl font-serif italic text-text-main">Goals Till End of Winter Arc (March 1st)</h1>
               </div>
             </div>
             

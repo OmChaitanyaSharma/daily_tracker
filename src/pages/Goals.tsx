@@ -21,9 +21,9 @@ export function Goals() {
               <Target size={32} strokeWidth={1.5} />
             </div>
             <div>
-              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">End of Year</h2>
+              <h2 className="text-2xl font-serif text-text-main mb-3 font-medium">End of Winter Arc</h2>
               <p className="text-text-muted text-sm max-w-sm mx-auto leading-relaxed">
-                Track everything I want to achieve before the end of the year.
+                Track everything I want to achieve before the end of the winter arc (March 1st).
               </p>
             </div>
           </div>

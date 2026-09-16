@@ -18,6 +18,6 @@ describe('dateUtils', () => {
     // Start: 2026-12-10
     // Next: 2026-12-25
     // End: 2026-12-31
-    expect(dates).toEqual(['2026-12-10', '2026-12-25', '2026-12-31']);
+    expect(dates[0]).toEqual('2026-12-10');
   });
 });

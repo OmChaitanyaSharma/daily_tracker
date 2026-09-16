@@ -56,7 +56,12 @@ export function getMeasurementDates(startDateStr: string): string[] {
   const dates: string[] = [];
   try {
     let current = parseISO(`${startDateStr}T12:00:00`);
-    const end = parseISO(`${format(current, 'yyyy')}-12-31T12:00:00`);
+    let endYear = current.getFullYear();
+    // If the date is March or later, the end is March 1st of the next year
+    if (current.getMonth() >= 2) {
+       endYear += 1;
+    }
+    const end = parseISO(`${endYear}-03-01T12:00:00`);
     
     dates.push(format(current, 'yyyy-MM-dd')); // Initial
     
