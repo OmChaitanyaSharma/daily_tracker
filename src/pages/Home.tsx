@@ -3,6 +3,7 @@ import { LevelUpCelebration } from '../components/LevelUpCelebration';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check } from 'lucide-react';
+import { TodoList } from '../components/TodoList';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
 import { useLevelSystem, DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
@@ -16,10 +17,19 @@ export function Home() {
   const { streak, freezesOwned, freezeUsedToday, isLoading: streakLoading } = useStreak();
   const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
+  const todayStr = getTodayStr();
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [showWinterArcRules, setShowWinterArcRules] = useState(false);
+  const [showTodosModal, setShowTodosModal] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit' | 'streak', level: number, title: string} | null>(null);
+  
+  const todaysTodos = useLiveQuery(async () => {
+    return await db.tasks.where('date').equals(todayStr).toArray();
+  }, [todayStr]) || [];
+  
+  const completedTodosCount = todaysTodos.filter(t => t.completed).length;
+
 
   useEffect(() => {
     if (levelsLoading) return;
@@ -62,22 +72,22 @@ export function Home() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'escape' || e.key.toLowerCase() === 'backspace') {
-        if (levelModal !== null || showStreakModal || levelUpData !== null || showWinterArcRules) {
+        if (levelModal !== null || showStreakModal || levelUpData !== null || showWinterArcRules || showTodosModal) {
           e.preventDefault();
           e.stopPropagation();
           setLevelModal(null);
           setShowStreakModal(false);
           setLevelUpData(null);
           setShowWinterArcRules(false);
+          setShowTodosModal(false);
         }
       }
     };
     
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [levelModal, showStreakModal, levelUpData, showWinterArcRules]);
+  }, [levelModal, showStreakModal, levelUpData, showWinterArcRules, showTodosModal]);
 
-  const todayStr = getTodayStr();
   
   // Data for Streak Requirement breakdown
   const activeExercises = useLiveQuery(async () => {
@@ -135,13 +145,23 @@ export function Home() {
     <div className="flex flex-col gap-16 md:gap-24 animate-fade-in max-w-4xl mx-auto pt-4 relative">
       
       <header className="text-center space-y-6 relative">
-        <button 
-          onClick={() => setShowWinterArcRules(true)}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-text-muted text-xs font-medium tracking-widest uppercase mb-4 shadow-sm hover:border-accent-blue/50 hover:bg-accent-blue/5 transition-colors cursor-pointer"
-        >
-          <Snowflake size={12} className="text-accent-blue opacity-70" />
-          <span>{settings.seasonName}</span>
-        </button>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <button 
+            onClick={() => setShowWinterArcRules(true)}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-text-muted text-xs font-medium tracking-widest uppercase shadow-sm hover:border-accent-blue/50 hover:bg-accent-blue/5 transition-colors cursor-pointer"
+          >
+            <Snowflake size={12} className="text-accent-blue opacity-70" />
+            <span>{settings.seasonName}</span>
+          </button>
+          
+          <button 
+            onClick={() => setShowTodosModal(true)}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-text-muted text-xs font-medium tracking-widest uppercase shadow-sm hover:border-accent-green/50 hover:bg-accent-green/5 transition-colors cursor-pointer"
+          >
+            <CheckSquare size={12} className={todaysTodos.length > 0 && completedTodosCount === todaysTodos.length ? "text-accent-green" : "text-text-muted"} />
+            <span>Today's Todos {todaysTodos.length > 0 && `(${completedTodosCount}/${todaysTodos.length})`}</span>
+          </button>
+        </div>
         <h1 className="text-4xl md:text-6xl font-serif text-text-main tracking-tight mt-0">
           <span className="marker-highlight font-medium">{format(new Date(), 'EEEE')}</span>, <br className="md:hidden"/> {format(new Date(), 'MMMM do')}
         </h1>
@@ -523,6 +543,28 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      )}
+      {showTodosModal && (
+        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowTodosModal(false)}>
+          <div className="bg-bg-base border border-border-strong rounded-3xl max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-border-subtle flex justify-between items-center bg-bg-surface">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent-green/10 text-accent-green border border-accent-green/20">
+                  <CheckSquare size={18} />
+                </div>
+                <h2 className="text-xl font-serif text-text-main">
+                  Daily Objectives
+                </h2>
+              </div>
+              <button onClick={() => setShowTodosModal(false)} className="text-text-muted hover:text-text-main p-2">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto custom-scrollbar">
+              <TodoList date={todayStr} title="Today's Tasks" />
+            </div>
           </div>
         </div>
       )}

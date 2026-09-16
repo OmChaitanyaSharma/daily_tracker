@@ -3,6 +3,8 @@ import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
 import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TodoList } from '../components/TodoList';
+import { addDays, parseISO, format } from 'date-fns';
 import clsx from 'clsx';
 
 const MOODS = [
@@ -369,12 +371,8 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
           />
         </div>
 
-        <div className="mt-4">
-           <ReflectionField 
-            label="What do I want to do tomorrow?" 
-            value={entry.tomorrowPriorities} 
-            onChange={val => setEntry({ ...entry, tomorrowPriorities: val })} 
-          />
+        <div className="mt-4 group">
+          <TodoList date={format(addDays(parseISO(entry.date!), 1), 'yyyy-MM-dd')} />
         </div>
       </section>
       
