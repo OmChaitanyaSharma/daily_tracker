@@ -2,15 +2,43 @@ import { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Save, Plus, Trash2 } from 'lucide-react';
 import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
 import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
+import { db } from '../db';
+import { AlertTriangle } from 'lucide-react';
 
 export function Settings() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [isClearing, setIsClearing] = useState(false);
+  const [clearedMessage, setClearedMessage] = useState('');
 
   useEffect(() => {
     setSettings(getSettings());
   }, []);
 
   if (!settings) return null;
+
+  
+  const handleClearData = async () => {
+    const confirmed = window.confirm('Are you sure you want to clear all tracking data? This will keep your habits, goals, and exercises, but wipe all logs, entries, and progress. This cannot be undone.');
+    if (!confirmed) return;
+    
+    setIsClearing(true);
+    try {
+      await Promise.all([
+        db.dayEntries.clear(),
+        db.tasks.clear(),
+        db.habitLogs.clear(),
+        db.hourLogs.clear(),
+        db.goalMeasurements.clear(),
+        db.exerciseLogs.clear()
+      ]);
+      setClearedMessage('All tracking entries have been cleared.');
+      setTimeout(() => setClearedMessage(''), 3000);
+    } catch (e) {
+      console.error(e);
+      setClearedMessage('Error clearing data.');
+    }
+    setIsClearing(false);
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -194,7 +222,37 @@ export function Settings() {
           </div>
         </section>
 
+
+        {/* Data Management */}
+        <section className="pt-8">
+          <h2 className="text-xl font-serif text-accent-red mb-6 border-b border-border-subtle pb-2 flex items-center gap-2">
+            <AlertTriangle size={20} />
+            Data Management
+          </h2>
+          <div className="bg-bg-surface border border-accent-red/20 rounded-2xl p-6 mb-12">
+            <h3 className="text-sm font-semibold text-text-main mb-2">Clear Tracking Data</h3>
+            <p className="text-sm text-text-muted mb-4">
+              This will permanently delete all your daily logs, task checks, time tracking, habit completions, and exercise logs. 
+              <strong> Your created habits, goals, and exercises will not be deleted.</strong>
+            </p>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={handleClearData}
+                disabled={isClearing}
+                className="px-4 py-2 bg-accent-red/10 text-accent-red hover:bg-accent-red/20 rounded-lg font-semibold transition-colors disabled:opacity-50"
+              >
+                {isClearing ? 'Clearing...' : 'Clear All Entries'}
+              </button>
+              {clearedMessage && (
+                <span className="text-accent-green text-sm font-medium animate-fade-in">{clearedMessage}</span>
+              )}
+            </div>
+          </div>
+        </section>
+
         <div className="sticky bottom-6 flex justify-end">
+
           <button type="submit" className="flex items-center gap-2 bg-text-main text-bg-base px-6 py-3 rounded-full font-medium shadow-lg hover:scale-105 transition-transform">
             <Save size={18} />
             Save All Settings
