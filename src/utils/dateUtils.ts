@@ -83,3 +83,5 @@ export function getMeasurementDates(startDateStr: string): string[] {
     return [];
   }
 }
+
+export const MIN_DATE_STR = '2026-09-21';

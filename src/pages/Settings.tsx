@@ -24,7 +24,7 @@ export function Settings() {
     setIsClearing(true);
     try {
       await Promise.all([
-        db.dayEntries.clear(),
+        
         db.tasks.clear(),
         db.habitLogs.clear(),
         db.hourLogs.clear(),

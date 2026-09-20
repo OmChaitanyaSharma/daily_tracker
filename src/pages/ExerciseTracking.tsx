@@ -2,8 +2,8 @@ const EMPTY_ARRAY: any[] = [];
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Exercise, type ExerciseDifficulty, type TrackingType } from '../db';
-import { format, subDays, addDays, isFuture } from 'date-fns';
-import { getTodayStr } from '../utils/dateUtils';
+import { format, subDays, addDays, isFuture, parseISO, isBefore } from 'date-fns';
+import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Dumbbell, Trash2, Edit2, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useExerciseStreak } from '../hooks/useExerciseStreak';
@@ -47,7 +47,14 @@ export function ExerciseTracking() {
   const activeExercises = useMemo(() => exercises.filter(ex => !ex.archived), [exercises]);
   const streak = useExerciseStreak();
 
-  const handlePrevDay = () => setCurrentDate(prev => subDays(prev, 1));
+    const handlePrevDay = () => {
+    setCurrentDate(prev => {
+      const prevDay = subDays(prev, 1);
+      const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
+      if (isBefore(prevDay, minDate)) return prev;
+      return prevDay;
+    });
+  };
   const handleNextDay = () => {
     if (!isFuture(addDays(currentDate, 1))) {
       setCurrentDate(prev => addDays(prev, 1));
@@ -164,7 +171,8 @@ export function ExerciseTracking() {
         <div className="flex items-center gap-4 bg-bg-surface border border-border-strong rounded-full p-1">
           <button 
             onClick={handlePrevDay}
-            className="p-2 text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors"
+            disabled={isBefore(subDays(currentDate, 1), parseISO(MIN_DATE_STR + "T00:00:00"))}
+            className="p-2 text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent"
           >
             <ChevronLeft size={20} />
           </button>

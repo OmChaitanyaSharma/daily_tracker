@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Habit, type HourCategory } from '../db';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO, isBefore } from 'date-fns';
 const EMPTY_ARRAY: any[] = [];
-import { getTodayStr } from '../utils/dateUtils';
+import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, ArchiveRestore, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -130,7 +130,13 @@ export function ProductivityHabits() {
   };
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+    const prevMonth = () => {
+    const prev = subMonths(currentDate, 1);
+    const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
+    if (!isBefore(endOfMonth(prev), minDate)) {
+      setCurrentDate(prev);
+    }
+  };
   const goToToday = () => setCurrentDate(new Date());
 
   const handleAddHabit = async (e: React.FormEvent) => {
@@ -459,7 +465,7 @@ export function ProductivityHabits() {
             Today
           </button>
           <div className="flex items-center gap-2 bg-bg-surface border border-border-strong rounded-full p-1">
-            <button onClick={prevMonth} className="p-1.5 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main">
+            <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="p-1.5 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent">
               <ChevronLeft size={18} />
             </button>
             <span className="w-32 text-center font-serif font-medium text-text-main">

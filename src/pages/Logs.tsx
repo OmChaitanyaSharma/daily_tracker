@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
-import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isToday, startOfYear, endOfYear, getQuarter, startOfQuarter, endOfQuarter, getMonth } from 'date-fns';
+import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, addMonths, subMonths, isToday, startOfYear, endOfYear, getQuarter, startOfQuarter, endOfQuarter, getMonth, isBefore } from 'date-fns';
 import { ChevronLeft, ChevronRight, ArrowLeft, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { ActivityHeatmap } from '../components/ActivityHeatmap';
 import { WeeklyDigest } from '../components/WeeklyDigest';
+import { MIN_DATE_STR } from '../utils/dateUtils';
 
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
 
@@ -82,7 +83,14 @@ export function Logs() {
   const paddingDays = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+    const prevMonth = () => {
+    const prev = subMonths(currentDate, 1);
+    const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
+    // Only allow if the previous month's end is on or after the min date
+    if (!isBefore(endOfMonth(prev), minDate)) {
+      setCurrentDate(prev);
+    }
+  };
 
   // Selected Day View Logic
   const selectedEntry = selectedDate ? allEntries.find(e => e.date === selectedDate) : null;
@@ -240,7 +248,7 @@ export function Logs() {
                 {format(currentDate, 'MMMM yyyy')}
               </h2>
               <div className="flex gap-2">
-                <button onClick={prevMonth} className="p-2 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors">
+                <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="p-2 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-muted disabled:cursor-not-allowed">
                   <ChevronLeft size={20} />
                 </button>
                 <button onClick={nextMonth} className="p-2 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors">
