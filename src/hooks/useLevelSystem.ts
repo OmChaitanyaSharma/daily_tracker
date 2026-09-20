@@ -59,34 +59,36 @@ export function getFitTitle(level: number): string {
 }
 
 export function calculateDevLevel(xp: number) {
-  const level = Math.floor(Math.pow(xp / 100, 1 / 1.75)) + 1;
-  const currentLevelBaseXp = 100 * Math.pow(level - 1, 1.75);
-  const nextLevelBaseXp = 100 * Math.pow(level, 1.75);
+  const mathLevel = Math.floor(Math.pow(xp / 100, 1 / 1.75)) + 1;
+  const displayLevel = mathLevel - 1;
+  const currentLevelBaseXp = 100 * Math.pow(mathLevel - 1, 1.75);
+  const nextLevelBaseXp = 100 * Math.pow(mathLevel, 1.75);
   const progress = (xp - currentLevelBaseXp) / (nextLevelBaseXp - currentLevelBaseXp);
   
   return { 
-    level, 
+    level: displayLevel, 
     xp, 
     currentLevelBaseXp, 
     nextLevelBaseXp, 
     progress: progress * 100,
-    title: getDevTitle(level)
+    title: getDevTitle(mathLevel)
   };
 }
 
 export function calculateFitLevel(xp: number) {
-  const level = Math.floor(Math.sqrt(xp / 100)) + 1;
-  const currentLevelBaseXp = 100 * Math.pow(level - 1, 2);
-  const nextLevelBaseXp = 100 * Math.pow(level, 2);
+  const mathLevel = Math.floor(Math.sqrt(xp / 100)) + 1;
+  const displayLevel = mathLevel - 1;
+  const currentLevelBaseXp = 100 * Math.pow(mathLevel - 1, 2);
+  const nextLevelBaseXp = 100 * Math.pow(mathLevel, 2);
   const progress = (xp - currentLevelBaseXp) / (nextLevelBaseXp - currentLevelBaseXp);
   
   return { 
-    level, 
+    level: displayLevel, 
     xp, 
     currentLevelBaseXp, 
     nextLevelBaseXp, 
     progress: progress * 100,
-    title: getFitTitle(level)
+    title: getFitTitle(mathLevel)
   };
 }
 
