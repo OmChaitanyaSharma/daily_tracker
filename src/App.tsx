@@ -12,6 +12,7 @@ import { HealthGoals } from './pages/HealthGoals';
 import { Logs } from './pages/Logs';
 import { Settings } from './pages/Settings';
 import { resetAndSeedDatabase } from './seedData';
+import { db } from './db';
 
 export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -23,6 +24,16 @@ export default function App() {
         await resetAndSeedDatabase();
         localStorage.setItem('sept_2026_reset_final', 'true');
       }
+      
+      // Fix goal dates from 2026-09-01 to 2026-09-22
+      if (!localStorage.getItem('sept_2026_goal_date_fix_22nd')) {
+        const goalsToUpdate = await db.goals.filter(g => g.startDate === '2026-09-01').toArray();
+        if (goalsToUpdate.length > 0) {
+          await Promise.all(goalsToUpdate.map(g => db.goals.update(g.id, { startDate: '2026-09-22' })));
+        }
+        localStorage.setItem('sept_2026_goal_date_fix_22nd', 'true');
+      }
+
       setIsInitializing(false);
     }
     init().catch(console.error);

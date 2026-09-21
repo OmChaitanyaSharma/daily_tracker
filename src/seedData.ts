@@ -16,8 +16,8 @@ export async function resetAndSeedDatabase() {
   await db.exercises.clear();
   await db.exerciseLogs.clear();
 
-  const startDate = '2026-09-01';
-  const createdAt = new Date('2026-09-01T00:00:00Z').toISOString();
+  const startDate = '2026-09-22';
+  const createdAt = new Date('2026-09-22T00:00:00Z').toISOString();
 
   // 1. Seed Original Habits
   const habitsList = [
