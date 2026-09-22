@@ -139,8 +139,8 @@ export function ProductivityHabits() {
   };
   const goToToday = () => setCurrentDate(new Date());
 
-  const handleAddHabit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddHabit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!newHabitName.trim()) return;
     await db.habits.add({
       id: crypto.randomUUID(),
@@ -667,7 +667,11 @@ const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                       value={newHabitName}
                       onChange={e => setNewHabitName(e.target.value)}
                       onBlur={() => {
-                        if (!newHabitName) setIsAddingHabit(false);
+                        if (newHabitName.trim()) {
+                          handleAddHabit();
+                        } else {
+                          setIsAddingHabit(false);
+                        }
                       }}
                       placeholder="Name"
                       className="w-24 -rotate-90 origin-bottom-left absolute translate-x-12 translate-y-[-40px] text-sm bg-bg-base border border-border-strong rounded px-2 py-1 outline-none shadow-sm"
