@@ -25,13 +25,13 @@ export default function App() {
         localStorage.setItem('sept_2026_reset_final', 'true');
       }
       
-      // Fix goal dates from 2026-09-01 to 2026-09-22
-      if (!localStorage.getItem('sept_2026_goal_date_fix_22nd')) {
-        const goalsToUpdate = await db.goals.filter(g => g.startDate === '2026-09-01').toArray();
+      // Fix goal dates to 2026-09-27
+      if (!localStorage.getItem('sept_2026_goal_date_fix_27th')) {
+        const goalsToUpdate = await db.goals.toArray();
         if (goalsToUpdate.length > 0) {
-          await Promise.all(goalsToUpdate.map(g => db.goals.update(g.id, { startDate: '2026-09-22' })));
+          await Promise.all(goalsToUpdate.map(g => db.goals.update(g.id, { startDate: '2026-09-27' })));
         }
-        localStorage.setItem('sept_2026_goal_date_fix_22nd', 'true');
+        localStorage.setItem('sept_2026_goal_date_fix_27th', 'true');
       }
 
       setIsInitializing(false);
