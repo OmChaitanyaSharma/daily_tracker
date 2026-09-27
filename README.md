@@ -65,3 +65,7 @@ A digital diary and personal progress tracker designed to log daily highlights, 
 ## Data Privacy
 
 All data is stored locally in the browser using IndexedDB. No data leaves the client. Use the JSON export tool in the Logs tab to backup data before clearing browser cache.
+
+## Status
+
+This project is actively maintained and continually evolving.
