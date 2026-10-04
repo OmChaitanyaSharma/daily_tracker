@@ -109,6 +109,29 @@ export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measure
   const scheduleDates = useMemo(() => getMeasurementDates(goal.startDate), [goal.startDate]);
   const measurementDates = measurements.map(m => m.date);
   
+  const progressStats = useMemo(() => {
+    if (goal.type === 'qualitative' || !goal.targetValue) return null;
+    
+    const sorted = [...measurements].sort((a,b) => a.date.localeCompare(b.date));
+    if (sorted.length === 0) return { percent: 0, label: '0%' };
+    
+    const latestVal = parseFloat(sorted[sorted.length - 1].value as string);
+    const startVal = parseFloat((goal.startingValue as string) || '0');
+    const targetVal = parseFloat(goal.targetValue as string);
+    
+    if (isNaN(latestVal) || isNaN(targetVal)) return null;
+    
+    const totalDiff = targetVal - startVal;
+    const currentDiff = latestVal - startVal;
+    
+    if (totalDiff === 0) return { percent: latestVal >= targetVal ? 100 : 0, label: latestVal >= targetVal ? '100%' : '0%' };
+    
+    let percent = (currentDiff / totalDiff) * 100;
+    percent = Math.max(0, Math.min(100, percent)); // Clamp between 0-100
+    
+    return { percent, label: `${Math.round(percent)}%` };
+  }, [goal, measurements]);
+  
   const allUniqueDates = Array.from(new Set([...scheduleDates, ...measurementDates])).sort();
   const todayStr = getTodayStr();
   
@@ -123,6 +146,22 @@ export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measure
       <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h2 className="text-3xl font-serif italic text-text-main mb-4">{goal.title}</h2>
+          
+          {progressStats && (
+            <div className="mb-6 max-w-sm">
+              <div className="flex justify-between text-xs text-text-muted mb-1.5 font-medium tracking-wide">
+                <span>Progress</span>
+                <span>{progressStats.label}</span>
+              </div>
+              <div className="h-1.5 w-full bg-border-subtle rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-accent-blue rounded-full transition-all duration-1000 ease-out"
+                  style={{ width: `${progressStats.percent}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-8 text-sm pb-6">
             <div>
               <span className="block text-xs uppercase tracking-widest text-text-muted mb-1">Target</span>
