@@ -15,6 +15,7 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
     type: goal.type,
     unit: goal.unit || '',
     targetValue: goal.targetValue || '',
+    subCategory: goal.subCategory || '',
     startDate: goal.startDate,
     startingValue: goal.startingValue || ''
   });
@@ -48,6 +49,7 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
       type: formData.type,
       unit: formData.unit,
       targetValue: formData.targetValue,
+      subCategory: formData.subCategory,
       startDate: formData.startDate,
       startingValue: formData.startingValue
     });
@@ -103,6 +105,17 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
               </button>
             </div>
           </div>
+          
+          <div>
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Sub-Category / Group (Optional)</label>
+            <input 
+              type="text" 
+              value={formData.subCategory || ''}
+              onChange={e => setFormData({ ...formData, subCategory: e.target.value })}
+              placeholder="e.g. Fitness, Mindset, Project X"
+              className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-text-main focus:border-text-muted outline-none"
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -130,6 +143,17 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
                 className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
               />
             </div>
+          </div>
+          
+          <div>
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Sub-Category / Group (Optional)</label>
+            <input 
+              type="text" 
+              value={formData.subCategory || ''}
+              onChange={e => setFormData({ ...formData, subCategory: e.target.value })}
+              placeholder="e.g. Fitness, Mindset, Project X"
+              className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-text-main focus:border-text-muted outline-none"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
