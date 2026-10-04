@@ -38,9 +38,8 @@ export function GoalRow({
     return `${val}${goal.unit ? ` ${goal.unit}` : ''}`;
   };
 
-  const isNumeric = goal.type === 'numeric' || goal.type === 'percentage';
   const progressPercent = useMemo(() => {
-    if (!isNumeric || !goal.targetValue || isNaN(Number(currentMeasurementValue)) || isNaN(Number(startingValue))) return null;
+    if (goal.type === 'qualitative' || !goal.targetValue || isNaN(Number(currentMeasurementValue)) || isNaN(Number(startingValue))) return null;
     const current = Number(currentMeasurementValue);
     const target = Number(goal.targetValue);
     const start = Number(startingValue);
@@ -50,7 +49,7 @@ export function GoalRow({
     const progress = Math.abs(current - start);
     const rawPercent = (progress / range) * 100;
     return Math.min(Math.max(rawPercent, 0), 100);
-  }, [isNumeric, currentMeasurementValue, goal.targetValue, startingValue]);
+  }, [goal.type, currentMeasurementValue, goal.targetValue, startingValue]);
 
   return (
     <div 
@@ -94,11 +93,17 @@ export function GoalRow({
       </div>
 
       {progressPercent !== null && (
-        <div className="w-full h-1.5 bg-bg-base rounded-full mt-6 overflow-hidden border border-border-subtle">
-          <div 
-            className="h-full bg-accent-blue transition-all duration-1000 ease-out rounded-full"
-            style={{ width: `${progressPercent}%` }}
-          />
+        <div className="mt-6">
+          <div className="flex justify-between text-[10px] uppercase tracking-widest text-text-muted mb-2 font-medium">
+            <span>Progress</span>
+            <span>{Math.round(progressPercent)}%</span>
+          </div>
+          <div className="w-full h-1.5 bg-bg-base rounded-full overflow-hidden border border-border-subtle">
+            <div 
+              className="h-full bg-accent-blue transition-all duration-1000 ease-out rounded-full"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
       )}
     </div>
