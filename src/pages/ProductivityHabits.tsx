@@ -384,6 +384,22 @@ export function ProductivityHabits() {
                 />
               </div>
               
+                <div className="mb-6">
+                  <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Priority Block</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3].map(p => (
+                      <button 
+                        key={p} 
+                        type="button" 
+                        onClick={() => setEditPriority(p as 1|2|3)} 
+                        className={`flex-1 py-1.5 rounded-lg border text-sm font-medium transition-all ${editPriority === p ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}
+                      >
+                        {p === 1 ? '1 (High)' : p === 2 ? '2 (Mid)' : '3 (Low)'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
                 <div>
                   <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Frequency</label>
                   <div className="flex gap-2 mb-3">
