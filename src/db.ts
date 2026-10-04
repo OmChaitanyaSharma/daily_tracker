@@ -34,6 +34,7 @@ export interface Habit {
   startDate?: string; // YYYY-MM-DD
   archived: boolean;
   order?: number;
+  priority?: 1 | 2 | 3; // 1 = High, 2 = Normal, 3 = Low
   frequencyType?: 'daily' | 'specific_days';
   specificDays?: number[]; // 0=Sun, 1=Mon, etc.
 }

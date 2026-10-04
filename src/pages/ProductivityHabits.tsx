@@ -24,6 +24,7 @@ export function ProductivityHabits() {
   const [editStartDate, setEditStartDate] = useState('');
   const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'specific_days'>('daily');
   const [editSpecificDays, setEditSpecificDays] = useState<number[]>([]);
+  const [editPriority, setEditPriority] = useState<1|2|3>(2);
   
   const [archivingHabit, setArchivingHabit] = useState<Habit | null>(null);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
@@ -95,6 +96,10 @@ export function ProductivityHabits() {
       if (!h.archived) return true;
       return habitLogs.some(l => l.habitId === h.id);
     }).sort((a, b) => {
+      const pA = a.priority ?? 2;
+      const pB = b.priority ?? 2;
+      if (pA !== pB) return pA - pB;
+      
       const orderA = a.order !== undefined ? a.order : 9999;
       const orderB = b.order !== undefined ? b.order : 9999;
       if (orderA === orderB) {
@@ -156,7 +161,7 @@ export function ProductivityHabits() {
   const saveEditHabit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingHabit || !editName.trim()) return;
-    await db.habits.update(editingHabit.id, { name: editName.trim(), startDate: editStartDate || undefined, frequencyType: editFrequencyType, specificDays: editSpecificDays });
+    await db.habits.update(editingHabit.id, { name: editName.trim(), startDate: editStartDate || undefined, frequencyType: editFrequencyType, specificDays: editSpecificDays, priority: editPriority });
     setEditingHabit(null);
     setEditName('');
     setEditStartDate('');
@@ -512,8 +517,13 @@ export function ProductivityHabits() {
             </div>
 
             {/* Habit Columns */}
-            {visibleHabits.map(habit => (
-              <div key={habit.id} className="w-14 shrink-0 border-r border-border-subtle flex flex-col items-center group/col">
+            {visibleHabits.map((habit, index) => {
+              const currentPriority = habit.priority ?? 2;
+              const nextPriority = index < visibleHabits.length - 1 ? (visibleHabits[index + 1].priority ?? 2) : currentPriority;
+              const isLastInPriority = currentPriority !== nextPriority;
+              
+              return (
+              <div key={habit.id} className={`w-14 shrink-0 flex flex-col items-center group/col ${isLastInPriority ? 'border-r-4 border-text-muted/20' : 'border-r border-border-subtle'}`}>
                 <div 
                   className="h-40 w-full flex flex-col items-center justify-end pb-4 border-b-2 border-border-subtle relative sticky top-0 bg-bg-surface z-20 group/header cursor-grab active:cursor-grabbing"
                   draggable
@@ -552,6 +562,7 @@ export function ProductivityHabits() {
 setEditStartDate(habit.startDate || '');
 setEditFrequencyType(habit.frequencyType || 'daily');
 setEditSpecificDays(habit.specificDays || []);
+setEditPriority(habit.priority || 2);
 setEditingHabit(habit);
                                 setActiveMenuHabitId(null);
                               }}
@@ -654,7 +665,8 @@ const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                   );
                 })()}
               </div>
-            ))}
+              );
+            })}
 
             {/* Add Habit Column */}
             <div className="w-16 shrink-0 flex flex-col items-center">
