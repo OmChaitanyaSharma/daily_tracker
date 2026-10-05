@@ -8,6 +8,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Dumbbell, Trash2, Edit2, Fl
 import { Link } from 'react-router-dom';
 import { useExerciseStreak } from '../hooks/useExerciseStreak';
 import clsx from 'clsx';
+import { RestDayPlanner } from '../components/RestDayPlanner';
 import { useSound } from '../hooks/useSound';
 
 export function ExerciseTracking() {
@@ -165,6 +166,8 @@ export function ExerciseTracking() {
           </div>
         )}
       </header>
+
+      <RestDayPlanner />
 
       {/* Date Navigator */}
       <div className="flex items-center justify-between mb-8">

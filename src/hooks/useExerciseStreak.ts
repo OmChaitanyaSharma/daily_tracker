@@ -2,6 +2,7 @@ const EMPTY_ARRAY: any[] = [];
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { format, subDays, parseISO } from 'date-fns';
+import { isRestDay } from '../utils/restDays';
 import { getTodayStr } from '../utils/dateUtils';
 import { useMemo } from 'react';
 
@@ -60,8 +61,12 @@ export function useExerciseStreak() {
         currentStreak++;
       } else {
         // Did they miss it?
+        if (isRestDay(dateStr)) {
+          // It's a planned rest day! Free pass, and we increment the streak so it stays rewarding.
+          currentStreak++;
+        }
         // If it's today and they missed it, we don't break the streak immediately (they still have time).
-        if (dateStr === todayStr) {
+        else if (dateStr === todayStr) {
           // Do nothing, just proceed to check yesterday
         } else {
           // It's a past day and they missed it -> Streak broken!
