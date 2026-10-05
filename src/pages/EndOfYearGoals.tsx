@@ -26,6 +26,16 @@ export function EndOfYearGoals() {
     });
   }, [goals]);
 
+  const groupedGoals = useMemo(() => {
+    const groups: Record<string, Goal[]> = {};
+    sortedGoals.forEach(g => {
+      const cat = g.subCategory?.trim() || 'Uncategorized';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(g);
+    });
+    return groups;
+  }, [sortedGoals]);
+
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedGoalId(id);
     e.dataTransfer.effectAllowed = 'move';
@@ -111,21 +121,32 @@ export function EndOfYearGoals() {
                 <p className="text-text-muted italic font-serif">No goals defined yet.</p>
               </div>
             ) : (
-              sortedGoals.map(goal => (
-                <div 
-                  key={goal.id}
-                  className={draggedGoalId === goal.id ? "opacity-40" : ""}
-                >
-                  <GoalRow 
-                    goal={goal} 
-                    measurements={measurements.filter(m => m.goalId === goal.id)}
-                    onClick={() => setSelectedGoalId(goal.id)}
-                    onEdit={() => setEditingGoal(goal)}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, goal.id)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, goal.id)}
-                  />
+              Object.entries(groupedGoals).sort((a, b) => {
+                if (a[0] === 'Uncategorized') return 1;
+                if (b[0] === 'Uncategorized') return -1;
+                return a[0].localeCompare(b[0]);
+              }).map(([groupName, groupGoals]) => (
+                <div key={groupName} className="mb-8 last:mb-0">
+                  <h3 className="text-sm font-semibold tracking-widest uppercase text-text-muted mb-4 pl-2">{groupName}</h3>
+                  <div className="space-y-4">
+                    {groupGoals.map(goal => (
+                      <div 
+                        key={goal.id}
+                        className={draggedGoalId === goal.id ? "opacity-40" : ""}
+                      >
+                        <GoalRow 
+                          goal={goal} 
+                          measurements={measurements.filter(m => m.goalId === goal.id)}
+                          onClick={() => setSelectedGoalId(goal.id)}
+                          onEdit={() => setEditingGoal(goal)}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, goal.id)}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, goal.id)}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))
             )}
