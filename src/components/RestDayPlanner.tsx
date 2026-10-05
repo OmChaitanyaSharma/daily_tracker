@@ -1,26 +1,34 @@
 import { useState } from 'react';
 import { isSunday, addWeeks } from 'date-fns';
-import { getRestDaysConfig, saveRestDaysConfig, getWeekStartStr, getScheduleForWeek } from '../utils/restDays';
+import { getRestDaysConfig, saveRestDaysConfig, getWeekStartStr, getScheduleForWeek, calculateEffectiveSchedule } from '../utils/restDays';
 import { Calendar, Lock, Unlock } from 'lucide-react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../db';
+
+const EMPTY_ARRAY: any[] = [];
 
 export function RestDayPlanner() {
   const [config, setConfig] = useState(getRestDaysConfig());
-  
-  // Use a state for 'today' so it updates
   const [today] = useState(() => new Date());
   
+  const allExercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
+  const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
+
   const isSun = isSunday(today);
-  
-  // On Sunday, they are planning the upcoming week (starting tomorrow).
-  // On other days, they are viewing the current week.
   const targetWeekStartStr = getWeekStartStr(isSun ? addWeeks(today, 1) : today);
   
-  const schedule = getScheduleForWeek(targetWeekStartStr, config);
+  // If it's Sunday (planning for next week), show planned schedule because we don't have future logs anyway.
+  // If it's a current week, show the EFFECTIVE schedule so they see how days shifted!
+  const plannedSchedule = getScheduleForWeek(targetWeekStartStr, config);
+  
+  const schedule = isSun 
+    ? plannedSchedule 
+    : calculateEffectiveSchedule(targetWeekStartStr, config, allExercises, allExerciseLogs);
 
   const toggleDay = (dayIndex: number) => {
     if (!isSun) return; // Only editable on Sundays
     
-    let newSchedule = [...schedule];
+    let newSchedule = [...plannedSchedule];
     if (newSchedule.includes(dayIndex)) {
       newSchedule = newSchedule.filter(d => d !== dayIndex);
     } else {
@@ -74,19 +82,28 @@ export function RestDayPlanner() {
       <div className="flex justify-between items-center max-w-sm mx-auto">
         {days.map((d, i) => {
           const isSelected = schedule.includes(d.value);
+          const wasPlanned = plannedSchedule.includes(d.value);
+          
+          // Show visual indicator if a day was dynamically shifted TO this day
+          const isShiftedTo = !isSun && isSelected && !wasPlanned;
+          
           return (
             <button
               key={i}
               onClick={() => toggleDay(d.value)}
               disabled={!isSun}
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+              className={`relative w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                 isSelected 
-                  ? 'bg-accent-blue text-bg-base shadow-md shadow-accent-blue/20' 
+                  ? (isShiftedTo ? 'bg-accent-orange text-bg-base shadow-md shadow-accent-orange/20' : 'bg-accent-blue text-bg-base shadow-md shadow-accent-blue/20')
                   : 'bg-bg-base border border-border-strong text-text-muted hover:border-text-main'
               } ${!isSun && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}
                 ${!isSun && isSelected ? 'cursor-default' : ''}`}
+              title={isShiftedTo ? "Shifted here because you worked out on a planned rest day!" : undefined}
             >
               {d.label}
+              {isShiftedTo && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-orange rounded-full animate-pulse border-2 border-bg-surface" />
+              )}
             </button>
           );
         })}

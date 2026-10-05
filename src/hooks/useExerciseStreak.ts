@@ -1,10 +1,10 @@
 const EMPTY_ARRAY: any[] = [];
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
-import { format, subDays, parseISO } from 'date-fns';
-import { isRestDay } from '../utils/restDays';
+import { format, subDays, parseISO, getDay } from 'date-fns';
 import { getTodayStr } from '../utils/dateUtils';
 import { useMemo } from 'react';
+import { getRestDaysConfig, getWeekStartStr, calculateEffectiveSchedule } from '../utils/restDays';
 
 const TRACKING_START_DATE = new Date('2026-08-27T00:00:00');
 
@@ -15,41 +15,31 @@ export function useExerciseStreak() {
   const streak = useMemo(() => {
     if (!allExercises.length || !allExerciseLogs.length) return 0;
     
-    // We only evaluate streaks starting from Aug 27, 2026
     const todayStr = getTodayStr();
     const today = parseISO(todayStr);
     
     let currentStreak = 0;
     let checkDate = today;
 
-    // Fast-forward checkDate to start date if somehow they are in the past? 
-    // They are in 2026, so today is > Aug 27.
+    const config = getRestDaysConfig();
+    const effectiveScheduleCache: Record<string, number[]> = {};
 
     while (true) {
-      // If we go backwards past the start date, the streak evaluation ends
       if (checkDate < TRACKING_START_DATE) {
         break;
       }
 
       const dateStr = format(checkDate, 'yyyy-MM-dd');
       
-      // Determine what exercises were active on this day.
-      // An exercise is required if it was created on or before this day and is not archived.
-      // (For simplicity, if it's archived, we just ignore it from the streak forever. 
-      // If they unarchive it later, it becomes required again).
       const requiredExercises = allExercises.filter(ex => {
         return ex.createdAt.substring(0, 10) <= dateStr && !ex.archived;
       });
 
       if (requiredExercises.length === 0) {
-        // If there were no active exercises to do, this day doesn't count against them,
-        // but it doesn't break the streak either. 
-        // Wait, if no exercises are required, should they get a free pass? Yes, skip.
         checkDate = subDays(checkDate, 1);
         continue;
       }
 
-      // Check if they did at least 1 rep for ALL required exercises
       const logsForDay = allExerciseLogs.filter(l => l.date === dateStr);
       
       const allCompleted = requiredExercises.every(ex => {
@@ -60,17 +50,21 @@ export function useExerciseStreak() {
       if (allCompleted) {
         currentStreak++;
       } else {
-        // Did they miss it?
-        if (isRestDay(dateStr)) {
-          // It's a planned rest day! Free pass, and we increment the streak so it stays rewarding.
+        const weekStartStr = getWeekStartStr(checkDate);
+        if (!effectiveScheduleCache[weekStartStr]) {
+          effectiveScheduleCache[weekStartStr] = calculateEffectiveSchedule(weekStartStr, config, allExercises, allExerciseLogs);
+        }
+        
+        const effectiveSchedule = effectiveScheduleCache[weekStartStr];
+        const isRestDay = effectiveSchedule.includes(getDay(checkDate));
+        
+        if (isRestDay) {
           currentStreak++;
         }
-        // If it's today and they missed it, we don't break the streak immediately (they still have time).
         else if (dateStr === todayStr) {
-          // Do nothing, just proceed to check yesterday
+          // Do nothing, still have time today
         } else {
-          // It's a past day and they missed it -> Streak broken!
-          break;
+          break; // missed
         }
       }
 
