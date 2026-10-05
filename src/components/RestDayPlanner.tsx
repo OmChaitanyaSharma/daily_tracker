@@ -94,9 +94,11 @@ export function RestDayPlanner() {
               disabled={!isSun}
               className={`relative w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                 isSelected 
-                  ? (isShiftedTo ? 'bg-accent-orange text-bg-base shadow-md shadow-accent-orange/20' : 'bg-accent-blue text-bg-base shadow-md shadow-accent-blue/20')
-                  : 'bg-bg-base border border-border-strong text-text-muted hover:border-text-main'
-              } ${!isSun && !isSelected ? 'opacity-50 cursor-not-allowed' : ''}
+                  ? (isShiftedTo 
+                      ? 'bg-accent-orange text-bg-base shadow-md shadow-accent-orange/20' 
+                      : 'bg-accent-red text-bg-base shadow-md shadow-accent-red/20')
+                  : 'bg-accent-blue text-bg-base shadow-md shadow-accent-blue/20 hover:brightness-110'
+              } ${!isSun && !isSelected ? 'opacity-70 cursor-not-allowed hover:brightness-100' : ''}
                 ${!isSun && isSelected ? 'cursor-default' : ''}`}
               title={isShiftedTo ? "Shifted here because you worked out on a planned rest day!" : undefined}
             >
