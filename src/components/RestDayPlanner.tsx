@@ -95,7 +95,7 @@ export function RestDayPlanner() {
               className={`relative w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                 isSelected 
                   ? (isShiftedTo 
-                      ? 'bg-accent-orange text-bg-base shadow-md shadow-accent-orange/20' 
+                      ? 'bg-accent-yellow text-bg-base shadow-md shadow-accent-yellow/20' 
                       : 'bg-accent-red text-bg-base shadow-md shadow-accent-red/20')
                   : 'bg-accent-blue text-bg-base shadow-md shadow-accent-blue/20 hover:brightness-110'
               } ${!isSun && !isSelected ? 'opacity-70 cursor-not-allowed hover:brightness-100' : ''}
@@ -104,7 +104,7 @@ export function RestDayPlanner() {
             >
               {d.label}
               {isShiftedTo && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-orange rounded-full animate-pulse border-2 border-bg-surface" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent-yellow rounded-full animate-pulse border-2 border-bg-surface" />
               )}
             </button>
           );
