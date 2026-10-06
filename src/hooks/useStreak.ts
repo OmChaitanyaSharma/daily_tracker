@@ -14,7 +14,7 @@ export function calculateStreak(
   allExerciseLogs: any[]
 ) {
   let streak = 0;
-  let freezesOwned = 0;
+  let freezesOwned = 1; // Admin granted bonus freeze
   let freezeUsedToday = false;
 
   const logsByDate = new Map<string, any[]>();
