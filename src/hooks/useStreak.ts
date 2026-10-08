@@ -5,6 +5,7 @@ import { format, parseISO, isAfter, addDays } from 'date-fns';
 import { getSettings } from '../utils/settings';
 import { calculateFitnessXPForLogs } from './useLevelSystem';
 import { getTodayStr } from '../utils/dateUtils';
+import { getRestDaysConfig, getWeekStartStr, calculateEffectiveSchedule } from '../utils/restDays';
 
 export function calculateStreak(
   allHabits: any[],
@@ -78,8 +79,16 @@ export function calculateStreak(
     const dateExerciseLogs = exercisesByDate.get(dateStr) || [];
     let exerciseConditionMet = true;
     
+
+    const weekStartStr = getWeekStartStr(current);
+    const config = getRestDaysConfig();
+    const effectiveSchedule = calculateEffectiveSchedule(weekStartStr, config, allExercises, allExerciseLogs);
+    const isRestDay = effectiveSchedule.includes(current.getDay());
+
     if (activeExercisesOnDate.length > 0) {
-      if (settings.streakFitnessRequirementType === 'count') {
+      if (isRestDay) {
+        exerciseConditionMet = true;
+      } else if (settings.streakFitnessRequirementType === 'count') {
         const completed = dateExerciseLogs.filter(l => l.reps > 0).length;
         exerciseConditionMet = completed >= settings.streakFitnessRequirementValue;
       } else if (settings.streakFitnessRequirementType === 'reps') {
