@@ -79,20 +79,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-bg-base/80 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-md bg-bg-surface border border-border-strong rounded-3xl p-8 shadow-2xl">
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-bg-base/80 backdrop-blur-sm p-4 flex"
+      onClick={onClose}
+    >
+      <div 
+        className="m-auto relative w-full max-w-md bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 shadow-2xl my-8 animate-fade-in"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-text-muted hover:text-text-main transition-colors"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 text-text-muted hover:text-text-main hover:bg-bg-base/50 rounded-full transition-colors"
+          aria-label="Close modal"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
-        <div className="mb-6 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 mb-4">
-            <LogIn size={24} />
+        <div className="mb-4 text-center">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 mb-3">
+            <LogIn size={20} />
           </div>
-          <h2 className="text-2xl font-serif text-text-main">
+          <h2 className="text-xl sm:text-2xl font-serif text-text-main">
             {isSignUp ? 'Create an Account' : 'Welcome to Daily Tracker'}
           </h2>
           <p className="text-xs text-text-muted mt-1">
@@ -101,14 +108,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-3">
-            <AlertCircle size={16} className="shrink-0" />
+          <div className="mb-4 p-3 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-2.5">
+            <AlertCircle size={15} className="shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {syncStatus && (
-          <div className="mb-6 p-3 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs flex items-center justify-center gap-2 animate-pulse">
+          <div className="mb-4 p-2.5 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs flex items-center justify-center gap-2 animate-pulse">
             <Loader2 size={14} className="animate-spin" />
             <span>{syncStatus}</span>
           </div>
@@ -118,9 +125,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <button
           onClick={handleGoogleSignIn}
           disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-bg-base hover:bg-bg-base/80 border border-border-strong hover:border-text-muted rounded-xl text-sm font-medium text-text-main transition-all mb-6 disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-bg-base hover:bg-bg-base/80 border border-border-strong hover:border-text-muted rounded-xl text-sm font-medium text-text-main transition-all mb-4 disabled:opacity-50 cursor-pointer"
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -141,15 +148,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           Continue with Google
         </button>
 
-        <div className="relative flex items-center justify-center mb-6">
+        <div className="relative flex items-center justify-center mb-4">
           <div className="w-full border-t border-border-subtle"></div>
           <span className="absolute px-3 bg-bg-surface text-[10px] tracking-widest uppercase text-text-muted">or with email</span>
         </div>
 
         {/* Email & Password Form */}
-        <form onSubmit={handleEmailAuth} className="space-y-4">
+        <form onSubmit={handleEmailAuth} className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">
+            <label className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5">
               Email
             </label>
             <div className="relative">
@@ -166,7 +173,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">
+            <label className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5">
               Password
             </label>
             <div className="relative">
@@ -186,7 +193,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-text-main text-bg-base rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity mt-6 disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-2.5 bg-text-main text-bg-base rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity mt-4 disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
               <Loader2 size={16} className="animate-spin" />
@@ -202,14 +209,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
           <button
             type="button"
             onClick={() => {
               setIsSignUp(!isSignUp);
               setError(null);
             }}
-            className="text-xs text-text-muted hover:text-text-main transition-colors"
+            className="text-xs text-text-muted hover:text-text-main transition-colors cursor-pointer"
           >
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
           </button>
