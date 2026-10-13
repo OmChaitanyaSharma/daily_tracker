@@ -34,8 +34,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setError('Sign-in cancelled.');
       } else if (err.code === 'auth/unauthorized-domain') {
         setError('This domain is not authorized in Firebase Console.');
-      } else if (err.code === 'auth/internal-error') {
-        setError('Sign-in was blocked by browser shields or third-party cookie restrictions. If using Brave or adblock, please lower Shields for this site.');
       } else {
         setError(err.message || 'Failed to sign in with Google.');
       }
