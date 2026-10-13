@@ -4,8 +4,11 @@ import { format } from 'date-fns';
 import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
 import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { db } from '../db';
+import { useAuth } from '../context/AuthContext';
+import { uploadLocalToCloud } from '../services/cloudSync';
 
 export function Settings() {
+  const { user } = useAuth();
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [isClearing, setIsClearing] = useState(false);
   const [clearedMessage, setClearedMessage] = useState('');
@@ -153,7 +156,13 @@ export function Settings() {
         localStorage.setItem('rest_days_config_v1', configStr);
       }
 
-      setImportStatus({ type: 'success', message: 'Backup restored successfully! Reloading...' });
+      if (user) {
+        setImportStatus({ type: 'success', message: 'Restoring backup and syncing to your cloud account...' });
+        await uploadLocalToCloud(user.uid);
+        sessionStorage.setItem(`synced_${user.uid}`, 'true');
+      }
+
+      setImportStatus({ type: 'success', message: 'Backup restored and safely synced to your account! Reloading...' });
       setTimeout(() => {
         window.location.reload();
       }, 1200);
