@@ -30,12 +30,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       console.error('Google sign-in error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Sign-in cancelled.');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked by your browser. Please allow popups for this site, or sign in below with Email & Password.');
       } else if (err.code === 'auth/unauthorized-domain') {
         setError('This domain is not authorized in Firebase Console.');
-      } else if (err.code === 'auth/network-request-failed' || err.code === 'auth/internal-error') {
-        setError('An adblocker or browser shield blocked Google OAuth. Disable it for this site, or sign in below with Email & Password.');
       } else {
-        setError(err.message || 'Failed to sign in with Google.');
+        setError(err.message || 'Failed to sign in with Google. Please use Email & Password below.');
       }
       setIsSubmitting(false);
       setSyncStatus(null);
