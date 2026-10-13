@@ -24,12 +24,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setSyncStatus('Connecting with Google...');
     try {
       await signInWithGoogle();
-      setSyncStatus('Synchronizing cloud data...');
-      // After sign-in, onAuthStateChanged in AuthContext sets user.
+      // If popup signed in immediately, close modal
       onClose();
-      window.location.reload();
     } catch (err: any) {
-      console.error(err);
+      console.error('Google sign-in error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Sign-in cancelled.');
       } else if (err.code === 'auth/unauthorized-domain') {
@@ -37,7 +35,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       } else {
         setError(err.message || 'Failed to sign in with Google.');
       }
-    } finally {
       setIsSubmitting(false);
       setSyncStatus(null);
     }
@@ -60,7 +57,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         await signInWithEmail(email.trim(), password);
       }
       onClose();
-      window.location.reload();
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/email-already-in-use') {
@@ -123,6 +119,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         {/* Google 1-Click Button */}
         <button
+          type="button"
           onClick={handleGoogleSignIn}
           disabled={isSubmitting}
           className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-bg-base hover:bg-bg-base/80 border border-border-strong hover:border-text-muted rounded-xl text-sm font-medium text-text-main transition-all mb-4 disabled:opacity-50 cursor-pointer"

@@ -2,9 +2,21 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
+const getAuthDomain = () => {
+  if (
+    typeof window !== 'undefined' && 
+    window.location.hostname && 
+    !window.location.hostname.includes('localhost') && 
+    !window.location.hostname.includes('127.0.0.1')
+  ) {
+    return window.location.hostname;
+  }
+  return import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "daily-tracker-5a456.firebaseapp.com";
+};
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDS1lzlIDEL9NhZYf0uZOh2Ebt9La2MvcU",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "daily-tracker-5a456.firebaseapp.com",
+  authDomain: getAuthDomain(),
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "daily-tracker-5a456",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "daily-tracker-5a456.firebasestorage.app",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "232295874706",
