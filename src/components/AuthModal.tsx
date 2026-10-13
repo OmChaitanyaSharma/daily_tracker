@@ -80,11 +80,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 overflow-y-auto bg-bg-base/80 backdrop-blur-sm p-4 flex"
+      className="fixed inset-0 z-[100] overflow-y-auto bg-bg-base/80 backdrop-blur-sm p-4 flex items-center justify-center"
       onClick={onClose}
     >
       <div 
-        className="m-auto relative w-full max-w-md bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 shadow-2xl my-8 animate-fade-in"
+        className="relative w-full max-w-md bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 shadow-2xl my-auto animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button 
