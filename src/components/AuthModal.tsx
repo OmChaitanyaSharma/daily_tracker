@@ -105,6 +105,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </p>
         </div>
 
+        {syncStatus && (
+          <div className="mb-4 p-2.5 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs flex items-center justify-center gap-2 animate-pulse">
+            <Loader2 size={14} className="animate-spin" />
+            <span>{syncStatus}</span>
+          </div>
+        )}
+
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-2.5">
             <AlertCircle size={15} className="shrink-0" />
@@ -112,12 +119,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </div>
         )}
 
-        {syncStatus && (
-          <div className="mb-4 p-2.5 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs flex items-center justify-center gap-2 animate-pulse">
-            <Loader2 size={14} className="animate-spin" />
-            <span>{syncStatus}</span>
-          </div>
-        )}
+        {/* Sign In vs Sign Up Tabs */}
+        <div className="flex bg-bg-base p-1 rounded-xl mb-4 border border-border-subtle">
+          <button
+            type="button"
+            onClick={() => { setIsSignUp(false); setError(null); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+              !isSignUp ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setIsSignUp(true); setError(null); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+              isSignUp ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
+            }`}
+          >
+            Create Free Account
+          </button>
+        </div>
 
         {/* Google 1-Click Button */}
         <button
@@ -218,6 +240,16 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             className="text-xs text-text-muted hover:text-text-main transition-colors cursor-pointer"
           >
             {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
+          </button>
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-border-subtle text-center">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs text-text-muted hover:text-text-main transition-colors cursor-pointer"
+          >
+            Continue as Guest (Use offline without account)
           </button>
         </div>
       </div>
