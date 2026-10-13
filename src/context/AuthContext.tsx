@@ -3,7 +3,6 @@ import {
   type User, 
   onAuthStateChanged, 
   signInWithPopup, 
-  signInWithRedirect,
   getRedirectResult,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -50,17 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
-      // If popup is blocked by Brave, Safari, or adblockers, seamlessly fall back to full redirect
-      if (
-        error.code === 'auth/internal-error' || 
-        error.code === 'auth/popup-blocked' ||
-        error.code === 'auth/cancelled-popup-request' ||
-        error.code === 'auth/network-request-failed'
-      ) {
-        console.info('Popup blocked by browser privacy shields. Redirecting to Google OAuth...');
-        await signInWithRedirect(auth, googleProvider);
-        return;
-      }
       console.error('Google sign-in error:', error);
       throw error;
     }
