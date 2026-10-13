@@ -235,8 +235,16 @@ export function ExerciseTracking() {
                 hard: 'Hard',
                 very_hard: 'Very Hard'
               };
+              const diffPoints: Record<ExerciseDifficulty, number> = {
+                very_easy: 2,
+                easy: 5,
+                medium: 10,
+                hard: 15,
+                very_hard: 20
+              };
               const diffClass = difficultyColors[(ex.difficulty || 'easy') as ExerciseDifficulty];
               const diffLabel = diffLabels[(ex.difficulty || 'easy') as ExerciseDifficulty];
+              const pointsVal = diffPoints[(ex.difficulty || 'easy') as ExerciseDifficulty];
 
               return (
                 <div key={ex.id} className="bg-bg-base border border-border-strong rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-text-muted transition-colors">
@@ -244,7 +252,7 @@ export function ExerciseTracking() {
                     <div className="flex flex-wrap items-center gap-3">
                       <h3 className="text-xl font-serif text-text-main">{ex.name}</h3>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${diffClass}`}>
-                        {diffLabel}
+                        {diffLabel} • {pointsVal} {isTime ? 'pts/min' : 'pts'}
                       </span>
                       {isTime && (
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest bg-accent-blue-bg text-accent-blue">

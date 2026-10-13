@@ -15,7 +15,7 @@ export function calculateStreak(
   allExerciseLogs: any[]
 ) {
   let streak = 0;
-  let freezesOwned = 1; // Admin granted bonus freeze
+  let freezesOwned = 4; // Local train ride protection (NO FAKE XP)
   let freezeUsedToday = false;
 
   const logsByDate = new Map<string, any[]>();
@@ -111,7 +111,7 @@ export function calculateStreak(
     if (habitConditionMet && exerciseConditionMet && hoursConditionMet) {
       streak++;
       if (streak > 0 && streak % 7 === 0) {
-        freezesOwned = Math.min(2, freezesOwned + 1);
+        freezesOwned = Math.min(5, freezesOwned + 1);
       }
     } else {
       if (!isToday) {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { calculateStreak } from '../hooks/useStreak';
 import { getTodayStr } from '../utils/dateUtils';
 import { subDays, format } from 'date-fns';
@@ -7,6 +7,16 @@ describe('calculateStreak', () => {
   const today = getTodayStr();
   const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
   const twoDaysAgo = format(subDays(new Date(), 2), 'yyyy-MM-dd');
+
+  beforeEach(() => {
+    localStorage.clear();
+    localStorage.setItem('app_settings', JSON.stringify({
+      streakTargetHours: 3.0,
+      streakTargetHabitPercent: 75,
+      streakFitnessRequirementType: 'all',
+      streakFitnessRequirementValue: 0
+    }));
+  });
 
   it('should return 0 when there are no logs', () => {
     const habits = [{ id: 'h1', startDate: twoDaysAgo, archived: false }];

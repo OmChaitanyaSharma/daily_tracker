@@ -32,7 +32,7 @@ export function useExerciseStreak() {
       const dateStr = format(checkDate, 'yyyy-MM-dd');
       
       const requiredExercises = allExercises.filter(ex => {
-        return ex.createdAt.substring(0, 10) <= dateStr && !ex.archived;
+        return (!ex.createdAt || ex.createdAt.substring(0, 10) <= dateStr) && !ex.archived;
       });
 
       if (requiredExercises.length === 0) {

@@ -1,0 +1,380 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Root Collection: users/{userId}
+// Document ID: {userId} (must match request.auth.uid)
+// Fields:
+//   - uid: string (optional, <= 100 chars, immutable)
+//   - email: string (optional, <= 100 chars)
+//   - displayName: string (optional, <= 100 chars)
+//   - photoURL: string (optional, <= 500 chars)
+//   - createdAt: string (optional, <= 50 chars)
+//   - updatedAt: string (optional, <= 50 chars)
+//
+// Subcollections under users/{userId}:
+//
+// 1. habits/{habitId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - name: string (required, 1-200 chars)
+//    - createdAt: string (optional, <= 50 chars)
+//    - startDate: string (optional, <= 30 chars)
+//    - archived: bool (required)
+//    - order: number (optional, 0-100000)
+//    - priority: number (optional, 1 | 2 | 3)
+//    - frequencyType: string (optional, 'daily' | 'specific_days')
+//    - specificDays: list (optional, max 7 numbers)
+//
+// 2. habitLogs/{logId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - habitId: string (required, 1-100 chars, immutable)
+//    - date: string (required, 8-20 chars, immutable)
+//    - status: string (required, 'completed' | 'partial' | 'none')
+//
+// 3. hourLogs/{logId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - date: string (required, 8-20 chars, immutable)
+//    - activity: string (required, 1-100 chars)
+//    - hours: number (required, 0-24)
+//
+// 4. hourCategories/{categoryId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - name: string (required, 1-100 chars)
+//    - color: string (required, 1-100 chars)
+//    - createdAt: string (optional, <= 50 chars)
+//    - archived: bool (optional)
+//
+// 5. goals/{goalId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - title: string (required, 1-200 chars)
+//    - category: string (required, 'end-of-year' | 'health')
+//    - type: string (required, 'numeric' | 'count' | 'duration' | 'distance' | 'percentage' | 'qualitative')
+//    - unit: string (optional, <= 50 chars)
+//    - targetValue: string | number (optional, string <= 100 chars or number)
+//    - startingValue: string | number (optional, string <= 100 chars or number)
+//    - startDate: string (optional, <= 30 chars)
+//    - order: number (optional, 0-100000)
+//    - subCategory: string (optional, <= 100 chars)
+//
+// 6. goalMeasurements/{measurementId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - goalId: string (required, 1-100 chars, immutable)
+//    - date: string (required, 8-20 chars)
+//    - value: string | number (required, string <= 100 chars or number)
+//    - unit: string (optional, <= 50 chars)
+//    - notes: string (optional, <= 1000 chars)
+//
+// 7. exercises/{exerciseId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - name: string (required, 1-200 chars)
+//    - createdAt: string (optional, <= 50 chars)
+//    - archived: bool (required)
+//    - difficulty: string (optional, 'very_easy' | 'easy' | 'medium' | 'hard' | 'very_hard')
+//    - trackingType: string (optional, 'reps' | 'time')
+//
+// 8. exerciseLogs/{logId}
+//    - id: string (optional, <= 100 chars, immutable)
+//    - date: string (required, 8-20 chars)
+//    - exerciseId: string (required, 1-100 chars, immutable)
+//    - reps: number (required, 0-1000000)
+//
+// 9. dayEntries/{entryId}
+//    - date: string (required, 8-20 chars, immutable)
+//    - mood: string (required, 'excellent' | 'good' | 'okay' | 'not-great' | 'bad' | '')
+//    - oneLineSummary: string (optional, <= 500 chars)
+//    - highlight: string (optional, <= 3000 chars)
+//    - wentWell: string (optional, <= 3000 chars)
+//    - problems: string (optional, <= 3000 chars)
+//    - learned: string (optional, <= 3000 chars)
+//    - whatIWantToRemember: string (optional, <= 3000 chars)
+//    - tomorrowPriorities: string (optional, <= 3000 chars)
+//    - reflection: string (optional, <= 5000 chars)
+//    - notes: string (optional, <= 5000 chars)
+//    - subjectiveScore: number (optional, 0-100)
+//    - objectiveScore: number (optional, 0-100)
+//    - webDevHours: number (optional, 0-24)
+//    - studyHours: number (optional, 0-24)
+//    - dsaHours: number (optional, 0-24)
+//    - id: string (optional, <= 100 chars)
+//
+// 10. tasks/{taskId}
+//     - id: string (optional, <= 100 chars, immutable)
+//     - title: string (required, 1-500 chars)
+//     - date: string (required, 8-20 chars)
+//     - completed: bool (required)
+//
+// 11. profile/{docId} (e.g. settings)
+//     - settings: map (optional)
+//     - restDaysConfig: any (optional)
+//     - updatedAt: string (optional, <= 50 chars)
+//     - displayName: string (optional, <= 100 chars)
+//     - theme: string (optional, 'dark' | 'light' | 'system')
+//
+// 12. meta/{docId} (e.g. sync)
+//     - lastSyncedAt: timestamp (optional)
+//     - initialized: bool (optional)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Core Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUserDoc(data) {
+      return data.keys().hasOnly(['uid', 'email', 'displayName', 'photoURL', 'createdAt', 'updatedAt']) &&
+             (!('uid' in data) || (data.uid is string && data.uid == request.auth.uid)) &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 100)) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() <= 500)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50));
+    }
+
+    function isValidHabit(data) {
+      return data.keys().hasAll(['name', 'archived']) &&
+             data.keys().hasOnly(['id', 'name', 'createdAt', 'startDate', 'archived', 'order', 'priority', 'frequencyType', 'specificDays']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.archived is bool &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100)) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50)) &&
+             (!('startDate' in data) || (data.startDate is string && data.startDate.size() <= 30)) &&
+             (!('order' in data) || (data.order is number && data.order >= 0 && data.order <= 100000)) &&
+             (!('priority' in data) || (data.priority is number && (data.priority == 1 || data.priority == 2 || data.priority == 3))) &&
+             (!('frequencyType' in data) || (data.frequencyType in ['daily', 'specific_days'])) &&
+             (!('specificDays' in data) || (data.specificDays is list && data.specificDays.size() <= 7));
+    }
+
+    function isValidHabitLog(data) {
+      return data.keys().hasAll(['habitId', 'date', 'status']) &&
+             data.keys().hasOnly(['id', 'habitId', 'date', 'status']) &&
+             data.habitId is string && data.habitId.size() > 0 && data.habitId.size() <= 100 &&
+             data.date is string && data.date.size() >= 8 && data.date.size() <= 20 &&
+             data.status in ['completed', 'partial', 'none'] &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidHourLog(data) {
+      return data.keys().hasAll(['date', 'activity', 'hours']) &&
+             data.keys().hasOnly(['id', 'date', 'activity', 'hours']) &&
+             data.date is string && data.date.size() >= 8 && data.date.size() <= 20 &&
+             data.activity is string && data.activity.size() > 0 && data.activity.size() <= 100 &&
+             data.hours is number && data.hours >= 0 && data.hours <= 24 &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidHourCategory(data) {
+      return data.keys().hasAll(['name', 'color']) &&
+             data.keys().hasOnly(['id', 'name', 'color', 'createdAt', 'archived']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.color is string && data.color.size() > 0 && data.color.size() <= 100 &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50)) &&
+             (!('archived' in data) || (data.archived is bool)) &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidGoal(data) {
+      return data.keys().hasAll(['title', 'category', 'type']) &&
+             data.keys().hasOnly(['id', 'title', 'category', 'type', 'unit', 'targetValue', 'startDate', 'startingValue', 'order', 'subCategory']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.category in ['end-of-year', 'health'] &&
+             data.type in ['numeric', 'count', 'duration', 'distance', 'percentage', 'qualitative'] &&
+             (!('unit' in data) || (data.unit is string && data.unit.size() <= 50)) &&
+             (!('targetValue' in data) || (data.targetValue is number || (data.targetValue is string && data.targetValue.size() <= 100))) &&
+             (!('startingValue' in data) || (data.startingValue is number || (data.startingValue is string && data.startingValue.size() <= 100))) &&
+             (!('startDate' in data) || (data.startDate is string && data.startDate.size() <= 30)) &&
+             (!('order' in data) || (data.order is number && data.order >= 0 && data.order <= 100000)) &&
+             (!('subCategory' in data) || (data.subCategory is string && data.subCategory.size() <= 100)) &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidGoalMeasurement(data) {
+      return data.keys().hasAll(['goalId', 'date', 'value']) &&
+             data.keys().hasOnly(['id', 'goalId', 'date', 'value', 'unit', 'notes']) &&
+             data.goalId is string && data.goalId.size() > 0 && data.goalId.size() <= 100 &&
+             data.date is string && data.date.size() >= 8 && data.date.size() <= 20 &&
+             (data.value is number || (data.value is string && data.value.size() <= 100)) &&
+             (!('unit' in data) || (data.unit is string && data.unit.size() <= 50)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidExercise(data) {
+      return data.keys().hasAll(['name', 'archived']) &&
+             data.keys().hasOnly(['id', 'name', 'createdAt', 'archived', 'difficulty', 'trackingType']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.archived is bool &&
+             (!('difficulty' in data) || (data.difficulty in ['very_easy', 'easy', 'medium', 'hard', 'very_hard'])) &&
+             (!('trackingType' in data) || (data.trackingType in ['reps', 'time'])) &&
+             (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50)) &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidExerciseLog(data) {
+      return data.keys().hasAll(['date', 'exerciseId', 'reps']) &&
+             data.keys().hasOnly(['id', 'date', 'exerciseId', 'reps']) &&
+             data.date is string && data.date.size() >= 8 && data.date.size() <= 20 &&
+             data.exerciseId is string && data.exerciseId.size() > 0 && data.exerciseId.size() <= 100 &&
+             data.reps is number && data.reps >= 0 && data.reps <= 1000000 &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidDayEntry(data) {
+      return data.keys().hasAll(['date', 'mood']) &&
+             data.keys().hasOnly([
+               'date', 'mood', 'oneLineSummary', 'highlight', 'wentWell', 'problems',
+               'learned', 'whatIWantToRemember', 'tomorrowPriorities', 'reflection', 'notes',
+               'subjectiveScore', 'objectiveScore', 'webDevHours', 'studyHours', 'dsaHours', 'id'
+             ]) &&
+             data.date is string && data.date.size() >= 8 && data.date.size() <= 20 &&
+             data.mood in ['excellent', 'good', 'okay', 'not-great', 'bad', ''] &&
+             (!('oneLineSummary' in data) || (data.oneLineSummary is string && data.oneLineSummary.size() <= 500)) &&
+             (!('highlight' in data) || (data.highlight is string && data.highlight.size() <= 3000)) &&
+             (!('wentWell' in data) || (data.wentWell is string && data.wentWell.size() <= 3000)) &&
+             (!('problems' in data) || (data.problems is string && data.problems.size() <= 3000)) &&
+             (!('learned' in data) || (data.learned is string && data.learned.size() <= 3000)) &&
+             (!('whatIWantToRemember' in data) || (data.whatIWantToRemember is string && data.whatIWantToRemember.size() <= 3000)) &&
+             (!('tomorrowPriorities' in data) || (data.tomorrowPriorities is string && data.tomorrowPriorities.size() <= 3000)) &&
+             (!('reflection' in data) || (data.reflection is string && data.reflection.size() <= 5000)) &&
+             (!('notes' in data) || (data.notes is string && data.notes.size() <= 5000)) &&
+             (!('subjectiveScore' in data) || (data.subjectiveScore is number && data.subjectiveScore >= 0 && data.subjectiveScore <= 100)) &&
+             (!('objectiveScore' in data) || (data.objectiveScore is number && data.objectiveScore >= 0 && data.objectiveScore <= 100)) &&
+             (!('webDevHours' in data) || (data.webDevHours is number && data.webDevHours >= 0 && data.webDevHours <= 24)) &&
+             (!('studyHours' in data) || (data.studyHours is number && data.studyHours >= 0 && data.studyHours <= 24)) &&
+             (!('dsaHours' in data) || (data.dsaHours is number && data.dsaHours >= 0 && data.dsaHours <= 24)) &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['title', 'date', 'completed']) &&
+             data.keys().hasOnly(['id', 'title', 'date', 'completed']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 500 &&
+             data.date is string && data.date.size() >= 8 && data.date.size() <= 20 &&
+             data.completed is bool &&
+             (!('id' in data) || (data.id is string && data.id.size() <= 100));
+    }
+
+    function isValidProfile(data) {
+      return data.keys().hasOnly(['settings', 'restDaysConfig', 'updatedAt', 'displayName', 'theme']) &&
+             (!('settings' in data) || (data.settings is map)) &&
+             (!('restDaysConfig' in data) || (data.restDaysConfig == null || data.restDaysConfig is map || data.restDaysConfig is list || data.restDaysConfig is string)) &&
+             (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50)) &&
+             (!('displayName' in data) || (data.displayName is string && data.displayName.size() <= 100)) &&
+             (!('theme' in data) || (data.theme in ['dark', 'light', 'system']));
+    }
+
+    function isValidMeta(data) {
+      return data.keys().hasOnly(['lastSyncedAt', 'initialized']) &&
+             (!('lastSyncedAt' in data) || (data.lastSyncedAt is timestamp)) &&
+             (!('initialized' in data) || (data.initialized is bool));
+    }
+
+    // ===============================================================
+    // Rules Definition
+    // ===============================================================
+
+    // User document & personal subcollections
+    match /users/{userId} {
+      allow read, delete: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserDoc(request.resource.data);
+      allow update: if isOwner(userId) && isValidUserDoc(request.resource.data) && areImmutableFieldsUnchanged(['uid']);
+
+      match /habits/{habitId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHabit(request.resource.data);
+        allow update: if isOwner(userId) && isValidHabit(request.resource.data) && areImmutableFieldsUnchanged(['id']);
+      }
+
+      match /habitLogs/{logId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHabitLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidHabitLog(request.resource.data) && areImmutableFieldsUnchanged(['id', 'habitId', 'date']);
+      }
+
+      match /hourLogs/{logId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHourLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidHourLog(request.resource.data) && areImmutableFieldsUnchanged(['id', 'date']);
+      }
+
+      match /hourCategories/{categoryId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHourCategory(request.resource.data);
+        allow update: if isOwner(userId) && isValidHourCategory(request.resource.data) && areImmutableFieldsUnchanged(['id']);
+      }
+
+      match /goals/{goalId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidGoal(request.resource.data);
+        allow update: if isOwner(userId) && isValidGoal(request.resource.data) && areImmutableFieldsUnchanged(['id']);
+      }
+
+      match /goalMeasurements/{measurementId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidGoalMeasurement(request.resource.data);
+        allow update: if isOwner(userId) && isValidGoalMeasurement(request.resource.data) && areImmutableFieldsUnchanged(['id', 'goalId']);
+      }
+
+      match /exercises/{exerciseId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidExercise(request.resource.data);
+        allow update: if isOwner(userId) && isValidExercise(request.resource.data) && areImmutableFieldsUnchanged(['id']);
+      }
+
+      match /exerciseLogs/{logId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidExerciseLog(request.resource.data);
+        allow update: if isOwner(userId) && isValidExerciseLog(request.resource.data) && areImmutableFieldsUnchanged(['id', 'exerciseId']);
+      }
+
+      match /dayEntries/{entryId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidDayEntry(request.resource.data);
+        allow update: if isOwner(userId) && isValidDayEntry(request.resource.data) && areImmutableFieldsUnchanged(['date']);
+      }
+
+      match /tasks/{taskId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTask(request.resource.data);
+        allow update: if isOwner(userId) && isValidTask(request.resource.data) && areImmutableFieldsUnchanged(['id']);
+      }
+
+      match /profile/{docId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidProfile(request.resource.data);
+        allow update: if isOwner(userId) && isValidProfile(request.resource.data);
+      }
+
+      match /meta/{docId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidMeta(request.resource.data);
+        allow update: if isOwner(userId) && isValidMeta(request.resource.data);
+      }
+    }
+
+    // Default Deny: Deny all reads/writes by default to root and any unspecified collection
+    match /{document=**} {
+      allow read, write: false;
+    }
+  }
+}

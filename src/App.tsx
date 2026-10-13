@@ -13,6 +13,8 @@ import { Logs } from './pages/Logs';
 import { Settings } from './pages/Settings';
 import { resetAndSeedDatabase } from './seedData';
 import { db } from './db';
+import { syncExercisesScores } from './utils/exerciseSync';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
   const [isInitializing, setIsInitializing] = useState(true);
@@ -34,6 +36,12 @@ export default function App() {
         localStorage.setItem('sept_2026_goal_date_fix_27th', 'true');
       }
 
+      // Sync exercise scores and add new exercises
+      if (!localStorage.getItem('exercises_oct2026_sync_v1')) {
+        await syncExercisesScores();
+        localStorage.setItem('exercises_oct2026_sync_v1', 'true');
+      }
+
       setIsInitializing(false);
     }
     init().catch(console.error);
@@ -44,22 +52,24 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="highlight" element={<Highlight />} />
-          <Route path="habits" element={<Habits />} />
-          <Route path="habits/productivity" element={<ProductivityHabits />} />
-          <Route path="habits/health" element={<ExerciseTracking />} />
-          <Route path="goals" element={<Goals />} />
-          <Route path="goals/end-of-year" element={<EndOfYearGoals />} />
-          <Route path="goals/health" element={<HealthGoals />} />
-          <Route path="logs" element={<Logs />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="highlight" element={<Highlight />} />
+            <Route path="habits" element={<Habits />} />
+            <Route path="habits/productivity" element={<ProductivityHabits />} />
+            <Route path="habits/health" element={<ExerciseTracking />} />
+            <Route path="goals" element={<Goals />} />
+            <Route path="goals/end-of-year" element={<EndOfYearGoals />} />
+            <Route path="goals/health" element={<HealthGoals />} />
+            <Route path="logs" element={<Logs />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

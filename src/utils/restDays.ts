@@ -82,7 +82,7 @@ export function calculateEffectiveSchedule(
     const d = addDays(weekStartDate, i);
     const dStr = format(d, 'yyyy-MM-dd');
     
-    const reqEx = allExercises.filter(ex => ex.createdAt.substring(0, 10) <= dStr && !ex.archived);
+    const reqEx = allExercises.filter(ex => (!ex.createdAt || ex.createdAt.substring(0, 10) <= dStr) && !ex.archived);
     if (reqEx.length > 0) {
       const logsForDay = allExerciseLogs.filter(l => l.date === dStr);
       const allCompleted = reqEx.every(ex => {

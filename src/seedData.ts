@@ -1,5 +1,6 @@
 
 import { db } from './db';
+import { EXERCISE_CONFIGS } from './utils/exerciseSync';
 
 export async function resetAndSeedDatabase() {
   console.log('Performing final DB reset and seed for Sept 2026...');
@@ -106,13 +107,18 @@ export async function resetAndSeedDatabase() {
     });
   }
 
-  // 5. Seed Exercises (with difficulties mapped)
-  await db.exercises.bulkAdd([
-    { id: crypto.randomUUID(), name: 'Pushups', createdAt, archived: false, difficulty: 'medium', trackingType: 'reps' },
-    { id: crypto.randomUUID(), name: 'Pullups', createdAt, archived: false, difficulty: 'hard', trackingType: 'reps' },
-    { id: crypto.randomUUID(), name: 'Squats', createdAt, archived: false, difficulty: 'easy', trackingType: 'reps' },
-    { id: crypto.randomUUID(), name: 'Running', createdAt, archived: false, difficulty: 'medium', trackingType: 'time' },
-    { id: crypto.randomUUID(), name: 'Cycling', createdAt, archived: false, difficulty: 'medium', trackingType: 'time' }
-  ]);
+  // 5. Seed Exercises (with difficulties mapped from exercise configs)
+  const defaultExercises = [
+    ...EXERCISE_CONFIGS.map(c => ({
+      id: crypto.randomUUID(),
+      name: c.name,
+      createdAt,
+      archived: false,
+      difficulty: c.difficulty,
+      trackingType: c.trackingType
+    })),
+    { id: crypto.randomUUID(), name: 'Cycling', createdAt, archived: false, difficulty: 'medium' as const, trackingType: 'time' as const }
+  ];
+  await db.exercises.bulkAdd(defaultExercises);
 }
 

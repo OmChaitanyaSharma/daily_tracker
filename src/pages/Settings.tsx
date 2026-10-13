@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, Plus, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database } from 'lucide-react';
+import { format } from 'date-fns';
 import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
 import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { db } from '../db';
-import { AlertTriangle } from 'lucide-react';
 
 export function Settings() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [isClearing, setIsClearing] = useState(false);
   const [clearedMessage, setClearedMessage] = useState('');
+  const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     setSettings(getSettings());
@@ -16,7 +17,154 @@ export function Settings() {
 
   if (!settings) return null;
 
-  
+  const handleExportData = async () => {
+    try {
+      const backupData = {
+        version: 1,
+        exportDate: new Date().toISOString(),
+        settings: getSettings(),
+        restDaysConfig: localStorage.getItem('rest_days_config_v1'),
+        dayEntries: await db.dayEntries.toArray(),
+        tasks: await db.tasks.toArray(),
+        habits: await db.habits.toArray(),
+        habitLogs: await db.habitLogs.toArray(),
+        hourLogs: await db.hourLogs.toArray(),
+        hourCategories: await db.hourCategories.toArray(),
+        goals: await db.goals.toArray(),
+        goalMeasurements: await db.goalMeasurements.toArray(),
+        exercises: await db.exercises.toArray(),
+        exerciseLogs: await db.exerciseLogs.toArray()
+      };
+
+      const jsonStr = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `daily-tracker-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert('Failed to export data.');
+    }
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Security: Limit file size to 10MB to prevent memory exhaustion / DoS
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      setImportStatus({ type: 'error', message: 'File is too large (maximum size is 10 MB).' });
+      e.target.value = '';
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith('.json') && file.type !== 'application/json' && file.type !== '') {
+      setImportStatus({ type: 'error', message: 'Please select a valid .json backup file.' });
+      e.target.value = '';
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'Restoring from backup will replace your current habits, logs, and settings with the file data. Are you sure you want to proceed?'
+    );
+    if (!confirmed) {
+      e.target.value = '';
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('Selected file is not valid JSON.');
+      }
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid backup file structure.');
+      }
+
+      await db.transaction('rw', [
+        db.dayEntries,
+        db.tasks,
+        db.habits,
+        db.habitLogs,
+        db.hourLogs,
+        db.hourCategories,
+        db.goals,
+        db.goalMeasurements,
+        db.exercises,
+        db.exerciseLogs
+      ], async () => {
+        if (Array.isArray(data.dayEntries)) {
+          await db.dayEntries.clear();
+          await db.dayEntries.bulkAdd(data.dayEntries);
+        }
+        if (Array.isArray(data.tasks)) {
+          await db.tasks.clear();
+          await db.tasks.bulkAdd(data.tasks);
+        }
+        if (Array.isArray(data.habits)) {
+          await db.habits.clear();
+          await db.habits.bulkAdd(data.habits);
+        }
+        if (Array.isArray(data.habitLogs)) {
+          await db.habitLogs.clear();
+          await db.habitLogs.bulkAdd(data.habitLogs);
+        }
+        if (Array.isArray(data.hourLogs)) {
+          await db.hourLogs.clear();
+          await db.hourLogs.bulkAdd(data.hourLogs);
+        }
+        if (Array.isArray(data.hourCategories)) {
+          await db.hourCategories.clear();
+          await db.hourCategories.bulkAdd(data.hourCategories);
+        }
+        if (Array.isArray(data.goals)) {
+          await db.goals.clear();
+          await db.goals.bulkAdd(data.goals);
+        }
+        if (Array.isArray(data.goalMeasurements)) {
+          await db.goalMeasurements.clear();
+          await db.goalMeasurements.bulkAdd(data.goalMeasurements);
+        }
+        if (Array.isArray(data.exercises)) {
+          await db.exercises.clear();
+          await db.exercises.bulkAdd(data.exercises);
+        }
+        if (Array.isArray(data.exerciseLogs)) {
+          await db.exerciseLogs.clear();
+          await db.exerciseLogs.bulkAdd(data.exerciseLogs);
+        }
+      });
+
+      if (data.settings && typeof data.settings === 'object') {
+        saveSettings(data.settings);
+      }
+      if (data.restDaysConfig) {
+        const configStr = typeof data.restDaysConfig === 'string'
+          ? data.restDaysConfig
+          : JSON.stringify(data.restDaysConfig);
+        localStorage.setItem('rest_days_config_v1', configStr);
+      }
+
+      setImportStatus({ type: 'success', message: 'Backup restored successfully! Reloading...' });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
+    } catch (err: any) {
+      console.error('Import failed:', err);
+      setImportStatus({ type: 'error', message: err.message || 'Failed to restore backup file.' });
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   const handleClearData = async () => {
     const confirmed = window.confirm('Are you sure you want to clear all tracking data? This will keep your habits, goals, and exercises, but wipe all logs, entries, and progress. This cannot be undone.');
     if (!confirmed) return;
@@ -24,7 +172,6 @@ export function Settings() {
     setIsClearing(true);
     try {
       await Promise.all([
-        
         db.tasks.clear(),
         db.habitLogs.clear(),
         db.hourLogs.clear(),
@@ -223,8 +370,50 @@ export function Settings() {
         </section>
 
 
-        {/* Data Management */}
+        {/* Backup & Restore */}
         <section className="pt-8">
+          <h2 className="text-xl font-serif text-text-main mb-6 border-b border-border-subtle pb-2 flex items-center gap-2">
+            <Database size={20} className="text-accent-blue" />
+            Backup & Restore
+          </h2>
+          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-6 mb-8">
+            <h3 className="text-sm font-semibold text-text-main mb-2">Export / Import Database</h3>
+            <p className="text-sm text-text-muted mb-6">
+              Download a complete JSON backup of your streaks, habits, exercises, goals, and history, or restore an existing backup into this browser.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                type="button"
+                onClick={handleExportData}
+                className="flex items-center gap-2 px-5 py-2.5 bg-bg-base border border-border-strong hover:border-text-muted text-text-main rounded-xl font-medium text-sm transition-colors"
+              >
+                <Download size={16} />
+                Export Backup (JSON)
+              </button>
+
+              <label className="flex items-center gap-2 px-5 py-2.5 bg-accent-blue/10 hover:bg-accent-blue/20 text-accent-blue rounded-xl font-medium text-sm transition-colors cursor-pointer border border-accent-blue/20">
+                <Upload size={16} />
+                Restore from Backup
+                <input
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={handleImportFile}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {importStatus && (
+              <div className={`mt-4 text-sm font-medium ${importStatus.type === 'success' ? 'text-accent-green' : 'text-accent-red'} animate-fade-in`}>
+                {importStatus.message}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Data Management */}
+        <section className="pt-2">
           <h2 className="text-xl font-serif text-accent-red mb-6 border-b border-border-subtle pb-2 flex items-center gap-2">
             <AlertTriangle size={20} />
             Data Management

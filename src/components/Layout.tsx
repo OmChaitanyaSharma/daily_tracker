@@ -1,10 +1,13 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Moon, Sun, User as UserIcon, LogOut, RefreshCw, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
 import { handleDirectionalNavigation } from '../utils/spatialNavigation';
 import { Snowfall } from './Snowfall';
+import { useAuth } from '../context/AuthContext';
+import { AuthModal } from './AuthModal';
+import { handleUserLoginSync, uploadLocalToCloud, clearLocalDataOnSignOut } from '../services/cloudSync';
 
 export function Layout() {
   const [isDark, setIsDark] = useState(() => {
@@ -16,6 +19,68 @@ export function Layout() {
   const [lastScrollY, setLastScrollY] = useState(0);
   
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatusText, setSyncStatusText] = useState('');
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Sync with cloud on login
+  useEffect(() => {
+    if (user) {
+      const syncKey = `synced_${user.uid}`;
+      if (!sessionStorage.getItem(syncKey)) {
+        setIsSyncing(true);
+        handleUserLoginSync(user.uid)
+          .then(() => {
+            sessionStorage.setItem(syncKey, 'true');
+          })
+          .catch((err) => console.error('Auto-sync error:', err))
+          .finally(() => setIsSyncing(false));
+      }
+    }
+  }, [user]);
+
+  const handleManualSync = async () => {
+    if (!user) return;
+    setIsSyncing(true);
+    setSyncStatusText('Syncing to Cloud...');
+    try {
+      await uploadLocalToCloud(user.uid);
+      setSyncStatusText('Synced! 🟢');
+      setTimeout(() => setSyncStatusText(''), 3000);
+    } catch (err) {
+      console.error(err);
+      setSyncStatusText('Sync failed ⚠️');
+      setTimeout(() => setSyncStatusText(''), 3000);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    const confirm = window.confirm('Sign out? Local data will be cleared from this device so the next user starts fresh. Your data remains safely backed up in your Google cloud account.');
+    if (!confirm) return;
+    try {
+      await logout();
+      await clearLocalDataOnSignOut();
+      window.location.reload();
+    } catch (err) {
+      console.error('Sign out error:', err);
+    }
+  };
 
   useEffect(() => {
     if (isDark) {
@@ -196,14 +261,84 @@ export function Layout() {
             <Link to="/settings" className="hover:text-text-main transition-colors">Settings</Link>
           </nav>
 
-          <button 
-            onClick={toggleTheme}
-            className="p-2 text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none"
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={toggleTheme}
+              className="p-2 text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none"
+              aria-label="Toggle theme"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+
+            {user ? (
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-bg-surface hover:bg-bg-surface/80 border border-border-strong text-xs font-medium text-text-main transition-colors"
+                >
+                  {user.photoURL ? (
+                    <img 
+                      src={user.photoURL} 
+                      alt="Avatar" 
+                      className="w-6 h-6 rounded-full object-cover" 
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-accent-blue/20 text-accent-blue flex items-center justify-center font-bold text-[10px]">
+                      {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                    </div>
+                  )}
+                  <span className="max-w-[100px] truncate hidden sm:inline">
+                    {user.displayName || user.email?.split('@')[0]}
+                  </span>
+                  <ChevronDown size={14} className="text-text-muted" />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-56 bg-bg-surface border border-border-strong rounded-2xl p-2 shadow-2xl z-50 animate-fade-in">
+                    <div className="px-3 py-2 border-b border-border-subtle mb-1">
+                      <p className="text-xs font-semibold text-text-main truncate">
+                        {user.displayName || 'Tracker User'}
+                      </p>
+                      <p className="text-[10px] text-text-muted truncate">
+                        {user.email}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1.5 text-[10px] text-accent-green font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse"></span>
+                        Cloud Sync Active
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleManualSync}
+                      disabled={isSyncing}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left disabled:opacity-50"
+                    >
+                      <RefreshCw size={14} className={isSyncing ? "animate-spin text-accent-blue" : ""} />
+                      <span>{syncStatusText || (isSyncing ? 'Syncing...' : 'Sync to Cloud')}</span>
+                    </button>
+
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-accent-red hover:bg-accent-red/10 transition-colors text-left"
+                    >
+                      <LogOut size={14} />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-text-main text-bg-base text-xs font-semibold hover:opacity-90 transition-opacity"
+              >
+                <UserIcon size={14} />
+                <span>Sign In</span>
+              </button>
+            )}
+          </div>
         </div>
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-32 pb-20 w-full animate-fade-in flex-1">
