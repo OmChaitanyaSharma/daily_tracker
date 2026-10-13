@@ -39,10 +39,12 @@ export async function uploadLocalToCloud(userId: string): Promise<void> {
   // 1. Upload settings & rest day config
   const settings = getSettings();
   const restDaysConfig = localStorage.getItem('rest_days_config_v1');
+  const cleanSettings = settings ? JSON.parse(JSON.stringify(settings)) : {};
+  const cleanRestDays = restDaysConfig ? JSON.parse(restDaysConfig) : null;
   
   await setDoc(doc(userRef, 'profile', 'settings'), {
-    settings,
-    restDaysConfig: restDaysConfig ? JSON.parse(restDaysConfig) : null,
+    settings: cleanSettings,
+    restDaysConfig: cleanRestDays,
     updatedAt: new Date().toISOString()
   });
 
@@ -61,9 +63,11 @@ export async function uploadLocalToCloud(userId: string): Promise<void> {
       const batch = writeBatch(firestore);
 
       for (const item of chunk) {
-        const docId = (item as any).id || (item as any).date;
+        const rawId = (item as any).id ?? (item as any).date;
+        const docId = rawId ? String(rawId) : Math.random().toString(36).substring(2, 9);
         const docRef = doc(collection(userRef, colName), docId);
-        batch.set(docRef, item, { merge: true });
+        const cleanItem = JSON.parse(JSON.stringify(item));
+        batch.set(docRef, cleanItem, { merge: true });
       }
 
       await batch.commit();

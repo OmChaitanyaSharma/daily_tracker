@@ -61,10 +61,14 @@ export function Layout() {
       await uploadLocalToCloud(user.uid);
       setSyncStatusText('Synced! 🟢');
       setTimeout(() => setSyncStatusText(''), 3000);
-    } catch (err) {
-      console.error(err);
-      setSyncStatusText('Sync failed ⚠️');
-      setTimeout(() => setSyncStatusText(''), 3000);
+    } catch (err: any) {
+      console.error('Manual sync error:', err);
+      if (err?.code === 'permission-denied') {
+        setSyncStatusText('Permission denied (Check rules) ⚠️');
+      } else {
+        setSyncStatusText('Sync failed ⚠️');
+      }
+      setTimeout(() => setSyncStatusText(''), 4000);
     } finally {
       setIsSyncing(false);
     }
