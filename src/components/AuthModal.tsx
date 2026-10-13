@@ -32,6 +32,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setError('Sign-in cancelled.');
       } else if (err.code === 'auth/unauthorized-domain') {
         setError('This domain is not authorized in Firebase Console.');
+      } else if (err.code === 'auth/network-request-failed' || err.code === 'auth/internal-error') {
+        setError('Brave Shields is blocking Google OAuth. Toggle Shields OFF for this site via the Lion icon in the address bar, or sign in below with Email & Password.');
       } else {
         setError(err.message || 'Failed to sign in with Google.');
       }

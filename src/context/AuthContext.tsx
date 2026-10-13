@@ -54,7 +54,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (
         error.code === 'auth/internal-error' || 
         error.code === 'auth/popup-blocked' ||
-        error.code === 'auth/cancelled-popup-request'
+        error.code === 'auth/cancelled-popup-request' ||
+        error.code === 'auth/network-request-failed'
       ) {
         console.info('Popup blocked by browser privacy shields. Redirecting to Google OAuth...');
         await signInWithRedirect(auth, googleProvider);
