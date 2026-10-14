@@ -27,17 +27,12 @@ export function useFocusTrap(isActive: boolean, onEscape?: () => void) {
 
     // Focus the first focusable element inside the modal container
     const focusables = Array.from(container.querySelectorAll<HTMLElement>(focusableSelector));
+    let timer: any;
     if (focusables.length > 0) {
       // Small timeout to allow DOM to finish rendering
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         focusables[0].focus();
       }, 50);
-      return () => {
-        clearTimeout(timer);
-        if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
-          previouslyFocusedElement.focus();
-        }
-      };
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -71,6 +66,7 @@ export function useFocusTrap(isActive: boolean, onEscape?: () => void) {
 
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => {
+      if (timer) clearTimeout(timer);
       window.removeEventListener('keydown', handleKeyDown, { capture: true });
       if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
         previouslyFocusedElement.focus();
