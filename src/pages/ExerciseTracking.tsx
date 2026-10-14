@@ -186,6 +186,7 @@ export function ExerciseTracking() {
           
           <button 
             onClick={handleToday}
+            aria-label={dateStr === todayStr ? "Current date: Today" : "Jump to today's date"}
             className={clsx(
               "min-h-[44px] px-4 py-2 rounded-full text-sm font-medium transition-colors tap-press cursor-pointer",
               dateStr === todayStr 
@@ -279,16 +280,18 @@ export function ExerciseTracking() {
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <button onClick={() => updateReps(ex.id, -1)} disabled={reps === 0} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-border-strong flex items-center justify-center text-text-muted hover:text-text-main hover:border-text-muted disabled:opacity-30 tap-press cursor-pointer text-sm font-bold">-1</button>
-                    <button onClick={() => updateReps(ex.id, +1)} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+1</button>
-                    <button onClick={() => updateReps(ex.id, +5)} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+5</button>
-                    <button onClick={() => updateReps(ex.id, +10)} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+10</button>
+                    <button onClick={() => updateReps(ex.id, -1)} disabled={reps === 0} aria-label={`Decrease ${ex.name} by 1`} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-border-strong flex items-center justify-center text-text-muted hover:text-text-main hover:border-text-muted disabled:opacity-30 tap-press cursor-pointer text-sm font-bold">-1</button>
+                    <button onClick={() => updateReps(ex.id, +1)} aria-label={`Increase ${ex.name} by 1`} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+1</button>
+                    <button onClick={() => updateReps(ex.id, +5)} aria-label={`Increase ${ex.name} by 5`} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+5</button>
+                    <button onClick={() => updateReps(ex.id, +10)} aria-label={`Increase ${ex.name} by 10`} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+10</button>
                     
                     <div className="w-px h-8 bg-border-strong mx-1 sm:mx-2 hidden sm:block"></div>
                     
                     <input 
                       type="number"
                       min="0"
+                      id={`reps-${ex.id}`}
+                      aria-label={`${ex.name} ${isTime ? 'minutes' : 'reps'}`}
                       value={reps || ''}
                       onChange={e => setExactReps(ex.id, parseInt(e.target.value) || 0)}
                       placeholder={isTime ? "Mins" : "Reps"}
@@ -310,8 +313,9 @@ export function ExerciseTracking() {
           <form onSubmit={handleAddExercise} className="flex flex-col gap-4 mb-8 bg-bg-surface p-6 rounded-2xl border border-border-strong">
             <div className="flex flex-wrap gap-4 items-end">
               <div className="flex-1 min-w-[200px]">
-                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Exercise Name</label>
+                <label htmlFor="new-exercise-name" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Exercise Name</label>
                 <input 
+                  id="new-exercise-name"
                   type="text" 
                   value={newExerciseName}
                   onChange={e => setNewExerciseName(e.target.value)}
@@ -321,8 +325,9 @@ export function ExerciseTracking() {
                 />
               </div>
               <div className="w-full sm:w-[130px]">
-                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Type</label>
+                <label htmlFor="new-exercise-type" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Type</label>
                 <select 
+                  id="new-exercise-type"
                   value={newExerciseType} 
                   onChange={e => setNewExerciseType(e.target.value as TrackingType)}
                   className="w-full bg-bg-base border border-border-strong rounded-xl px-3 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
@@ -332,8 +337,9 @@ export function ExerciseTracking() {
                 </select>
               </div>
               <div className="w-full sm:w-[150px]">
-                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Difficulty</label>
+                <label htmlFor="new-exercise-diff" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Difficulty</label>
                 <select 
+                  id="new-exercise-diff"
                   value={newExerciseDiff} 
                   onChange={e => setNewExerciseDiff(e.target.value as ExerciseDifficulty)}
                   className="w-full bg-bg-base border border-border-strong rounded-xl px-3 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
@@ -370,13 +376,15 @@ export function ExerciseTracking() {
                     type="text"
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
+                    aria-label={`Edit name for ${ex.name}`}
                     className="flex-1 min-w-[150px] bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none"
                     autoFocus
                   />
                   <select 
                     value={editType} 
                     onChange={e => setEditType(e.target.value as TrackingType)}
-                    className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none"
+                    aria-label={`Edit tracking type for ${ex.name}`}
+                    className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none cursor-pointer"
                   >
                     <option value="reps">Reps</option>
                     <option value="time">Mins</option>
@@ -384,7 +392,8 @@ export function ExerciseTracking() {
                   <select 
                     value={editDiff} 
                     onChange={e => setEditDiff(e.target.value as ExerciseDifficulty)}
-                    className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none"
+                    aria-label={`Edit difficulty for ${ex.name}`}
+                    className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none cursor-pointer"
                   >
                     <option value="very_easy">Very Easy</option>
                     <option value="easy">Easy</option>

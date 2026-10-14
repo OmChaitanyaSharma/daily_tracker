@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { Code, Dumbbell, Star, ChevronRight, Flame } from 'lucide-react';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface LevelUpCelebrationProps {
   type: 'dev' | 'fit' | 'streak';
@@ -12,6 +13,7 @@ interface LevelUpCelebrationProps {
 }
 
 export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCelebrationProps) {
+  const containerRef = useFocusTrap(true, onClose);
   const { playFanfare } = useSound();
   const isDev = type === 'dev';
   const isStreak = type === 'streak';
@@ -71,10 +73,17 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
       />
       
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center text-center animate-scale-up max-w-sm w-full">
+      <div 
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="levelup-dialog-title"
+        className="relative z-10 flex flex-col items-center text-center animate-scale-up max-w-sm w-full"
+      >
         <div 
           className={clsx("w-32 h-32 rounded-full flex items-center justify-center mb-8 relative", bgClass, colorClass)}
           style={{ boxShadow: `0 0 80px 20px ${glowColor}` }}
+          aria-hidden="true"
         >
           <div className="absolute inset-0 rounded-full border border-current opacity-30 animate-ping" style={{ animationDuration: '3s' }} />
           <Icon size={48} strokeWidth={1.5} />
@@ -88,7 +97,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
           {isStreak ? 'Milestone Reached' : (isDev ? 'Developer Level Up' : 'Fitness Level Up')}
         </p>
         
-        <h2 className="text-5xl font-serif text-text-main mb-2">
+        <h2 id="levelup-dialog-title" className="text-5xl font-serif text-text-main mb-2">
           {isStreak ? `${level} Days` : `Level ${level}`}
         </h2>
         
@@ -98,10 +107,11 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
         
         <button 
           onClick={onClose}
+          aria-label="Continue after celebration"
           className="group min-h-[48px] flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-text-main text-bg-base font-semibold tracking-wide hover:opacity-90 transition-opacity tap-press"
         >
           Continue
-          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
         </button>
       </div>
     </div>

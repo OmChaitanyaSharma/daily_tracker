@@ -1,41 +1,41 @@
 # Daily Tracker
 
-A digital diary and personal progress tracker designed to log daily highlights, habits, goals, exercise reps, and study hours entirely on the client side.
+A client-side journal and personal tracker for highlights, habits, goals, workout sets, and study hours.
 
 ## Core Features
 
 ### Highlight of the Day & Journal
-- **Daily Reflection:** Track mood, sleep quality and duration, a one-line summary, and main highlights.
-- **Weekly Digest:** Automatically aggregates daily highlights and reflections into a week-by-week masonry layout for easy review.
+- **Daily Reflection:** Track mood, sleep duration, a one-line summary, and key highlights.
+- **Weekly Digest:** Aggregates daily entries into a masonry view by week for retrospective review.
 
 ### Habit & Exercise Tracking
-- **Productivity Habits:** A monthly drag-and-drop habit grid with a bottom-to-top layout. Cycle between Not Done, Partially Done, and Fully Done states.
-- **Exercise Tracking:** A rep-counting system allowing incremental addition (+1, +5, +10) to active exercises.
-- **Difficulty & Cardio Tracking:** Set custom difficulties (Very Easy to Very Hard) that dynamically scale your XP rewards. Switch an exercise from 'Reps' to 'Cardio' to track and earn points by the minute.
-- **Personal Records (PR):** Real-time PR detection that triggers a badge and audio feedback when a daily maximum is surpassed.
-- **Strict Streaks & Freezes:** Enforces discipline by requiring at least a 75% habit completion score and 3+ hours logged for productivity, and at least 1 rep/minute for every active exercise. Earn up to 2 "Freeze Tokens" for every 7 days of perfection to automatically protect your streak if life gets in the way.
+- **Productivity Habits:** Monthly habit matrix with bottom-to-top layout. Supports Not Done, Partial, and Completed states.
+- **Exercise Tracking:** Set and rep counter with incremental buttons (+1, +5, +10) for active exercises.
+- **Difficulty & Cardio:** Assign difficulty tiers (Very Easy to Very Hard) to scale XP. Switch any exercise between Reps and Cardio (logged in minutes).
+- **Personal Records (PR):** Real-time PR detection with badge alerts and sound cues when passing previous personal bests.
+- **Streak Discipline & Freezes:** Requires meeting the configured habit completion percentage (default 75%), minimum focus hours, and exercise targets. Perfect 7-day streaks earn freeze tokens to safeguard streaks against missed days.
 
-### Gamification & Analytics
-- **RPG Leveling System & Titles:** Converts logged hours and exercise output into discrete Developer and Fitness levels with highly-tuned polynomial curves (Dev `^1.75`, Fit `^2.0`). Unlock dynamic RPG titles like *Code Apprentice*, *Iron Juggernaut*, and *Digital God* as you climb the ranks.
-- **Level-Up Celebrations:** Hitting a new level milestone triggers a massive, classy on-screen celebration with bouncing rank icons and gold/blue confetti.
-- **Activity Heatmap:** A 365-day GitHub-style matrix showing overall activity intensity based on combined habit and exercise volume.
-- **Web Audio Feedback:** Native synthesized audio (via Web Audio API) providing satisfying "pop" clicks and "ding" success sounds on interactions.
+### Progression & Analytics
+- **Leveling Curves & Titles:** Converts focused hours and workout volume into Developer and Fitness levels with polynomial scaling.
+- **Milestone Alerts:** Leveling up triggers visual milestones with rank badges and sound effects.
+- **Activity Heatmap:** 365-day activity matrix showing density based on combined habits and workout volume.
+- **Web Audio Feedback:** Synthesized audio cues for button clicks, completions, and PR alerts.
 
 ### Long-Term Goals
-- **15-Day Check-ins:** Generates a strict 15-day measurement schedule ending on December 31st.
-- **Chronological Progress System:** Goals track Starting, Current, and Next Log milestones.
-- **End of Year & Health Goals:** Track qualitative goals, numerical goals, percentages, and body metrics. Easily drag and drop to rearrange goal priority, and seamlessly toggle goals between categories in the settings panel.
+- **Bi-Weekly Check-ins:** Structured check-in cadence for periodic progress reviews.
+- **Milestone Tracking:** Tracks Starting, Current, and Target values with chronological logging.
+- **Health & Target Metrics:** Supports numeric metrics, percentages, body measurements, and qualitative milestones. Reorder priorities via drag-and-drop.
 
-### UI & Architecture
-- **Warm Editorial Theme:** A minimal light theme featuring beige, ink colors, and distinct accents (Red, Blue, Purple) for maximum clarity and readability.
-- **Local-First Data:** Uses Dexie.js (IndexedDB) for completely private, offline-first data persistence.
-- **Export & Backup:** Export all historical data (day entries, habit logs, exercise logs, goal measurements) to JSON for backup and portability.
-- **Keyboard Navigation (Gaming Bindings):** Navigate the app entirely using the keyboard! 
-  - `W`, `A`, `S`, `D` to spatially navigate between tiles and inputs.
-  - **Vim-Style Edit Mode:** Press `Enter` on any input or dropdown to enter Edit Mode (indicated by a red glow). While in edit mode, `W`/`S` dynamically increment numbers or cycle dropdowns. Press `Enter` again to exit back to spatial navigation.
-  - `Backspace` to cleanly go back one step (close a modal or go back a page).
-  - `Esc` to instantly reset and return to the home page.
-  - `1-4` numeric keys to jump between core sections.
+### UI & Navigation
+- **Editorial Theme:** Minimalist light aesthetic with high-contrast text and clear accent states.
+- **Local-First Storage:** Dexie.js (IndexedDB) keeps all personal records offline on device.
+- **Data Export:** Export and import full database backups as JSON.
+- **Keyboard Navigation:**
+  - `W`, `A`, `S`, `D` for spatial navigation between cards and inputs.
+  - `Enter` to enter Edit Mode. In Edit Mode, `W`/`S` adjust values or cycle options. `Enter` exits Edit Mode.
+  - `Backspace` closes open dialogs or returns to the previous view.
+  - `Escape` cancels edit states or dismisses modals.
+  - `1-4` jumps directly to core sections.
 
 ## Tech Stack
 
@@ -59,13 +59,9 @@ A digital diary and personal progress tracker designed to log daily highlights, 
    npm run dev
    ```
 
-3. **Open your browser**
+3. **Open local application**
    Navigate to `http://localhost:5173`.
 
 ## Data Privacy
 
-All data is stored locally in the browser using IndexedDB. No data leaves the client. Use the JSON export tool in the Logs tab to backup data before clearing browser cache.
-
-## Status
-
-This project is actively maintained and continually evolving.
+All records are stored locally in IndexedDB. No personal logs leave the browser unless explicitly synced or exported.

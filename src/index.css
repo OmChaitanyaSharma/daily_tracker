@@ -2,44 +2,44 @@
 
 @layer base {
   :root {
-    /* MONKEYTYPE 9009 THEME (LIGHT) */
+    /* MONKEYTYPE 9009 THEME (LIGHT - WCAG 2.2 AA COMPLIANT) */
     --bg-base: #eeebe2;
     --bg-surface: #d3cfc1;
     --bg-surface-hover: #c4c0b2;
     
     --text-main: #080909; 
-    --text-muted: #99947f; 
+    --text-muted: #595445; 
     
     --border-subtle: #b5b1a3;
     --border-strong: #99947f;
     
-    --accent-red: #c87e74;
-    --accent-red-hover: #b86a60;
-    --accent-red-bg: rgba(200, 126, 116, 0.15);
+    --accent-red: #943429;
+    --accent-red-hover: #7d2a20;
+    --accent-red-bg: rgba(148, 52, 41, 0.15);
 
-    --accent-blue: #809bc7; 
-    --accent-blue-bg: rgba(128, 155, 199, 0.15);
+    --accent-blue: #29528f; 
+    --accent-blue-bg: rgba(41, 82, 143, 0.15);
 
-    --accent-purple: #9e85a6;
-    --accent-purple-bg: rgba(158, 133, 166, 0.15);
+    --accent-purple: #663f71;
+    --accent-purple-bg: rgba(102, 63, 113, 0.15);
 
-    --accent-yellow: #c4a572; 
-    --accent-yellow-bg: rgba(196, 165, 114, 0.15);
+    --accent-yellow: #724e0b; 
+    --accent-yellow-bg: rgba(114, 78, 11, 0.15);
 
-    --accent-green: #8f9e6a; 
-    --accent-green-bg: rgba(143, 158, 106, 0.15);
+    --accent-green: #435920; 
+    --accent-green-bg: rgba(67, 89, 32, 0.15);
 
     --shadow-soft: 0 4px 20px rgba(8, 9, 9, 0.04), 0 2px 8px rgba(8, 9, 9, 0.02);
   }
 
   .dark {
-    /* MONKEYTYPE PHANTOM THEME (DARK) */
+    /* MONKEYTYPE PHANTOM THEME (DARK - WCAG 2.2 AA COMPLIANT) */
     --bg-base: #000011;
     --bg-surface: #101224;
     --bg-surface-hover: #151729;
     
     --text-main: #c0caf5; 
-    --text-muted: #565f89; 
+    --text-muted: #828bb4; 
     
     --border-subtle: #24283b;
     --border-strong: #414868;
@@ -259,12 +259,15 @@
   }
 }
 
-/* Global spatial navigation focus outline */
-*:focus {
-  outline: 2px solid var(--accent-blue);
-  outline-offset: 4px;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-  transition: outline-color 0.2s, box-shadow 0.2s;
+/* Global spatial navigation focus-visible outline (WCAG 2.2 AA SC 2.4.7 & 2.4.11) */
+*:focus-visible {
+  outline: 2px solid var(--accent-blue) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 4px var(--accent-blue-bg) !important;
+  transition: outline-color 0.15s, box-shadow 0.15s;
 }
 
-*:focus[data-edit-mode='true'] { outline: 2px solid var(--accent-red) !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important; }
+*:focus-visible[data-edit-mode='true'] {
+  outline: 2px solid var(--accent-red) !important;
+  box-shadow: 0 0 0 4px var(--accent-red-bg) !important;
+}

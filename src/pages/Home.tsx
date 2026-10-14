@@ -75,7 +75,9 @@ export function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === 'escape' || e.key.toLowerCase() === 'backspace') {
+      const targetTag = (document.activeElement?.tagName || '').toUpperCase();
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(targetTag) || (document.activeElement as HTMLElement)?.isContentEditable;
+      if (e.key.toLowerCase() === 'escape' || (e.key.toLowerCase() === 'backspace' && !isInput)) {
         if (levelModal !== null || showStreakModal || levelUpData !== null || showWinterArcRules || showTodosModal) {
           e.preventDefault();
           e.stopPropagation();
@@ -204,7 +206,7 @@ export function Home() {
           <span className="marker-highlight font-medium">{format(new Date(), 'EEEE')}</span>, <br className="md:hidden"/> {format(new Date(), 'MMMM do')}
         </h1>
         <p className="text-text-muted uppercase tracking-[0.2em] text-sm font-medium">
-          Welcome to your daily journal
+          Daily execution & progress
         </p>
         
         <div className="flex flex-col md:flex-row items-center justify-center gap-3 sm:gap-4 mt-8 animate-slide-up">
@@ -324,6 +326,8 @@ export function Home() {
             <select
               value={quickCat}
               onChange={e => setQuickCat(e.target.value)}
+              id="quick-log-category"
+              aria-label="Select study category for quick log"
               className="bg-bg-base border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-xs text-text-main outline-none focus:border-text-muted cursor-pointer"
             >
               {hourCategories.filter(c => !c.archived).map(cat => (
@@ -336,6 +340,7 @@ export function Home() {
             <button
               type="button"
               onClick={() => handleQuickLog(0.5)}
+              aria-label="Quick log 0.5 hours"
               className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +0.5h
@@ -343,6 +348,7 @@ export function Home() {
             <button
               type="button"
               onClick={() => handleQuickLog(1)}
+              aria-label="Quick log 1.0 hour"
               className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +1.0h
@@ -350,6 +356,7 @@ export function Home() {
             <button
               type="button"
               onClick={() => handleQuickLog(2)}
+              aria-label="Quick log 2.0 hours"
               className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +2.0h
@@ -365,11 +372,14 @@ export function Home() {
               value={quickHours}
               onChange={e => setQuickHours(e.target.value)}
               placeholder="Hrs"
+              id="quick-log-hours"
+              aria-label="Custom hours for quick log"
               className="w-16 min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-2 py-2 text-base sm:text-xs text-text-main font-mono text-center outline-none focus:border-text-muted"
             />
             <button
               type="button"
               onClick={() => handleQuickLog()}
+              aria-label="Log custom hours"
               className="min-h-[44px] px-4 py-2 bg-text-main text-bg-base rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0 tap-press"
             >
               Log
@@ -388,7 +398,7 @@ export function Home() {
           <div>
             <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Highlight of the Day</h2>
             <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
-              Reflect on your day, capture what went well, and log your overall mood.
+              Capture the day's key wins, lessons, and mood.
             </p>
           </div>
         </Link>
@@ -401,7 +411,7 @@ export function Home() {
           <div>
             <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Habits</h2>
             <p className="text-xs sm:text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
-              Track your daily consistency and view your monthly heatmap.
+              Daily consistency matrix, exercise counts, and monthly heatmaps.
             </p>
           </div>
         </Link>
@@ -414,7 +424,7 @@ export function Home() {
           <div>
             <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Goals</h2>
             <p className="text-xs sm:text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
-              Set long-term objectives and break them down into actionable steps.
+              Target milestones, body metrics, and season objectives.
             </p>
           </div>
         </Link>
@@ -427,7 +437,7 @@ export function Home() {
           <div>
             <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Logs</h2>
             <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
-              Look back at your history, review your journal, and analyze long-term progress.
+              Historical review, monthly calendars, and weekly digests.
             </p>
           </div>
         </Link>
@@ -442,7 +452,7 @@ export function Home() {
 
       {levelModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setLevelModal(null)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="level-modal-title">
             <button onClick={() => setLevelModal(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
@@ -452,7 +462,7 @@ export function Home() {
                 {levelModal === 'dev' ? <Code size={24} /> : <Dumbbell size={24} />}
               </div>
               <div>
-                <h2 className="text-2xl font-serif text-text-main">
+                <h2 id="level-modal-title" className="text-2xl font-serif text-text-main">
                   {levelModal === 'dev' ? `Dev Level ${dev.level}` : `Fit Level ${fitness.level}`}
                 </h2>
                 <div className="flex items-center gap-2 mt-1">
@@ -532,7 +542,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
 
       {showStreakModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowStreakModal(false)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[88vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[88vh] flex flex-col" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="streak-requirements-title">
             <button onClick={() => setShowStreakModal(false)} className="absolute top-4 sm:top-5 right-4 sm:right-5 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
@@ -542,11 +552,11 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                 <Flame size={24} />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-serif text-text-main">
+                <h2 id="streak-requirements-title" className="text-xl sm:text-2xl font-serif text-text-main">
                   Daily Requirements
                 </h2>
                 <p className="text-text-muted text-xs sm:text-sm">
-                  What you need to do today
+                  Requirements to secure your daily streak
                 </p>
               </div>
             </div>
@@ -679,7 +689,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
 
       {showWinterArcRules && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowWinterArcRules(false)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="winter-arc-rules-title">
             <button onClick={() => setShowWinterArcRules(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
@@ -689,11 +699,11 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                 <Snowflake size={24} />
               </div>
               <div>
-                <h2 className="text-2xl font-serif text-text-main">
+                <h2 id="winter-arc-rules-title" className="text-2xl font-serif text-text-main">
                   {settings.seasonName} Rules
                 </h2>
                 <p className="text-text-muted text-sm">
-                  The protocol for the season
+                  Core operating rules for the season
                 </p>
               </div>
             </div>
@@ -711,13 +721,13 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
       )}
       {showTodosModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowTodosModal(false)}>
-          <div className="bg-bg-base border border-border-strong rounded-3xl max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+          <div className="bg-bg-base border border-border-strong rounded-3xl max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="todos-modal-title">
             <div className="p-4 sm:p-6 border-b border-border-subtle flex justify-between items-center bg-bg-surface">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent-green/10 text-accent-green border border-accent-green/20">
                   <CheckSquare size={18} />
                 </div>
-                <h2 className="text-xl font-serif text-text-main">
+                <h2 id="todos-modal-title" className="text-xl font-serif text-text-main">
                   Daily Objectives
                 </h2>
               </div>

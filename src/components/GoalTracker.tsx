@@ -309,6 +309,7 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
             type="date"
             value={editDate}
             onChange={e => setEditDate(e.target.value)}
+            aria-label="Measurement date"
             className="w-36 min-h-[44px] bg-bg-surface border border-border-strong rounded-xl px-3 py-2 text-base sm:text-sm outline-none"
           />
         ) : (
@@ -332,6 +333,7 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               placeholder="Value"
+              aria-label="Measurement value"
               className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none w-28 sm:w-32 flex-1 sm:flex-initial"
               autoFocus
             />
@@ -340,6 +342,7 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
               value={inputUnit}
               onChange={e => setInputUnit(e.target.value)}
               placeholder="Unit"
+              aria-label="Measurement unit"
               className="bg-bg-surface border border-border-strong rounded-xl px-2.5 py-2 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none w-20"
             />
             <button 

@@ -15,7 +15,7 @@ export function Goals() {
         </Link>
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main">Goals</h1>
-          <p className="text-xs sm:text-sm text-text-muted mt-1">Long-term personal progress</p>
+          <p className="text-xs sm:text-sm text-text-muted mt-1">Milestones, physical measurements, and target dates</p>
         </div>
       </header>
 
@@ -28,7 +28,7 @@ export function Goals() {
             <div>
               <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">End of {getSettings().seasonName}</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Track everything I want to achieve before the end of the {getSettings().seasonName.toLowerCase()} (March 1st).
+                Core milestones and qualitative targets for the season (March 1st).
               </p>
             </div>
           </div>
@@ -42,7 +42,7 @@ export function Goals() {
             <div>
               <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">Health & Fitness</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Track physical measurements, fitness and health-related progress.
+                Weight tracking, body measurements, and athletic benchmarks.
               </p>
             </div>
           </div>

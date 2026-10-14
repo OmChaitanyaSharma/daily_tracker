@@ -10,7 +10,7 @@ export function Habits() {
         </Link>
         <div>
           <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main font-semibold">Habits & Tracking</h1>
-          <p className="text-xs sm:text-sm text-text-muted mt-1 sm:mt-2">Daily routines, workouts, and deep focus metrics</p>
+          <p className="text-xs sm:text-sm text-text-muted mt-1 sm:mt-2">Daily routines, workout reps, and focus sessions</p>
         </div>
       </header>
 
@@ -26,7 +26,7 @@ export function Habits() {
             <div>
               <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">Daily Habits</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Track your daily habits matrix, routine completion, and consistency streaks.
+                Monthly completion matrix and habit streak tracking.
               </p>
             </div>
           </div>
@@ -42,7 +42,7 @@ export function Habits() {
             <div>
               <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">Exercise Tracking</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Count reps for your custom exercises and maintain your workout streak.
+                Log reps, time, difficulty tiers, and personal records.
               </p>
             </div>
           </div>
@@ -58,7 +58,7 @@ export function Habits() {
             <div>
               <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">Study and Deep Work</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Visualize monthly hours tracked, manage subject categories, and review focus logs.
+                Track deep work hours, categorize subjects, and chart trends.
               </p>
             </div>
           </div>

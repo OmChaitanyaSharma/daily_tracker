@@ -112,45 +112,22 @@ export function Layout() {
       if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
       
       const activeElement = document.activeElement as HTMLElement | null;
-      const activeTag = activeElement?.tagName || '';
-      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag);
-      const isEditMode = activeElement?.dataset.editMode === "true";
+      const activeTag = (activeElement?.tagName || '').toUpperCase();
+      const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) || activeElement?.isContentEditable;
 
-      if (isInput && isEditMode) {
-        if (e.key === 'Enter') {
+      if (isInput) {
+        if (e.key === 'Escape') {
           e.preventDefault();
-          activeElement.removeAttribute('data-edit-mode');
+          activeElement?.removeAttribute('data-edit-mode');
+          activeElement?.blur();
           return;
         }
-        
-        const keyLower = e.key.toLowerCase();
-        if (keyLower === 'w' || keyLower === 's') {
-          if (activeTag === 'INPUT' && (activeElement as HTMLInputElement).type === 'number') {
-            e.preventDefault();
-            const input = activeElement as HTMLInputElement;
-            const step = parseFloat(input.step) || 1;
-            const current = parseFloat(input.value) || 0;
-            if (keyLower === 'w') {
-              input.value = String(current + step);
-            } else {
-              input.value = String(Math.max(0, current - step));
-            }
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-            return;
-          } else if (activeTag === 'SELECT') {
-            e.preventDefault();
-            const select = activeElement as HTMLSelectElement;
-            if (keyLower === 'w' && select.selectedIndex > 0) {
-              select.selectedIndex--;
-            } else if (keyLower === 's' && select.selectedIndex < select.options.length - 1) {
-              select.selectedIndex++;
-            }
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-            return;
-          }
+        if (e.key === 'Enter') {
+          activeElement?.removeAttribute('data-edit-mode');
+          return;
         }
-        if (e.key !== 'Escape') return;
+        // Do not intercept any other key when inside an input/textarea/select
+        return;
       }
 
       switch (e.key.toLowerCase()) {
@@ -158,21 +135,12 @@ export function Layout() {
         case 'a':
         case 's':
         case 'd':
-        case 'W':
-        case 'A':
-        case 'S':
-        case 'D':
           handleDirectionalNavigation(e);
           break;
         case 'enter':
           if (activeElement) {
-            if (isInput) {
-              e.preventDefault();
-              activeElement.dataset.editMode = "true";
-            } else {
-              e.preventDefault();
-              activeElement.click();
-            }
+            e.preventDefault();
+            activeElement.click();
           }
           break;
         case 'escape': 
@@ -202,7 +170,7 @@ export function Layout() {
       }
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleInputFocus = (e: Event) => {
       const target = e.target as HTMLElement;
       if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
         target.dataset.editMode = "true";
@@ -210,10 +178,12 @@ export function Layout() {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousedown', handleInputFocus);
+    window.addEventListener('focusin', handleInputFocus);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousedown', handleInputFocus);
+      window.removeEventListener('focusin', handleInputFocus);
     };
   }, [navigate]);
 
@@ -301,6 +271,9 @@ export function Layout() {
               <div className="relative shrink-0" ref={menuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  aria-expanded={isUserMenuOpen}
+                  aria-haspopup="true"
+                  aria-label="User account menu"
                   className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 pl-2 pr-3 py-1.5 rounded-full bg-bg-surface hover:bg-bg-surface/80 border border-border-strong text-xs font-medium text-text-main transition-colors cursor-pointer shrink-0 tap-press"
                 >
                   {user.photoURL ? (
@@ -321,7 +294,7 @@ export function Layout() {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-bg-surface border border-border-strong rounded-2xl p-2 shadow-2xl z-50 animate-fade-in">
+                  <div className="absolute right-0 mt-3 w-56 bg-bg-surface border border-border-strong rounded-2xl p-2 shadow-2xl z-50 animate-fade-in" role="menu">
                     <div className="px-3 py-2 border-b border-border-subtle mb-1">
                       <p className="text-xs font-semibold text-text-main truncate">
                         {user.displayName || 'Tracker User'}
@@ -338,6 +311,7 @@ export function Layout() {
                     <button
                       onClick={handleManualSync}
                       disabled={isSyncing}
+                      aria-label={syncStatusText || (isSyncing ? 'Syncing to Cloud' : 'Sync to Cloud')}
                       className="w-full min-h-[44px] flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left disabled:opacity-50 cursor-pointer tap-press"
                     >
                       <RefreshCw size={15} className={isSyncing ? "animate-spin text-accent-blue" : ""} />
@@ -358,6 +332,9 @@ export function Layout() {
               <div className="relative shrink-0" ref={menuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  aria-expanded={isUserMenuOpen}
+                  aria-haspopup="true"
+                  aria-label="Guest account menu"
                   className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-yellow/15 border border-accent-yellow/30 text-xs font-medium text-accent-yellow transition-colors cursor-pointer shrink-0 hover:bg-accent-yellow/25 tap-press"
                   title="Guest Mode Active (Offline)"
                 >
@@ -368,7 +345,7 @@ export function Layout() {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-60 bg-bg-surface border border-border-strong rounded-2xl p-2.5 shadow-2xl z-50 animate-fade-in text-xs">
+                  <div className="absolute right-0 mt-3 w-60 bg-bg-surface border border-border-strong rounded-2xl p-2.5 shadow-2xl z-50 animate-fade-in text-xs" role="menu">
                     <div className="px-3 py-2 border-b border-border-subtle mb-1.5">
                       <div className="flex items-center gap-1.5 font-semibold text-text-main">
                         <span className="w-2 h-2 rounded-full bg-accent-yellow"></span>
@@ -417,7 +394,8 @@ export function Layout() {
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors focus:outline-none cursor-pointer rounded-full hover:bg-bg-surface shrink-0 tap-press"
-              aria-label="Toggle navigation menu"
+              aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>

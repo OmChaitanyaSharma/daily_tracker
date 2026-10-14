@@ -101,6 +101,7 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
             value={newTaskText}
             onChange={e => setNewTaskText(e.target.value)}
             placeholder="Add a new objective..."
+            aria-label="Add a new objective"
             className="flex-1 bg-transparent text-base sm:text-sm text-text-main focus:outline-none placeholder:text-text-muted/50 py-1"
           />
           <button 

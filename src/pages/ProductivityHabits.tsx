@@ -33,9 +33,9 @@ export function ProductivityHabits() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Backspace') {
         if (e.key === 'Backspace') {
-          const activeTag = document.activeElement?.tagName || '';
-          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
-            if (document.activeElement?.hasAttribute('data-edit-mode')) return;
+          const activeTag = (document.activeElement?.tagName || '').toUpperCase();
+          if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) || (document.activeElement as HTMLElement)?.isContentEditable) {
+            return;
           }
         }
 
@@ -219,16 +219,17 @@ export function ProductivityHabits() {
       {/* Edit Habit Modal */}
       {/* Edit Habit Modal */}
       {editingHabit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4" role="dialog" aria-modal="true" aria-labelledby="edit-habit-title">
           <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-sm w-full animate-scale-in relative">
             <button onClick={() => setEditingHabit(null)} className="absolute top-4 right-4 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
-            <h3 className="text-xl font-serif italic text-text-main mb-6">Edit Habit</h3>
+            <h3 id="edit-habit-title" className="text-xl font-serif italic text-text-main mb-6">Edit Habit</h3>
             <form onSubmit={saveEditHabit} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Habit Name</label>
+                <label htmlFor="edit-habit-name" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Habit Name</label>
                 <input 
+                  id="edit-habit-name"
                   type="text" 
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
@@ -237,8 +238,9 @@ export function ProductivityHabits() {
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Starting Date</label>
+                <label htmlFor="edit-habit-start-date" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Starting Date</label>
                 <input 
+                  id="edit-habit-start-date"
                   type="date" 
                   value={editStartDate}
                   onChange={e => setEditStartDate(e.target.value)}
@@ -295,9 +297,9 @@ export function ProductivityHabits() {
 
       {/* Archive Habit Modal */}
       {archivingHabit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4" role="dialog" aria-modal="true" aria-labelledby="archive-habit-title">
           <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
-            <h3 className="text-xl font-semibold text-text-main mb-2">Archive {archivingHabit.name}?</h3>
+            <h3 id="archive-habit-title" className="text-xl font-semibold text-text-main mb-2">Archive {archivingHabit.name}?</h3>
             <p className="text-sm text-text-muted mb-8 leading-relaxed">
               It will no longer appear as an active habit, but your previous records will be preserved.
             </p>
@@ -315,9 +317,9 @@ export function ProductivityHabits() {
 
       {/* Delete Habit Modal */}
       {deletingHabit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4" role="dialog" aria-modal="true" aria-labelledby="delete-habit-title">
           <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
-            <h3 className="text-xl font-semibold text-text-main mb-2">Delete {deletingHabit.name}?</h3>
+            <h3 id="delete-habit-title" className="text-xl font-semibold text-text-main mb-2">Delete {deletingHabit.name}?</h3>
             <p className="text-sm text-text-muted mb-8 leading-relaxed">
               This will permanently remove the habit and all its history. This action cannot be undone.
             </p>
@@ -570,6 +572,8 @@ const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                   <form onSubmit={handleAddHabit} className="flex flex-col items-center gap-2">
                     <input
                       autoFocus
+                      id="new-habit-name"
+                      aria-label="New habit name"
                       type="text"
                       value={newHabitName}
                       onChange={e => setNewHabitName(e.target.value)}

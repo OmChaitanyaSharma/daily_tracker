@@ -135,10 +135,10 @@ export function Highlight() {
       
       {/* Conflict Modal */}
       {showConflictModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="conflict-dialog-title">
           <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full text-center flex flex-col gap-6 animate-scale-in">
             <div>
-              <h3 className="text-xl font-semibold text-text-main">Entry Already Exists</h3>
+              <h3 id="conflict-dialog-title" className="text-xl font-semibold text-text-main">Entry Already Exists</h3>
               <p className="text-text-muted mt-2 text-sm leading-relaxed">
                 An entry already exists for {entry.date}. What would you like to do?
               </p>
@@ -163,13 +163,13 @@ export function Highlight() {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="success-dialog-title">
           <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full text-center flex flex-col items-center gap-4 animate-scale-in">
             <div className="w-16 h-16 bg-accent-red-bg text-accent-red rounded-full flex items-center justify-center">
               <CheckCircle2 size={32} />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-text-main">Entry Done</h3>
+              <h3 id="success-dialog-title" className="text-xl font-semibold text-text-main">Entry Done</h3>
               <p className="text-text-muted mt-2">The entry has been saved successfully.</p>
             </div>
           </div>
@@ -189,6 +189,8 @@ export function Highlight() {
                 <input 
                   type="date"
                   value={originalDate}
+                  id="view-entry-date"
+                  aria-label="Select entry date"
                   onChange={e => {
                     if (e.target.value) setOriginalDate(e.target.value);
                   }}
@@ -197,8 +199,9 @@ export function Highlight() {
               </div>
             ) : (
               <div className="flex flex-col gap-1">
-                <label className="text-xs uppercase tracking-widest text-text-muted font-medium">Record Date</label>
+                <label htmlFor="record-date" className="text-xs uppercase tracking-widest text-text-muted font-medium">Record Date</label>
                 <input 
+                  id="record-date"
                   type="date"
                   value={entry.date}
                   onChange={e => setEntry({ ...entry, date: e.target.value })}
@@ -217,6 +220,7 @@ export function Highlight() {
             <button 
               onClick={attemptSave}
               disabled={isSaving}
+              aria-label={isSaving ? 'Saving journal entry...' : 'Save journal entry'}
               className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 min-h-[44px] rounded-full font-semibold text-sm hover:opacity-90 transition-all active:scale-95 shrink-0 tap-press cursor-pointer"
             >
               <Save size={16} />
@@ -348,9 +352,11 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
            <p className="text-xs sm:text-sm font-medium text-text-main mt-1 sm:mt-2">What made today worth remembering?</p>
         </div>
         <textarea
+          id="daily-highlight"
+          aria-label="Daily Highlight: What made today worth remembering?"
           value={entry.highlight || ''}
           onChange={e => setEntry({ ...entry, highlight: e.target.value })}
-          placeholder="Start writing freely..."
+          placeholder="Write the core win, event, or breakthrough from today..."
           className="w-full min-h-[180px] sm:min-h-[220px] p-5 sm:p-8 bg-transparent border-none resize-none focus:outline-none text-base sm:text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40"
         />
       </section>
@@ -404,14 +410,16 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
 }
 
 function ReflectionField({ label, value, onChange }: { label: string, value: string | undefined, onChange: (val: string) => void }) {
+  const fieldId = `reflection-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
   return (
     <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg group shadow-sm hover:border-text-muted">
-      <label className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-2 sm:mb-3 group-focus-within:text-accent-blue transition-colors">{label}</label>
+      <label htmlFor={fieldId} className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-2 sm:mb-3 group-focus-within:text-accent-blue transition-colors">{label}</label>
       <textarea
+        id={fieldId}
         value={value || ''}
         onChange={e => onChange(e.target.value)}
         rows={3}
-        placeholder="Tap to write..."
+        placeholder="Add note..."
         className="w-full bg-transparent border-none resize-none focus:outline-none text-text-main text-base placeholder:text-text-muted/30"
       />
     </div>

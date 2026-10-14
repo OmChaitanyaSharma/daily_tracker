@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { type Goal, db } from '../db';
 import { X, Trash2 } from 'lucide-react';
 import { getSettings } from '../utils/settings';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface Props {
   goal: Goal;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function GoalSettingsModal({ goal, onClose }: Props) {
+  const containerRef = useFocusTrap(true, onClose);
   const [formData, setFormData] = useState<Partial<Goal>>({
     title: goal.title,
     category: goal.category,
@@ -19,27 +21,6 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
     startDate: goal.startDate,
     startingValue: goal.startingValue || ''
   });
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        onClose();
-      } else if (e.key === 'Backspace') {
-        const activeTag = document.activeElement?.tagName || '';
-        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag)) {
-          if (document.activeElement?.hasAttribute('data-edit-mode')) return;
-        }
-        e.preventDefault();
-        e.stopPropagation();
-        onClose();
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,22 +48,29 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in px-4 py-6 overflow-y-auto">
-      <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-md w-full relative my-auto">
+      <div 
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="goal-settings-modal-title"
+        className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-md w-full relative my-auto"
+      >
         <button
           type="button"
           onClick={onClose}
           className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface-hover transition-colors absolute top-3 right-3 tap-press"
-          aria-label="Close modal"
+          aria-label="Close goal settings modal"
         >
           <X size={20} />
         </button>
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-serif italic text-text-main">Edit Goal Settings</h3>
+          <h3 id="goal-settings-modal-title" className="text-xl font-serif italic text-text-main">Edit Goal Settings</h3>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Title</label>
+            <label htmlFor="goal-title-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Title</label>
             <input 
+              id="goal-title-input"
               type="text" 
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -92,10 +80,12 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
           </div>
 
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Category</label>
-            <div className="grid grid-cols-2 gap-2 bg-bg-base p-1.5 rounded-xl border border-border-strong">
+            <span id="goal-category-label" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Category</span>
+            <div className="grid grid-cols-2 gap-2 bg-bg-base p-1.5 rounded-xl border border-border-strong" role="tablist" aria-labelledby="goal-category-label">
               <button
                 type="button"
+                role="tab"
+                aria-selected={formData.category === 'end-of-year'}
                 onClick={() => setFormData({ ...formData, category: 'end-of-year' })}
                 className={`min-h-[44px] py-2 px-3 text-sm font-medium rounded-lg transition-colors tap-press ${formData.category === 'end-of-year' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               >
@@ -103,6 +93,8 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={formData.category === 'health'}
                 onClick={() => setFormData({ ...formData, category: 'health' })}
                 className={`min-h-[44px] py-2 px-3 text-sm font-medium rounded-lg transition-colors tap-press ${formData.category === 'health' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               >
@@ -112,8 +104,9 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
           </div>
           
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Sub-Category / Group (Optional)</label>
+            <label htmlFor="goal-subcategory-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Sub-Category / Group (Optional)</label>
             <input 
+              id="goal-subcategory-input"
               type="text" 
               value={formData.subCategory || ''}
               onChange={e => setFormData({ ...formData, subCategory: e.target.value })}
@@ -124,8 +117,9 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Type</label>
+              <label htmlFor="goal-type-select" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Type</label>
               <select 
+                id="goal-type-select"
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value as any })}
                 className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
@@ -139,8 +133,9 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Unit</label>
+              <label htmlFor="goal-unit-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Unit</label>
               <input 
+                id="goal-unit-input"
                 type="text" 
                 value={formData.unit}
                 onChange={e => setFormData({ ...formData, unit: e.target.value })}
@@ -152,8 +147,9 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Starting Date</label>
+              <label htmlFor="goal-start-date-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Starting Date</label>
               <input 
+                id="goal-start-date-input"
                 type="date" 
                 value={formData.startDate}
                 onChange={e => setFormData({ ...formData, startDate: e.target.value })}
@@ -162,8 +158,9 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Target Value</label>
+              <label htmlFor="goal-target-val-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Target Value</label>
               <input 
+                id="goal-target-val-input"
                 type="text" 
                 value={formData.targetValue}
                 onChange={e => setFormData({ ...formData, targetValue: e.target.value })}
@@ -173,8 +170,9 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
           </div>
           
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Starting Baseline Value</label>
+            <label htmlFor="goal-baseline-val-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Starting Baseline Value</label>
             <input 
+              id="goal-baseline-val-input"
               type="text" 
               value={formData.startingValue}
               onChange={e => setFormData({ ...formData, startingValue: e.target.value })}

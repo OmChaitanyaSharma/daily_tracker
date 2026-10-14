@@ -277,14 +277,15 @@ export function Settings() {
           </div>
           <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="text-sm font-semibold text-text-main">Synthesized Tactile Audio</div>
+              <div className="text-sm font-semibold text-text-main">Audio Feedback</div>
               <p className="text-xs text-text-muted mt-0.5">
-                Play zero-latency tactile clicks, habit ticks, and milestone chimes during tracking.
+                Sound cues for button taps, habit toggles, and milestone celebrations.
               </p>
             </div>
             <button
               type="button"
               onClick={toggleSound}
+              aria-label={soundEnabled ? "Audio feedback enabled, click to mute" : "Audio feedback muted, click to enable"}
               className={clsx(
                 "min-h-[44px] px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 tap-press",
                 soundEnabled
@@ -303,8 +304,9 @@ export function Settings() {
           <h2 className="text-base sm:text-lg font-serif text-text-main mb-4 border-b border-border-subtle pb-2">Streak Requirements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Target Deep Work Hours / Day</label>
+              <label htmlFor="streak-target-hours" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Target Deep Work Hours / Day</label>
               <input 
+                id="streak-target-hours"
                 type="number" step="0.5" min="0" max="24"
                 value={settings.streakTargetHours}
                 onChange={e => setSettings({...settings, streakTargetHours: Number(e.target.value)})}
@@ -313,8 +315,9 @@ export function Settings() {
             </div>
 
             <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Required Habit Completion (%)</label>
+              <label htmlFor="streak-target-habit-percent" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Required Habit Completion (%)</label>
               <input 
+                id="streak-target-habit-percent"
                 type="number" step="5" min="0" max="100"
                 value={settings.streakTargetHabitPercent}
                 onChange={e => setSettings({...settings, streakTargetHabitPercent: Number(e.target.value)})}
@@ -324,8 +327,9 @@ export function Settings() {
 
             <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Fitness Requirement Type</label>
+                <label htmlFor="streak-fitness-type" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Fitness Requirement Type</label>
                 <select 
+                  id="streak-fitness-type"
                   value={settings.streakFitnessRequirementType}
                   onChange={e => setSettings({...settings, streakFitnessRequirementType: e.target.value as 'all' | 'count' | 'reps' | 'xp'})}
                   className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 text-base sm:text-sm text-text-main focus:outline-none cursor-pointer"
@@ -339,10 +343,11 @@ export function Settings() {
               
               {settings.streakFitnessRequirementType !== 'all' && (
                 <div>
-                  <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">
+                  <label htmlFor="streak-fitness-val" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">
                     {settings.streakFitnessRequirementType === 'count' ? 'Exercises Needed' : settings.streakFitnessRequirementType === 'reps' ? 'Total Reps/Mins Needed' : 'Total XP Needed'}
                   </label>
                   <input 
+                    id="streak-fitness-val"
                     type="number" min="1" step="1"
                     value={settings.streakFitnessRequirementValue}
                     onChange={e => setSettings({...settings, streakFitnessRequirementValue: Number(e.target.value)})}
@@ -404,6 +409,8 @@ export function Settings() {
                 Restore from Backup
                 <input
                   type="file"
+                  id="restore-backup-file"
+                  aria-label="Upload backup JSON file"
                   accept=".json,application/json"
                   onChange={handleImportFile}
                   className="hidden"
@@ -433,8 +440,9 @@ export function Settings() {
             <div className="pt-6 space-y-8 animate-fade-in">
               {/* Season Protocol */}
               <div>
-                <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-3">Season Name</h3>
+                <label htmlFor="season-name-input" className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-3">Season Name</label>
                 <input 
+                  id="season-name-input"
                   type="text"
                   value={settings.seasonName}
                   onChange={e => setSettings({...settings, seasonName: e.target.value})}
@@ -452,6 +460,7 @@ export function Settings() {
                       <input 
                         type="text"
                         value={rule}
+                        aria-label={`Season rule ${i + 1}`}
                         onChange={e => {
                           const newRules = [...settings.winterArcRules];
                           newRules[i] = e.target.value;
@@ -466,7 +475,7 @@ export function Settings() {
                           setSettings({...settings, winterArcRules: newRules});
                         }}
                         className="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center text-text-muted hover:text-accent-red transition-colors tap-press"
-                        aria-label="Delete rule"
+                        aria-label={`Delete season rule ${i + 1}`}
                       >
                         <Trash2 size={16} />
                       </button>
@@ -495,6 +504,7 @@ export function Settings() {
                           <input 
                             type="text"
                             value={settings.devRanksNames[i] || rank.title}
+                            aria-label={`Developer level ${i + 1} title`}
                             onChange={e => {
                               const newArr = [...settings.devRanksNames];
                               newArr[i] = e.target.value;
@@ -516,6 +526,7 @@ export function Settings() {
                           <input 
                             type="text"
                             value={settings.fitRanksNames[i] || rank.title}
+                            aria-label={`Fitness level ${i + 1} title`}
                             onChange={e => {
                               const newArr = [...settings.fitRanksNames];
                               newArr[i] = e.target.value;
@@ -549,6 +560,7 @@ export function Settings() {
                 type="button"
                 onClick={handleClearData}
                 disabled={isClearing}
+                aria-label={isClearing ? 'Clearing tracking entries...' : 'Clear all tracking entries'}
                 className="min-h-[44px] px-5 py-2.5 bg-accent-red/10 text-accent-red hover:bg-accent-red/20 rounded-xl text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer tap-press"
               >
                 {isClearing ? 'Clearing...' : 'Clear All Entries'}

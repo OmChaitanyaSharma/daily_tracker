@@ -46,6 +46,7 @@ export function StudyTracking() {
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const isCurrentMonth = format(currentDate, 'yyyy-MM') === format(new Date(), 'yyyy-MM');
 
   const monthStartStr = format(monthStart, 'yyyy-MM-dd');
   const monthEndStr = format(monthEnd, 'yyyy-MM-dd');
@@ -266,7 +267,7 @@ export function StudyTracking() {
           </Link>
           <div>
             <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main font-semibold">Study and Deep Work</h1>
-            <p className="text-xs sm:text-sm text-text-muted mt-0.5">Visualize hours logged, subject categories, and focus sessions</p>
+            <p className="text-xs sm:text-sm text-text-muted mt-0.5">Logged hours, subject breakdowns, and focus sessions</p>
           </div>
         </div>
 
@@ -282,6 +283,7 @@ export function StudyTracking() {
           
           <button 
             onClick={goToToday}
+            aria-label={isCurrentMonth ? `Current month: ${format(currentDate, 'MMMM yyyy')}` : "Jump to current month"}
             className="min-h-[44px] px-3.5 py-1 text-sm font-medium text-text-main hover:bg-bg-base rounded-xl transition-colors cursor-pointer tap-press"
           >
             {format(currentDate, 'MMMM yyyy')}
@@ -384,6 +386,7 @@ export function StudyTracking() {
                       }}
                       className="text-text-muted hover:text-text-main ml-1.5 cursor-pointer"
                       title="Edit"
+                      aria-label={`Edit category ${cat.name}`}
                     >
                       <Edit2 size={12} />
                     </button>
@@ -391,6 +394,7 @@ export function StudyTracking() {
                       onClick={() => handleToggleArchiveCategory(cat)}
                       className="text-text-muted hover:text-accent-yellow cursor-pointer"
                       title={cat.archived ? "Unarchive" : "Archive"}
+                      aria-label={`${cat.archived ? 'Unarchive' : 'Archive'} category ${cat.name}`}
                     >
                       {cat.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
                     </button>
@@ -398,6 +402,7 @@ export function StudyTracking() {
                       onClick={() => handleDeleteCategory(cat)}
                       className="text-text-muted hover:text-accent-red cursor-pointer"
                       title="Delete"
+                      aria-label={`Delete category ${cat.name}`}
                     >
                       <Trash2 size={12} />
                     </button>
@@ -409,8 +414,9 @@ export function StudyTracking() {
               {editingCat && (
                 <form onSubmit={handleEditCategory} className="flex flex-wrap items-end gap-3 p-4 bg-bg-surface rounded-xl border border-border-subtle animate-fade-in">
                   <div className="space-y-1">
-                    <label className="text-xs text-text-muted font-medium">Edit Name</label>
+                    <label htmlFor="edit-cat-name" className="text-xs text-text-muted font-medium">Edit Name</label>
                     <input 
+                      id="edit-cat-name"
                       type="text" 
                       value={editCatName} 
                       onChange={e => setEditCatName(e.target.value)}
@@ -418,9 +424,11 @@ export function StudyTracking() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs text-text-muted font-medium">Color</label>
+                    <label htmlFor="edit-cat-color" className="text-xs text-text-muted font-medium">Color</label>
                     <div className="flex items-center gap-2">
                       <input 
+                        id="edit-cat-color"
+                        aria-label="Edit category color"
                         type="color" 
                         value={editCatColor} 
                         onChange={e => setEditCatColor(e.target.value)}
@@ -447,8 +455,9 @@ export function StudyTracking() {
               {/* Add Category Form */}
               <form onSubmit={handleAddCategory} className="flex flex-wrap items-end gap-3 pt-4 border-t border-border-subtle">
                 <div className="space-y-1">
-                  <label className="text-xs text-text-muted font-medium">New Category</label>
+                  <label htmlFor="new-cat-name" className="text-xs text-text-muted font-medium">New Category</label>
                   <input 
+                    id="new-cat-name"
                     type="text" 
                     placeholder="e.g. Algorithms, Research" 
                     value={newCatName}
@@ -457,9 +466,11 @@ export function StudyTracking() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs text-text-muted font-medium">Color</label>
+                  <label htmlFor="new-cat-color" className="text-xs text-text-muted font-medium">Color</label>
                   <div className="flex items-center gap-2">
                     <input 
+                      id="new-cat-color"
+                      aria-label="New category color"
                       type="color" 
                       value={newCatColor}
                       onChange={e => setNewCatColor(e.target.value)}
@@ -529,8 +540,9 @@ export function StudyTracking() {
           
           <div className="flex flex-wrap items-end gap-3 sm:gap-4">
             <div className="space-y-1.5 w-full sm:w-auto">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Date</label>
+              <label htmlFor="hours-log-date" className="text-xs font-semibold tracking-widest uppercase text-text-muted">Date</label>
               <input 
+                id="hours-log-date"
                 type="date" 
                 value={hoursDate}
                 onChange={e => setHoursDate(e.target.value)}
@@ -539,11 +551,12 @@ export function StudyTracking() {
             </div>
 
             <div className="space-y-1.5 w-full sm:w-auto">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Subject / Category</label>
+              <label htmlFor="hours-log-category" className="text-xs font-semibold tracking-widest uppercase text-text-muted">Subject / Category</label>
               <select 
+                id="hours-log-category"
                 value={hoursType || (activeCategories.length > 0 ? activeCategories[0].name : '')}
                 onChange={e => setHoursType(e.target.value)}
-                className="block w-full sm:w-auto bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
+                className="block w-full sm:w-auto bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted cursor-pointer"
               >
                 {activeCategories.map(cat => (
                   <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -552,9 +565,10 @@ export function StudyTracking() {
             </div>
 
             <div className="space-y-1.5 relative w-full sm:w-auto">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Hours</label>
+              <label htmlFor="hours-log-amount" className="text-xs font-semibold tracking-widest uppercase text-text-muted">Hours</label>
               <div className="flex flex-wrap items-center gap-2">
                 <input 
+                  id="hours-log-amount"
                   type="number" 
                   step="0.5"
                   min="0.5"
@@ -572,6 +586,7 @@ export function StudyTracking() {
                       key={h}
                       type="button"
                       onClick={() => setHoursAmount(h.toString())}
+                      aria-label={`Preset +${h} hours`}
                       className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-bg-base border border-border-strong text-xs font-semibold text-text-muted hover:text-text-main hover:bg-bg-surface transition-colors cursor-pointer tap-press flex items-center justify-center"
                     >
                       +{h}h
@@ -609,14 +624,18 @@ export function StudyTracking() {
                 <div key={log.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 bg-bg-base border border-border-subtle rounded-xl p-3 text-sm">
                   <input 
                     type="date"
+                    id={`log-date-${log.id}`}
+                    aria-label={`Log date for ${log.activity}`}
                     value={log.date}
                     onChange={async (e) => await db.hourLogs.update(log.id, { date: e.target.value })}
                     className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1.5 min-h-[40px] text-base sm:text-xs text-text-main outline-none focus:border-text-muted"
                   />
                   <select 
+                    id={`log-activity-${log.id}`}
+                    aria-label={`Activity category for log on ${log.date}`}
                     value={log.activity}
                     onChange={async (e) => await handleUpdateLogActivity(log.id, e.target.value, log.date, log.hours)}
-                    className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1.5 min-h-[40px] text-base sm:text-xs text-text-main outline-none"
+                    className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1.5 min-h-[40px] text-base sm:text-xs text-text-main outline-none cursor-pointer"
                   >
                     {hourCategories.filter(cat => !cat.archived || cat.name === log.activity).map(cat => (
                       <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -626,6 +645,8 @@ export function StudyTracking() {
                     <input 
                       type="number" 
                       step="0.5"
+                      id={`log-hours-${log.id}`}
+                      aria-label={`Hours for ${log.activity} on ${log.date}`}
                       value={log.hours}
                       onChange={async (e) => {
                         const v = parseFloat(e.target.value);

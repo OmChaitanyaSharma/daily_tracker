@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Mail, Lock, LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,16 +17,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const containerRef = useFocusTrap(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -93,47 +85,53 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       onClick={onClose}
     >
       <div 
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="auth-modal-title"
         className="relative w-full max-w-md bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 shadow-2xl my-auto animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         <button 
           onClick={onClose}
           className="w-11 h-11 min-w-[44px] min-h-[44px] absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-base/50 rounded-xl transition-colors tap-press"
-          aria-label="Close modal"
+          aria-label="Close authentication modal"
         >
           <X size={20} />
         </button>
 
         <div className="mb-4 text-center">
-          <div className="inline-flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 mb-3">
+          <div className="inline-flex items-center justify-center w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 mb-3" aria-hidden="true">
             <LogIn size={20} />
           </div>
-          <h2 className="text-xl sm:text-2xl font-serif text-text-main">
+          <h2 id="auth-modal-title" className="text-xl sm:text-2xl font-serif text-text-main">
             {isSignUp ? 'Create an Account' : 'Welcome to Daily Tracker'}
           </h2>
           <p className="text-xs text-text-muted mt-1">
-            Sign in to access your habits, streaks, and logs on any device.
+            Sync habits, streaks, and logs across devices.
           </p>
         </div>
 
         {syncStatus && (
-          <div className="mb-4 p-2.5 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs flex items-center justify-center gap-2 animate-pulse min-h-[40px]">
-            <Loader2 size={16} className="animate-spin" />
+          <div className="mb-4 p-2.5 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-accent-blue text-xs flex items-center justify-center gap-2 animate-pulse min-h-[40px]" role="status" aria-live="polite">
+            <Loader2 size={16} className="animate-spin" aria-hidden="true" />
             <span>{syncStatus}</span>
           </div>
         )}
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-2.5">
-            <AlertCircle size={16} className="shrink-0" />
+          <div className="mb-4 p-3 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-2.5" role="alert">
+            <AlertCircle size={16} className="shrink-0" aria-hidden="true" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Sign In vs Sign Up Tabs */}
-        <div className="flex bg-bg-base p-1.5 rounded-xl mb-4 border border-border-subtle">
+        <div className="flex bg-bg-base p-1.5 rounded-xl mb-4 border border-border-subtle" role="tablist" aria-label="Authentication mode">
           <button
             type="button"
+            role="tab"
+            aria-selected={!isSignUp}
             onClick={() => { setIsSignUp(false); setError(null); }}
             className={`flex-1 min-h-[40px] py-2 text-xs font-semibold rounded-lg transition-all tap-press ${
               !isSignUp ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
@@ -143,6 +141,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={isSignUp}
             onClick={() => { setIsSignUp(true); setError(null); }}
             className={`flex-1 min-h-[40px] py-2 text-xs font-semibold rounded-lg transition-all tap-press ${
               isSignUp ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
@@ -158,8 +158,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           onClick={handleGoogleSignIn}
           disabled={isSubmitting}
           className="w-full min-h-[44px] flex items-center justify-center gap-3 py-2.5 px-4 bg-bg-base hover:bg-bg-base/80 border border-border-strong hover:border-text-muted rounded-xl text-sm font-medium text-text-main transition-all mb-4 disabled:opacity-50 cursor-pointer tap-press"
+          aria-label="Continue with Google sign in"
         >
-          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -188,12 +189,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         {/* Email & Password Form */}
         <form onSubmit={handleEmailAuth} className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5">
+            <label htmlFor="auth-email-input" className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5">
               Email
             </label>
             <div className="relative">
-              <Mail size={16} className="absolute left-3.5 top-3.5 text-text-muted" />
+              <Mail size={16} className="absolute left-3.5 top-3.5 text-text-muted" aria-hidden="true" />
               <input
+                id="auth-email-input"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -205,12 +207,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5">
+            <label htmlFor="auth-password-input" className="block text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5">
               Password
             </label>
             <div className="relative">
-              <Lock size={16} className="absolute left-3.5 top-3.5 text-text-muted" />
+              <Lock size={16} className="absolute left-3.5 top-3.5 text-text-muted" aria-hidden="true" />
               <input
+                id="auth-password-input"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
