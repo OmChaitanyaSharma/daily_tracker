@@ -98,6 +98,8 @@ export function ActivityHeatmap() {
               return (
                 <div 
                   key={day.dateStr}
+                  role="gridcell"
+                  aria-label={`${format(day.date, 'MMM d, yyyy')}: Habits: ${day.hCount}, Reps: ${day.eCount}`}
                   title={`${format(day.date, 'MMM d, yyyy')}: Habits: ${day.hCount}, Reps: ${day.eCount}`}
                   className={clsx(
                     "w-3 h-3 rounded-sm transition-colors",

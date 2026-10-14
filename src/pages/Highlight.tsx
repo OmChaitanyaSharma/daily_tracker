@@ -114,6 +114,17 @@ export function Highlight() {
     setEntry(prev => ({ ...prev, date: originalDate }));
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showConflictModal) cancelConflict();
+        if (showSuccessModal) setShowSuccessModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showConflictModal, showSuccessModal, originalDate]);
+
   if (isLoading) return null;
 
   return (

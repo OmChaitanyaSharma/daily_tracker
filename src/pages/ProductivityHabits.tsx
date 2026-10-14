@@ -626,11 +626,22 @@ setEditingHabit(habit);
 if (isEligible && habit.frequencyType === 'specific_days' && habit.specificDays) { isEligible = habit.specificDays.includes(date.getDay()); }
 const isSunday = date.getDay() === 0;
                   
+                  const statusLabel = !isEligible 
+                    ? 'Not scheduled' 
+                    : currentStatus === 'completed' 
+                      ? 'Completed' 
+                      : currentStatus === 'partial' 
+                        ? 'Partially completed' 
+                        : 'Incomplete';
+                  const dateLabel = format(date, 'EEEE, MMM d, yyyy');
+                  
                   return (
                     <button
                       key={dateStr}
                       disabled={!isEligible}
                       onClick={() => toggleHabit(habit.id, dateStr, log?.status, log?.id)}
+                      aria-label={`${habit.name}, ${dateLabel}: ${statusLabel}`}
+                      title={`${habit.name} (${format(date, 'MMM d')}): ${statusLabel}`}
                       className={clsx(
                         "w-full h-10 flex items-center justify-center transition-all group",
                         !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
@@ -638,10 +649,13 @@ const isSunday = date.getDay() === 0;
                         isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
                       )}
                     >
-                      <span className={clsx(
-                        "text-xl transition-transform duration-300 group-active:scale-75",
-                        isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
-                      )}>
+                      <span 
+                        aria-hidden="true"
+                        className={clsx(
+                          "text-xl transition-transform duration-300 group-active:scale-75",
+                          isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
+                        )}
+                      >
                         {isEligible ? (currentStatus === 'completed' ? '●' : currentStatus === 'partial' ? '◐' : '○') : '-'}
                       </span>
                     </button>
