@@ -382,26 +382,26 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
 
       {showStreakModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowStreakModal(false)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowStreakModal(false)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[88vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowStreakModal(false)} className="absolute top-5 right-5 text-text-muted hover:text-text-main p-1 cursor-pointer">
               <X size={20} />
             </button>
             
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center bg-accent-yellow-bg text-accent-yellow">
+            <div className="flex items-center gap-4 mb-5 shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center bg-accent-yellow-bg text-accent-yellow shrink-0">
                 <Flame size={24} />
               </div>
               <div>
-                <h2 className="text-2xl font-serif text-text-main">
+                <h2 className="text-xl sm:text-2xl font-serif text-text-main">
                   Daily Requirements
                 </h2>
-                <p className="text-text-muted text-sm">
+                <p className="text-text-muted text-xs sm:text-sm">
                   What you need to do today
                 </p>
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-5 overflow-y-auto pr-1">
               <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
                 <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted mb-4">Productivity</h3>
                 <div className="flex items-center gap-3">
@@ -437,8 +437,15 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
               </div>
 
               <div className="bg-bg-base border border-border-subtle rounded-xl p-4">
-                <div className="flex justify-between items-end mb-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Fitness Tasks</h3>
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">Fitness Tasks</h3>
+                    {activeExercises.length > 0 && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-bg-surface border border-border-subtle text-text-muted">
+                        {activeExercises.length - pendingExercises.length}/{activeExercises.length}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10px] uppercase font-bold text-accent-green">
                     {settings.streakFitnessRequirementType === 'count' 
                       ? `Target: ${settings.streakFitnessRequirementValue} Exs` 
@@ -452,19 +459,19 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                 {activeExercises.length === 0 ? (
                   <p className="text-sm text-text-muted italic">No active exercises to track.</p>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="max-h-48 overflow-y-auto pr-2 space-y-2.5">
                     {activeExercises.map(ex => {
                       const isPending = pendingExercises.some(p => p.id === ex.id);
                       return (
-                        <div key={ex.id} className="flex items-center gap-3">
+                        <div key={ex.id} className="flex items-center gap-2.5 py-0.5">
                           {!isPending ? (
-                            <div className="w-6 h-6 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center shrink-0">
-                              <Check size={14} strokeWidth={3} />
+                            <div className="w-5 h-5 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center shrink-0">
+                              <Check size={12} strokeWidth={3} />
                             </div>
                           ) : (
-                            <div className="w-6 h-6 rounded-full border-2 border-border-strong shrink-0"></div>
+                            <div className="w-5 h-5 rounded-full border-2 border-border-strong shrink-0"></div>
                           )}
-                          <span className={clsx("text-sm", !isPending ? "text-text-muted line-through" : "text-text-main font-medium")}>
+                          <span className={clsx("text-xs sm:text-sm truncate", !isPending ? "text-text-muted line-through" : "text-text-main font-medium")}>
                             {ex.name}
                           </span>
                         </div>

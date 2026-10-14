@@ -16,6 +16,7 @@ describe('calculateStreak', () => {
       streakFitnessRequirementType: 'all',
       streakFitnessRequirementValue: 0
     }));
+    localStorage.setItem('exercise_rest_days', JSON.stringify({ default: [], weeks: {} }));
   });
 
   it('should return 0 when there are no logs', () => {
