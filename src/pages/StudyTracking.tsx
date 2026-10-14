@@ -245,6 +245,17 @@ export function StudyTracking() {
     return hourCategories.filter(c => !c.archived);
   }, [hourCategories]);
 
+  // Only render lines for categories that have tracked hours this month (or active categories if month is fresh)
+  const chartCategories = useMemo(() => {
+    const categoriesWithHours = hourCategories.filter(cat =>
+      hourLogs.some(log => log.activity === cat.name && log.hours > 0)
+    );
+    if (categoriesWithHours.length > 0) {
+      return categoriesWithHours;
+    }
+    return hourCategories.filter(cat => !cat.archived);
+  }, [hourCategories, hourLogs]);
+
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in relative space-y-8">
       {/* Header */}
@@ -495,7 +506,7 @@ export function StudyTracking() {
                 />
                 <Legend verticalAlign="top" height={44} wrapperStyle={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: 500 }} />
                 
-                {hourCategories.map(cat => (
+                {chartCategories.map(cat => (
                   <Line 
                     key={cat.id}
                     type="linear" 

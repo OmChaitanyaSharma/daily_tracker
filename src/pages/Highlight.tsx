@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
 import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain } from 'lucide-react';
@@ -108,11 +108,11 @@ export function Highlight() {
     }, 2000);
   };
 
-  const cancelConflict = () => {
+  const cancelConflict = useCallback(() => {
     setShowConflictModal(false);
     // revert date change
     setEntry(prev => ({ ...prev, date: originalDate }));
-  };
+  }, [originalDate]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -123,7 +123,7 @@ export function Highlight() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showConflictModal, showSuccessModal, originalDate]);
+  }, [showConflictModal, showSuccessModal, cancelConflict]);
 
   if (isLoading) return null;
 

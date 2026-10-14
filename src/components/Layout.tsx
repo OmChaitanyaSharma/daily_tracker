@@ -477,7 +477,7 @@ export function Layout() {
         )}
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-32 pb-20 w-full animate-fade-in flex-1">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-32 pb-20 w-full animate-fade-in flex-1 relative z-10">
         <Outlet />
       </main>
 
