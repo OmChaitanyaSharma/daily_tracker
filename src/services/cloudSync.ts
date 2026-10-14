@@ -84,7 +84,7 @@ export async function uploadLocalToCloud(userId: string): Promise<void> {
 /**
  * Downloads all data from the user's Firestore cloud storage into local Dexie.
  */
-export async function downloadCloudToLocal(userId: string): Promise<boolean> {
+export async function downloadCloudToLocal(userId: string, strategy: 'merge' | 'overwrite' = 'merge'): Promise<boolean> {
   if (!auth.currentUser || auth.currentUser.uid !== userId) {
     throw new Error('Unauthorized: Active authenticated session does not match the target user ID.');
   }
@@ -120,14 +120,21 @@ export async function downloadCloudToLocal(userId: string): Promise<boolean> {
     const colRef = collection(userRef, colName);
     const snapshot = await getDocs(colRef);
 
-    const items: any[] = [];
+    const cloudItems: any[] = [];
     snapshot.forEach(docSnap => {
-      items.push(docSnap.data());
+      cloudItems.push(docSnap.data());
     });
 
-    await table.clear();
-    if (items.length > 0) {
-      await table.bulkAdd(items);
+    if (strategy === 'overwrite') {
+      await table.clear();
+      if (cloudItems.length > 0) {
+        await table.bulkAdd(cloudItems);
+      }
+    } else {
+      // Non-destructive merge: preserve local records while integrating cloud history
+      for (const item of cloudItems) {
+        await table.put(item);
+      }
     }
   }
 
@@ -136,10 +143,10 @@ export async function downloadCloudToLocal(userId: string): Promise<boolean> {
 
 /**
  * Initializes synchronization when a user logs in.
- * If this is the user's first time logging in and cloud is empty, it backs up local data to cloud.
- * If cloud already has data, it pulls cloud data down to local.
+ * If cloud is empty, it backs up local data to cloud.
+ * If cloud has data, it merges cloud data with local records non-destructively and backs up the combined set.
  */
-export async function handleUserLoginSync(userId: string): Promise<'uploaded_local' | 'pulled_cloud'> {
+export async function handleUserLoginSync(userId: string): Promise<'uploaded_local' | 'merged_cloud'> {
   const userRef = doc(firestore, 'users', userId);
   const metaSnap = await getDoc(doc(userRef, 'meta', 'sync'));
 
@@ -148,9 +155,10 @@ export async function handleUserLoginSync(userId: string): Promise<'uploaded_loc
     await uploadLocalToCloud(userId);
     return 'uploaded_local';
   } else {
-    // Cloud has data: pull down to local
-    await downloadCloudToLocal(userId);
-    return 'pulled_cloud';
+    // Cloud has data: merge non-destructively and update cloud with unified dataset
+    await downloadCloudToLocal(userId, 'merge');
+    await uploadLocalToCloud(userId);
+    return 'merged_cloud';
   }
 }
 

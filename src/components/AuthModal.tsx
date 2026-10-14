@@ -8,7 +8,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, continueAsGuest } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -257,7 +257,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <div className="mt-4 pt-3 border-t border-border-subtle text-center">
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              continueAsGuest();
+              onClose();
+            }}
             className="text-xs text-text-muted hover:text-text-main transition-colors cursor-pointer"
           >
             Continue as Guest (Use offline without account)

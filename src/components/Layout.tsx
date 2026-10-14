@@ -20,7 +20,7 @@ export function Layout() {
   
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, isGuest, exitGuestMode, logout } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -339,6 +339,55 @@ export function Layout() {
                     >
                       <LogOut size={14} />
                       <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : isGuest ? (
+              <div className="relative shrink-0" ref={menuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-yellow/15 border border-accent-yellow/30 text-xs font-medium text-accent-yellow transition-colors cursor-pointer shrink-0 hover:bg-accent-yellow/25"
+                  title="Guest Mode Active (Offline)"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-yellow animate-pulse"></span>
+                  <span className="hidden sm:inline">Guest (Offline)</span>
+                  <span className="sm:hidden font-mono text-[11px] font-bold">Guest</span>
+                  <ChevronDown size={13} className="text-accent-yellow/80" />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-60 bg-bg-surface border border-border-strong rounded-2xl p-2.5 shadow-2xl z-50 animate-fade-in text-xs">
+                    <div className="px-3 py-2 border-b border-border-subtle mb-1.5">
+                      <div className="flex items-center gap-1.5 font-semibold text-text-main">
+                        <span className="w-2 h-2 rounded-full bg-accent-yellow"></span>
+                        Guest Mode (Offline)
+                      </div>
+                      <p className="text-[11px] text-text-muted mt-1 leading-relaxed">
+                        Your habits and logs are being saved directly in this browser's local database.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        setIsAuthModalOpen(true);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-text-main text-bg-base font-semibold hover:opacity-90 transition-opacity text-left cursor-pointer mb-1"
+                    >
+                      <UserIcon size={14} />
+                      <span>Connect Cloud Account</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        exitGuestMode();
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left cursor-pointer"
+                    >
+                      <LogOut size={14} />
+                      <span>Switch to Sign In</span>
                     </button>
                   </div>
                 )}
