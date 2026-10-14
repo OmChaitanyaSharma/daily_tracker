@@ -54,7 +54,7 @@ export function GoalRow({
   return (
     <div 
       className={clsx(
-        "bg-bg-surface border border-border-subtle rounded-3xl p-6 md:p-8 hover-lift transition-all flex flex-col group",
+        "bg-bg-surface border border-border-subtle rounded-3xl p-5 sm:p-6 md:p-8 hover-lift transition-all flex flex-col group",
         draggable && "cursor-grab active:cursor-grabbing"
       )}
       draggable={draggable}
@@ -62,30 +62,34 @@ export function GoalRow({
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between w-full">
-        <div className="flex-1 flex items-center gap-4 w-full">
-          <button onClick={onClick} className="flex-1 text-left">
-            <h3 className="text-xl font-serif text-text-main mb-2 hover:text-accent-blue transition-colors break-words line-clamp-2" title={goal.title}>{goal.title}</h3>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-text-muted">
+      <div className="flex flex-col md:flex-row gap-5 md:gap-6 items-start md:items-center justify-between w-full">
+        <div className="flex-1 flex items-center gap-3 sm:gap-4 w-full">
+          <button onClick={onClick} className="flex-1 text-left tap-press">
+            <h3 className="text-lg sm:text-xl font-serif text-text-main mb-1.5 sm:mb-2 hover:text-accent-blue transition-colors break-words line-clamp-2" title={goal.title}>{goal.title}</h3>
+            <div className="flex flex-wrap gap-x-6 gap-y-1.5 text-xs sm:text-sm text-text-muted">
               <span>Target: <span className="font-medium text-text-main">{renderValue(goal.targetValue) || 'Qualitative'}</span></span>
             </div>
           </button>
-          <button onClick={onEdit} className="p-2.5 text-text-muted hover:text-text-main bg-bg-base border border-border-strong rounded-full transition-colors opacity-0 group-hover:opacity-100 hover:scale-110 shrink-0">
-            <Settings size={16} />
+          <button
+            onClick={onEdit}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main bg-bg-base border border-border-strong rounded-xl transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105 shrink-0 tap-press"
+            aria-label="Edit goal settings"
+          >
+            <Settings size={18} />
           </button>
         </div>
         
-        <div className="flex items-center gap-8 text-sm cursor-pointer w-full md:w-auto justify-between md:justify-end" onClick={onClick}>
-          <div className="flex flex-col items-end">
+        <div className="flex items-center gap-6 sm:gap-8 text-sm cursor-pointer w-full md:w-auto justify-between md:justify-end tap-press" onClick={onClick}>
+          <div className="flex flex-col items-start sm:items-end">
             <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-text-muted mb-1 opacity-70">Starting</span>
-            <span className="font-sans font-medium text-lg text-text-main">
+            <span className="font-sans font-medium text-base sm:text-lg text-text-main">
               {renderValue(startingValue)}
             </span>
           </div>
-          <ChevronRight size={16} className="text-border-strong group-hover:text-accent-blue transition-colors group-hover:translate-x-1" />
-          <div className="flex flex-col items-start">
+          <ChevronRight size={18} className="text-border-strong group-hover:text-accent-blue transition-colors group-hover:translate-x-1" />
+          <div className="flex flex-col items-end sm:items-start">
             <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-text-muted mb-1 opacity-70">Current</span>
-            <span className="font-sans font-medium text-lg text-text-main">
+            <span className="font-sans font-medium text-base sm:text-lg text-text-main">
               {renderValue(currentMeasurementValue)}
             </span>
           </div>
@@ -93,7 +97,7 @@ export function GoalRow({
       </div>
 
       {progressPercent !== null && (
-        <div className="mt-6">
+        <div className="mt-5 sm:mt-6">
           <div className="flex justify-between text-[10px] uppercase tracking-widest text-text-muted mb-2 font-medium">
             <span>Progress</span>
             <span>{Math.round(progressPercent)}%</span>
@@ -143,14 +147,18 @@ export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measure
   const [addingDate, setAddingDate] = useState<string | null>(null);
 
   return (
-    <div className="bg-bg-surface border border-border-strong rounded-[2rem] p-8 md:p-12 shadow-sm animate-scale-in">
-      <button onClick={onBack} className="text-sm font-medium text-text-muted hover:text-text-main mb-8 flex items-center gap-2">
-        <ArrowLeft size={16} /> Back to goals
+    <div className="bg-bg-surface border border-border-strong rounded-3xl p-5 sm:p-8 md:p-12 shadow-sm animate-scale-in">
+      <button
+        onClick={onBack}
+        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-subtle transition-all tap-press mb-6"
+        aria-label="Back to goals"
+      >
+        <ArrowLeft size={20} />
       </button>
       
-      <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="mb-8 sm:mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-serif italic text-text-main mb-4">{goal.title}</h2>
+          <h2 className="text-2xl sm:text-3xl font-serif italic text-text-main mb-4">{goal.title}</h2>
           
           {progressStats && (
             <div className="mb-6 max-w-sm">
@@ -167,27 +175,30 @@ export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measure
             </div>
           )}
 
-          <div className="flex gap-8 text-sm pb-6">
+          <div className="flex gap-6 sm:gap-8 text-sm pb-4 sm:pb-6">
             <div>
               <span className="block text-xs uppercase tracking-widest text-text-muted mb-1">Target</span>
-              <span className="font-medium text-text-main text-lg">
+              <span className="font-medium text-text-main text-base sm:text-lg">
                 {goal.targetValue ? `${goal.targetValue}${goal.unit ? ` ${goal.unit}` : ''}` : 'Qualitative'}
               </span>
             </div>
             <div>
               <span className="block text-xs uppercase tracking-widest text-text-muted mb-1">Type</span>
-              <span className="font-medium text-text-main text-lg capitalize">{goal.type}</span>
+              <span className="font-medium text-text-main text-base sm:text-lg capitalize">{goal.type}</span>
             </div>
           </div>
         </div>
         
-        <button onClick={() => setAddingDate(todayStr)} className="flex items-center gap-2 px-4 py-2 bg-text-main text-bg-base rounded-lg text-sm font-medium hover:opacity-90 whitespace-nowrap self-start md:self-center">
-          <Plus size={16} /> Add Entry
+        <button
+          onClick={() => setAddingDate(todayStr)}
+          className="flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-text-main text-bg-base rounded-xl text-sm font-medium hover:opacity-90 whitespace-nowrap self-stretch sm:self-center tap-press"
+        >
+          <Plus size={18} /> Add Entry
         </button>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold tracking-widest uppercase text-text-muted mb-6 border-b border-border-subtle pb-4">Measurement History</h3>
+        <h3 className="text-sm font-semibold tracking-widest uppercase text-text-muted mb-4 sm:mb-6 border-b border-border-subtle pb-4">Measurement History</h3>
         
         {addingDate && (
           <MeasurementRow 
@@ -288,20 +299,20 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
 
   return (
     <div className={clsx(
-      "flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-colors",
+      "flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-colors gap-3 sm:gap-4",
       editDate === getTodayStr() ? "bg-accent-red-bg/20 border-accent-red/30" : "bg-bg-base border-border-subtle",
       isFuture && !hasValue && "opacity-50"
     )}>
-      <div className="flex items-center gap-4 mb-3 sm:mb-0 w-full sm:w-auto">
+      <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
         {isEditing && !isScheduled ? (
           <input 
             type="date"
             value={editDate}
             onChange={e => setEditDate(e.target.value)}
-            className="w-32 bg-bg-surface border border-border-strong rounded px-2 py-1 text-sm outline-none"
+            className="w-36 min-h-[44px] bg-bg-surface border border-border-strong rounded-xl px-3 py-2 text-base sm:text-sm outline-none"
           />
         ) : (
-          <div className="w-24 shrink-0 text-sm font-medium text-text-main">
+          <div className="w-28 shrink-0 text-sm font-medium text-text-main">
             {format(new Date(date), 'MMM d, yyyy')}
           </div>
         )}
@@ -310,18 +321,18 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
         </div>
       </div>
 
-      <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+      <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
         {isFuture && !hasValue ? (
           <span className="text-sm text-text-muted italic">Upcoming</span>
         ) : isEditing ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <input 
               type={goal.type === 'qualitative' ? 'text' : 'number'}
               step="any"
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               placeholder="Value"
-              className="bg-bg-surface border border-border-strong rounded-lg px-3 py-1.5 text-sm text-text-main focus:outline-none w-24 sm:w-32"
+              className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none w-28 sm:w-32 flex-1 sm:flex-initial"
               autoFocus
             />
             <input 
@@ -329,50 +340,52 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
               value={inputUnit}
               onChange={e => setInputUnit(e.target.value)}
               placeholder="Unit"
-              className="bg-bg-surface border border-border-strong rounded-lg px-2 py-1.5 text-sm text-text-main focus:outline-none w-16"
+              className="bg-bg-surface border border-border-strong rounded-xl px-2.5 py-2 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none w-20"
             />
             <button 
               onClick={saveMeasurement}
-              className="p-1.5 bg-text-main text-bg-base rounded-md hover:opacity-90"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-text-main text-bg-base rounded-xl hover:opacity-90 tap-press"
+              aria-label="Save measurement"
             >
-              <Check size={16} />
+              <Check size={18} />
             </button>
             <button 
               onClick={() => {
                 if (onCancel) onCancel();
                 setIsEditing(false);
               }}
-              className="p-1.5 bg-bg-surface border border-border-strong rounded-md hover:bg-bg-surface-hover"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center bg-bg-surface border border-border-strong rounded-xl hover:bg-bg-surface-hover tap-press"
+              aria-label="Cancel editing"
             >
-              <X size={16} />
+              <X size={18} />
             </button>
           </div>
         ) : hasValue ? (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <span className="font-serif text-lg text-text-main font-medium">
               {existingMeasurement.value} {existingMeasurement.unit}
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <button 
                 onClick={() => setIsEditing(true)}
-                className="text-xs font-medium text-text-muted hover:text-text-main underline underline-offset-2"
+                className="min-h-[44px] px-3 flex items-center text-xs font-medium text-text-muted hover:text-text-main underline underline-offset-2 tap-press"
               >
                 Edit
               </button>
               <button 
                 onClick={deleteMeasurement}
-                className="text-xs font-medium text-accent-red hover:opacity-80 underline underline-offset-2"
+                className="min-h-[44px] px-3 flex items-center text-xs font-medium text-accent-red hover:opacity-80 underline underline-offset-2 tap-press"
               >
                 Delete
               </button>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <span className="text-sm text-border-strong italic">Not recorded</span>
             <button 
               onClick={() => setIsEditing(true)}
-              className="text-xs font-medium text-text-muted hover:text-text-main underline underline-offset-2"
+              className="min-h-[44px] px-3 flex items-center text-xs font-medium text-text-muted hover:text-text-main underline underline-offset-2 tap-press"
             >
               Log entry
             </button>

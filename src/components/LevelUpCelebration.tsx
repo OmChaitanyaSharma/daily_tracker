@@ -98,7 +98,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
         
         <button 
           onClick={onClose}
-          className="group flex items-center gap-2 px-8 py-3 rounded-full bg-text-main text-bg-base font-semibold tracking-wide hover:opacity-90 transition-opacity"
+          className="group min-h-[48px] flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-text-main text-bg-base font-semibold tracking-wide hover:opacity-90 transition-opacity tap-press"
         >
           Continue
           <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />

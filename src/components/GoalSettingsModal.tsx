@@ -66,9 +66,14 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in px-4 py-8 overflow-y-auto">
-      <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-md w-full relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-text-muted hover:text-text-main">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in px-4 py-6 overflow-y-auto">
+      <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-md w-full relative my-auto">
+        <button
+          type="button"
+          onClick={onClose}
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface-hover transition-colors absolute top-3 right-3 tap-press"
+          aria-label="Close modal"
+        >
           <X size={20} />
         </button>
         <div className="flex items-center justify-between mb-6">
@@ -76,30 +81,30 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Title</label>
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Title</label>
             <input 
               type="text" 
               value={formData.title}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
-              className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
+              className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
               required
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Category</label>
-            <div className="grid grid-cols-2 gap-2 bg-bg-base p-1 rounded-lg border border-border-strong">
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Category</label>
+            <div className="grid grid-cols-2 gap-2 bg-bg-base p-1.5 rounded-xl border border-border-strong">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, category: 'end-of-year' })}
-                className={`py-1.5 text-sm font-medium rounded-md transition-colors ${formData.category === 'end-of-year' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
+                className={`min-h-[44px] py-2 px-3 text-sm font-medium rounded-lg transition-colors tap-press ${formData.category === 'end-of-year' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               >
                 {getSettings().seasonName}
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, category: 'health' })}
-                className={`py-1.5 text-sm font-medium rounded-md transition-colors ${formData.category === 'health' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
+                className={`min-h-[44px] py-2 px-3 text-sm font-medium rounded-lg transition-colors tap-press ${formData.category === 'health' ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'}`}
               >
                 Health & Fitness
               </button>
@@ -107,23 +112,23 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
           </div>
           
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Sub-Category / Group (Optional)</label>
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Sub-Category / Group (Optional)</label>
             <input 
               type="text" 
               value={formData.subCategory || ''}
               onChange={e => setFormData({ ...formData, subCategory: e.target.value })}
               placeholder="e.g. Fitness, Mindset, Project X"
-              className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-text-main focus:border-text-muted outline-none"
+              className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm text-text-main focus:border-text-muted outline-none"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Type</label>
+              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Type</label>
               <select 
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value as any })}
-                className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
+                className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
               >
                 <option value="numeric">Numeric</option>
                 <option value="count">Count</option>
@@ -134,73 +139,65 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Unit</label>
+              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Unit</label>
               <input 
                 type="text" 
                 value={formData.unit}
                 onChange={e => setFormData({ ...formData, unit: e.target.value })}
                 placeholder="e.g. kg, mins"
-                className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
+                className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
               />
             </div>
           </div>
-          
-          <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Sub-Category / Group (Optional)</label>
-            <input 
-              type="text" 
-              value={formData.subCategory || ''}
-              onChange={e => setFormData({ ...formData, subCategory: e.target.value })}
-              placeholder="e.g. Fitness, Mindset, Project X"
-              className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-text-main focus:border-text-muted outline-none"
-            />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Starting Date</label>
+              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Starting Date</label>
               <input 
                 type="date" 
                 value={formData.startDate}
                 onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
+                className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
                 required
               />
             </div>
             <div>
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Target Value</label>
+              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Target Value</label>
               <input 
                 type="text" 
                 value={formData.targetValue}
                 onChange={e => setFormData({ ...formData, targetValue: e.target.value })}
-                className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
+                className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
               />
             </div>
           </div>
           
           <div>
-            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1">Starting Baseline Value</label>
+            <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-1.5">Starting Baseline Value</label>
             <input 
               type="text" 
               value={formData.startingValue}
               onChange={e => setFormData({ ...formData, startingValue: e.target.value })}
               placeholder="e.g. 68"
-              className="w-full bg-bg-base border border-border-strong rounded-lg px-3 py-2 focus:border-text-muted outline-none"
+              className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 text-base sm:text-sm focus:border-text-muted outline-none"
             />
-            <p className="text-xs text-text-muted mt-1">Fallback baseline if no actual measurement is recorded on the starting date.</p>
+            <p className="text-xs text-text-muted mt-1.5">Fallback baseline if no actual measurement is recorded on the starting date.</p>
           </div>
 
-          <div className="flex justify-between items-center pt-6 border-t border-border-strong mt-6">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-6 border-t border-border-strong mt-6">
             <button 
               type="button" 
               onClick={handleDelete}
-              className="flex items-center gap-2 text-accent-red hover:bg-accent-red-bg px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+              className="min-h-[44px] flex items-center justify-center gap-2 text-accent-red hover:bg-accent-red-bg px-4 py-2.5 rounded-xl transition-colors text-sm font-medium tap-press"
             >
               <Trash2 size={16} />
               Delete Goal
             </button>
             
-            <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90 transition-opacity">
+            <button
+              type="submit"
+              className="min-h-[44px] bg-text-main text-bg-base px-6 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity tap-press flex items-center justify-center"
+            >
               Save Changes
             </button>
           </div>

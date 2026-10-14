@@ -192,21 +192,21 @@ export function Logs() {
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in">
       
-      <header className="flex items-center justify-between border-b border-border-subtle pb-6 mb-12">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-text-muted hover:text-text-main transition-colors">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-6 mb-8 sm:mb-12 gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link to="/" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer" aria-label="Go back to home">
             <ArrowLeft size={24} />
           </Link>
           <div>
-            <h1 className="text-4xl font-serif italic text-text-main">Logs</h1>
-            <p className="text-text-muted uppercase tracking-widest text-sm font-medium mt-1">
+            <h1 className="text-3xl sm:text-4xl font-serif italic text-text-main font-semibold">Logs</h1>
+            <p className="text-text-muted uppercase tracking-widest text-xs sm:text-sm font-medium mt-0.5">
               History & Progress
             </p>
           </div>
         </div>
         <button 
           onClick={exportData} 
-          className="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-main transition-colors bg-bg-surface hover:bg-bg-surface-hover border border-border-strong px-4 py-2 rounded-xl"
+          className="flex items-center gap-2 text-sm font-medium text-text-muted hover:text-text-main transition-colors bg-bg-surface hover:bg-bg-surface-hover border border-border-strong px-4 py-2 min-h-[44px] rounded-xl tap-press cursor-pointer self-start sm:self-auto"
         >
           <Download size={16} /> Export JSON
         </button>
@@ -219,8 +219,8 @@ export function Logs() {
           <button
             onClick={() => setViewMode('calendar')}
             className={clsx(
-              "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300",
-              viewMode === 'calendar' ? "bg-accent-blue-bg text-accent-blue shadow-sm" : "text-text-muted hover:text-text-main"
+              "min-h-[44px] px-4 sm:px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 tap-press cursor-pointer",
+              viewMode === 'calendar' ? "bg-accent-blue-bg text-accent-blue shadow-sm font-semibold" : "text-text-muted hover:text-text-main"
             )}
           >
             Calendar & Stats
@@ -228,8 +228,8 @@ export function Logs() {
           <button
             onClick={() => setViewMode('digest')}
             className={clsx(
-              "px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300",
-              viewMode === 'digest' ? "bg-accent-purple-bg text-accent-purple shadow-sm" : "text-text-muted hover:text-text-main"
+              "min-h-[44px] px-4 sm:px-6 py-2 rounded-lg text-sm font-medium transition-all duration-300 tap-press cursor-pointer",
+              viewMode === 'digest' ? "bg-accent-purple-bg text-accent-purple shadow-sm font-semibold" : "text-text-muted hover:text-text-main"
             )}
           >
             Weekly Digest
@@ -237,36 +237,36 @@ export function Logs() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-12">
         
         {/* Left Side: Calendar & Stats (or Digest) */}
-        <div className="lg:col-span-7 space-y-12">
+        <div className="lg:col-span-7 space-y-8 sm:space-y-12">
           {viewMode === 'calendar' ? (
             <>
           
           {/* Monthly Calendar */}
-          <section className="bg-bg-surface border border-border-strong rounded-2xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-serif italic text-text-main">
+          <section className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-serif italic text-text-main font-medium">
                 {format(currentDate, 'MMMM yyyy')}
               </h2>
-              <div className="flex gap-2">
-                <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="p-2 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-muted disabled:cursor-not-allowed">
+              <div className="flex gap-1 sm:gap-2">
+                <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-muted disabled:cursor-not-allowed tap-press cursor-pointer" aria-label="Previous month">
                   <ChevronLeft size={20} />
                 </button>
-                <button onClick={nextMonth} className="p-2 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors">
+                <button onClick={nextMonth} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors tap-press cursor-pointer" aria-label="Next month">
                   <ChevronRight size={20} />
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-semibold tracking-widest uppercase text-text-muted">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-text-muted">
               {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(d => (
                 <div key={d}>{d}</div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {Array.from({ length: paddingDays }).map((_, i) => (
                 <div key={`pad-${i}`} className="aspect-square" />
               ))}
@@ -281,7 +281,7 @@ export function Logs() {
                     key={dateStr}
                     onClick={() => setSelectedDate(dateStr)}
                     className={clsx(
-                      "aspect-square rounded-xl flex items-center justify-center text-sm font-medium transition-all duration-200 border",
+                      "aspect-square rounded-xl flex items-center justify-center text-xs sm:text-sm font-medium transition-all duration-200 border tap-press cursor-pointer min-h-[38px] sm:min-h-[44px]",
                       isSelected 
                         ? "bg-text-main text-bg-base border-text-main shadow-md scale-105" 
                         : hasEntry
@@ -292,7 +292,7 @@ export function Logs() {
                     <div className="relative">
                       {format(date, 'd')}
                       {isTodayDate && !isSelected && (
-                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 bg-accent-red rounded-full" />
+                        <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 w-1 h-1 bg-accent-red rounded-full" />
                       )}
                     </div>
                   </button>
@@ -309,9 +309,9 @@ export function Logs() {
                   key={p}
                   onClick={() => setPeriod(p)}
                   className={clsx(
-                    "px-4 py-2 rounded-full text-sm font-medium transition-colors",
+                    "min-h-[44px] px-4 py-2.5 rounded-full text-sm font-medium transition-colors tap-press cursor-pointer",
                     period === p
-                      ? "bg-text-main text-bg-base"
+                      ? "bg-text-main text-bg-base font-semibold"
                       : "text-text-muted hover:bg-bg-surface hover:text-text-main"
                   )}
                 >

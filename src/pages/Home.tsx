@@ -207,11 +207,11 @@ export function Home() {
           Welcome to your daily journal
         </p>
         
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8 animate-slide-up">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-3 sm:gap-4 mt-8 animate-slide-up">
           <button 
             onClick={() => setShowStreakModal(true)}
             className={clsx(
-              "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-300 cursor-pointer hover:border-accent-yellow relative tap-press",
+              "flex items-center gap-2 px-4 sm:px-5 py-2.5 min-h-[44px] rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-300 cursor-pointer hover:border-accent-yellow relative tap-press",
               streak > 0 && "animate-streak-pulse",
               freezeUsedToday 
                 ? "border-accent-blue bg-accent-blue/10 text-accent-blue"
@@ -243,22 +243,22 @@ export function Home() {
             )}
           </button>
 
-          <div className="flex gap-4">
-            <button onClick={() => setLevelModal('dev')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-blue transition-colors cursor-pointer text-left tap-press">
-              <Code size={18} className="text-accent-blue" />
+          <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-4 w-full sm:w-auto">
+            <button onClick={() => setLevelModal('dev')} className="flex-1 sm:flex-none min-h-[44px] flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-blue transition-colors cursor-pointer text-left tap-press">
+              <Code size={18} className="text-accent-blue shrink-0" />
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-text-muted leading-none">Dev Lvl {dev.level}</span>
-                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden shimmer-sweep">
+                <div className="w-16 sm:w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden shimmer-sweep">
                   <div className="h-full bg-accent-blue transition-all duration-1000" style={{ width: `${dev.progress}%` }} />
                 </div>
               </div>
             </button>
 
-            <button onClick={() => setLevelModal('fit')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-green transition-colors cursor-pointer text-left tap-press">
-              <Dumbbell size={18} className="text-accent-green" />
+            <button onClick={() => setLevelModal('fit')} className="flex-1 sm:flex-none min-h-[44px] flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-green transition-colors cursor-pointer text-left tap-press">
+              <Dumbbell size={18} className="text-accent-green shrink-0" />
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-text-muted leading-none">Fit Lvl {fitness.level}</span>
-                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden shimmer-sweep">
+                <div className="w-16 sm:w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden shimmer-sweep">
                   <div className="h-full bg-accent-green transition-all duration-1000" style={{ width: `${fitness.progress}%` }} />
                 </div>
               </div>
@@ -282,14 +282,14 @@ export function Home() {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={handleSeedStarterHabits}
-              className="px-4 py-2 bg-text-main text-bg-base font-semibold text-xs rounded-xl hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2"
+              className="min-h-[44px] px-4 py-2 bg-text-main text-bg-base font-semibold text-xs rounded-xl hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2 tap-press"
             >
               <Plus size={14} />
               <span>Load Starter Habits</span>
             </button>
             <Link
               to="/habits/productivity"
-              className="px-4 py-2 bg-bg-surface border border-border-strong text-text-main font-semibold text-xs rounded-xl hover:bg-bg-surface/80 transition-colors"
+              className="min-h-[44px] px-4 py-2 bg-bg-surface border border-border-strong text-text-main font-semibold text-xs rounded-xl hover:bg-bg-surface/80 transition-colors inline-flex items-center tap-press"
             >
               Custom
             </Link>
@@ -324,7 +324,7 @@ export function Home() {
             <select
               value={quickCat}
               onChange={e => setQuickCat(e.target.value)}
-              className="bg-bg-base border border-border-strong rounded-xl px-3 py-1.5 text-xs text-text-main outline-none focus:border-text-muted cursor-pointer"
+              className="bg-bg-base border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-xs text-text-main outline-none focus:border-text-muted cursor-pointer"
             >
               {hourCategories.filter(c => !c.archived).map(cat => (
                 <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -336,21 +336,21 @@ export function Home() {
             <button
               type="button"
               onClick={() => handleQuickLog(0.5)}
-              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
+              className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +0.5h
             </button>
             <button
               type="button"
               onClick={() => handleQuickLog(1)}
-              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
+              className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +1.0h
             </button>
             <button
               type="button"
               onClick={() => handleQuickLog(2)}
-              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
+              className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +2.0h
             </button>
@@ -365,12 +365,12 @@ export function Home() {
               value={quickHours}
               onChange={e => setQuickHours(e.target.value)}
               placeholder="Hrs"
-              className="w-14 bg-bg-base border border-border-strong rounded-xl px-2 py-1.5 text-xs text-text-main font-mono text-center outline-none focus:border-text-muted"
+              className="w-16 min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-2 py-2 text-base sm:text-xs text-text-main font-mono text-center outline-none focus:border-text-muted"
             />
             <button
               type="button"
               onClick={() => handleQuickLog()}
-              className="px-3 py-1.5 bg-text-main text-bg-base rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0 tap-press"
+              className="min-h-[44px] px-4 py-2 bg-text-main text-bg-base rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0 tap-press"
             >
               Log
             </button>
@@ -378,51 +378,55 @@ export function Home() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
         
-        <Link to="/highlight" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-red-bg text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <PenTool size={32} strokeWidth={1.5} />
+        <Link to="/highlight" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-red-bg text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+            <PenTool size={28} className="sm:hidden" strokeWidth={1.5} />
+            <PenTool size={32} className="hidden sm:block" strokeWidth={1.5} />
           </div>
           <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Highlight of the Day</h2>
-            <p className="text-text-muted text-sm leading-relaxed max-w-[250px] mx-auto">
+            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Highlight of the Day</h2>
+            <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
               Reflect on your day, capture what went well, and log your overall mood.
             </p>
           </div>
         </Link>
 
-        <Link to="/habits" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <CheckSquare size={32} strokeWidth={1.5} />
+        <Link to="/habits" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+            <CheckSquare size={28} className="sm:hidden" strokeWidth={1.5} />
+            <CheckSquare size={32} className="hidden sm:block" strokeWidth={1.5} />
           </div>
           <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Habits</h2>
-            <p className="text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
+            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Habits</h2>
+            <p className="text-xs sm:text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
               Track your daily consistency and view your monthly heatmap.
             </p>
           </div>
         </Link>
 
-        <Link to="/goals" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-yellow-bg text-accent-yellow flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <Target size={32} strokeWidth={1.5} />
+        <Link to="/goals" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-yellow-bg text-accent-yellow flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+            <Target size={28} className="sm:hidden" strokeWidth={1.5} />
+            <Target size={32} className="hidden sm:block" strokeWidth={1.5} />
           </div>
           <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Goals</h2>
-            <p className="text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
+            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Goals</h2>
+            <p className="text-xs sm:text-sm text-text-muted leading-relaxed max-w-[250px] mx-auto">
               Set long-term objectives and break them down into actionable steps.
             </p>
           </div>
         </Link>
 
-        <Link to="/logs" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
-          <div className="w-20 h-20 rounded-full bg-accent-blue-bg text-accent-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <LineChart size={32} strokeWidth={1.5} />
+        <Link to="/logs" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-blue-bg text-accent-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+            <LineChart size={28} className="sm:hidden" strokeWidth={1.5} />
+            <LineChart size={32} className="hidden sm:block" strokeWidth={1.5} />
           </div>
           <div>
-            <h2 className="text-2xl font-serif font-medium text-text-main mb-3">Logs</h2>
-            <p className="text-text-muted text-sm leading-relaxed max-w-[250px] mx-auto">
+            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Logs</h2>
+            <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
               Look back at your history, review your journal, and analyze long-term progress.
             </p>
           </div>
@@ -439,7 +443,7 @@ export function Home() {
       {levelModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setLevelModal(null)}>
           <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setLevelModal(null)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
+            <button onClick={() => setLevelModal(null)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
             
@@ -529,7 +533,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
       {showStreakModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowStreakModal(false)}>
           <div className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative max-h-[88vh] flex flex-col" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowStreakModal(false)} className="absolute top-5 right-5 text-text-muted hover:text-text-main p-1 cursor-pointer">
+            <button onClick={() => setShowStreakModal(false)} className="absolute top-4 sm:top-5 right-4 sm:right-5 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
             
@@ -676,7 +680,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
       {showWinterArcRules && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowWinterArcRules(false)}>
           <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowWinterArcRules(false)} className="absolute top-6 right-6 text-text-muted hover:text-text-main">
+            <button onClick={() => setShowWinterArcRules(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
             
@@ -708,7 +712,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
       {showTodosModal && (
         <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowTodosModal(false)}>
           <div className="bg-bg-base border border-border-strong rounded-3xl max-w-md w-full shadow-2xl relative overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-border-subtle flex justify-between items-center bg-bg-surface">
+            <div className="p-4 sm:p-6 border-b border-border-subtle flex justify-between items-center bg-bg-surface">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-accent-green/10 text-accent-green border border-accent-green/20">
                   <CheckSquare size={18} />
@@ -717,7 +721,7 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
                   Daily Objectives
                 </h2>
               </div>
-              <button onClick={() => setShowTodosModal(false)} className="text-text-muted hover:text-text-main p-2">
+              <button onClick={() => setShowTodosModal(false)} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
                 <X size={20} />
               </button>
             </div>

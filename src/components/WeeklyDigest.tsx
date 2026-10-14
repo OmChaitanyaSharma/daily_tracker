@@ -43,14 +43,14 @@ export function WeeklyDigest({ entries }: { entries: DayEntry[] }) {
   return (
     <div className="space-y-8 animate-fade-in">
       {digestData.map((week, idx) => (
-        <section key={idx} className="bg-bg-surface border border-border-strong rounded-2xl p-6 shadow-sm">
-          <header className="mb-6 border-b border-border-subtle pb-4">
-            <h3 className="text-xl font-serif text-text-main italic">
+        <section key={idx} className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 shadow-sm">
+          <header className="mb-5 sm:mb-6 border-b border-border-subtle pb-3 sm:pb-4">
+            <h3 className="text-lg sm:text-xl font-serif text-text-main italic">
               Week of {format(week.start, 'MMM do')} - {format(week.end, 'MMM do, yyyy')}
             </h3>
           </header>
           
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <div>
               <h4 className="text-xs font-semibold tracking-widest uppercase text-accent-blue mb-4">Highlights</h4>
               <ul className="space-y-3">

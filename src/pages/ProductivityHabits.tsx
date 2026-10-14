@@ -217,10 +217,11 @@ export function ProductivityHabits() {
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in relative">
       
       {/* Edit Habit Modal */}
+      {/* Edit Habit Modal */}
       {editingHabit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative">
-            <button onClick={() => setEditingHabit(null)} className="absolute top-4 right-4 text-text-muted hover:text-text-main">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4">
+          <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-sm w-full animate-scale-in relative">
+            <button onClick={() => setEditingHabit(null)} className="absolute top-4 right-4 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
             <h3 className="text-xl font-serif italic text-text-main mb-6">Edit Habit</h3>
@@ -231,7 +232,7 @@ export function ProductivityHabits() {
                   type="text" 
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
+                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                   autoFocus
                 />
               </div>
@@ -241,7 +242,7 @@ export function ProductivityHabits() {
                   type="date" 
                   value={editStartDate}
                   onChange={e => setEditStartDate(e.target.value)}
-                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-text-main focus:outline-none focus:border-text-muted"
+                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-3 text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                 />
               </div>
               
@@ -253,7 +254,7 @@ export function ProductivityHabits() {
                         key={p} 
                         type="button" 
                         onClick={() => setEditPriority(p as 1|2|3)} 
-                        className={`flex-1 py-1.5 rounded-lg border text-sm font-medium transition-all ${editPriority === p ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}
+                        className={`flex-1 min-h-[44px] py-2 rounded-lg border text-sm font-medium transition-all tap-press cursor-pointer ${editPriority === p ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}
                       >
                         {p === 1 ? '1 (High)' : p === 2 ? '2 (Mid)' : '3 (Low)'}
                       </button>
@@ -264,8 +265,8 @@ export function ProductivityHabits() {
                 <div>
                   <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Frequency</label>
                   <div className="flex gap-2 mb-3">
-                    <button type="button" onClick={() => setEditFrequencyType('daily')} className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${editFrequencyType === 'daily' ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}>Daily</button>
-                    <button type="button" onClick={() => setEditFrequencyType('specific_days')} className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-all ${editFrequencyType === 'specific_days' ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}>Specific Days</button>
+                    <button type="button" onClick={() => setEditFrequencyType('daily')} className={`flex-1 min-h-[44px] py-2 rounded-lg border text-sm font-medium transition-all tap-press cursor-pointer ${editFrequencyType === 'daily' ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}>Daily</button>
+                    <button type="button" onClick={() => setEditFrequencyType('specific_days')} className={`flex-1 min-h-[44px] py-2 rounded-lg border text-sm font-medium transition-all tap-press cursor-pointer ${editFrequencyType === 'specific_days' ? 'border-accent-blue bg-accent-blue/10 text-accent-blue' : 'border-border-strong text-text-muted hover:border-text-muted'}`}>Specific Days</button>
                   </div>
                   {editFrequencyType === 'specific_days' && (
                     <div className="flex justify-between gap-1 mt-2">
@@ -274,7 +275,7 @@ export function ProductivityHabits() {
                           key={i} 
                           type="button"
                           onClick={() => setEditSpecificDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i])}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${editSpecificDays.includes(i) ? 'bg-accent-blue text-bg-base' : 'bg-bg-base border border-border-strong text-text-muted hover:border-text-muted'}`}
+                          className={`w-9 h-9 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all tap-press cursor-pointer ${editSpecificDays.includes(i) ? 'bg-accent-blue text-bg-base' : 'bg-bg-base border border-border-strong text-text-muted hover:border-text-muted'}`}
                         >
                           {day}
                         </button>
@@ -283,7 +284,7 @@ export function ProductivityHabits() {
                   )}
                 </div>
                 <div className="flex justify-end pt-4">
-                <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-full font-medium text-sm hover:opacity-90">
+                <button type="submit" className="min-h-[44px] bg-text-main text-bg-base px-6 py-2.5 rounded-full font-medium text-sm hover:opacity-90 tap-press cursor-pointer">
                   Save Changes
                 </button>
               </div>
@@ -294,17 +295,17 @@ export function ProductivityHabits() {
 
       {/* Archive Habit Modal */}
       {archivingHabit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4">
+          <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
             <h3 className="text-xl font-semibold text-text-main mb-2">Archive {archivingHabit.name}?</h3>
             <p className="text-sm text-text-muted mb-8 leading-relaxed">
               It will no longer appear as an active habit, but your previous records will be preserved.
             </p>
             <div className="flex justify-center gap-4">
-              <button onClick={() => setArchivingHabit(null)} className="px-6 py-2 rounded-full border border-border-strong text-text-main hover:bg-bg-surface-hover font-medium text-sm">
+              <button onClick={() => setArchivingHabit(null)} className="min-h-[44px] px-6 py-2.5 rounded-full border border-border-strong text-text-main hover:bg-bg-surface-hover font-medium text-sm tap-press cursor-pointer">
                 Cancel
               </button>
-              <button onClick={confirmArchive} className="px-6 py-2 rounded-full bg-accent-red text-bg-base font-medium text-sm hover:opacity-90">
+              <button onClick={confirmArchive} className="min-h-[44px] px-6 py-2.5 rounded-full bg-accent-red text-bg-base font-medium text-sm hover:opacity-90 tap-press cursor-pointer">
                 Archive
               </button>
             </div>
@@ -314,17 +315,17 @@ export function ProductivityHabits() {
 
       {/* Delete Habit Modal */}
       {deletingHabit && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-bg-surface border border-border-strong rounded-2xl p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/60 backdrop-blur-sm animate-fade-in p-4">
+          <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 sm:p-8 shadow-xl max-w-sm w-full animate-scale-in relative text-center">
             <h3 className="text-xl font-semibold text-text-main mb-2">Delete {deletingHabit.name}?</h3>
             <p className="text-sm text-text-muted mb-8 leading-relaxed">
               This will permanently remove the habit and all its history. This action cannot be undone.
             </p>
             <div className="flex justify-center gap-4">
-              <button onClick={() => setDeletingHabit(null)} className="px-6 py-2 rounded-full border border-border-strong text-text-main hover:bg-bg-surface-hover font-medium text-sm">
+              <button onClick={() => setDeletingHabit(null)} className="min-h-[44px] px-6 py-2.5 rounded-full border border-border-strong text-text-main hover:bg-bg-surface-hover font-medium text-sm tap-press cursor-pointer">
                 Cancel
               </button>
-              <button onClick={confirmDelete} className="px-6 py-2 rounded-full bg-accent-red text-bg-base font-medium text-sm hover:opacity-90">
+              <button onClick={confirmDelete} className="min-h-[44px] px-6 py-2.5 rounded-full bg-accent-red text-bg-base font-medium text-sm hover:opacity-90 tap-press cursor-pointer">
                 Delete
               </button>
             </div>
@@ -332,29 +333,29 @@ export function ProductivityHabits() {
         </div>
       )}
 
-      <header className="flex items-center justify-between border-b border-border-subtle pb-6 mb-12">
-        <div className="flex items-center gap-6">
-          <Link to="/habits" className="text-text-muted hover:text-text-main transition-colors p-1 rounded-full hover:bg-bg-surface">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-6 mb-8 sm:mb-12 gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link to="/habits" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer" aria-label="Go back to habits">
             <ArrowLeft size={24} />
           </Link>
           <div>
-            <h1 className="text-3xl font-serif italic text-text-main font-semibold">Daily Habits</h1>
-            <p className="text-sm text-text-muted mt-1">Daily habits matrix and consistency tracking</p>
+            <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main font-semibold">Daily Habits</h1>
+            <p className="text-xs sm:text-sm text-text-muted mt-0.5">Daily habits matrix and consistency tracking</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button onClick={goToToday} className="text-sm font-medium text-text-muted hover:text-text-main">
+        <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
+          <button onClick={goToToday} className="min-h-[44px] px-3.5 py-2 rounded-full text-sm font-medium text-text-muted hover:text-text-main hover:bg-bg-surface tap-press cursor-pointer">
             Today
           </button>
-          <div className="flex items-center gap-2 bg-bg-surface border border-border-strong rounded-full p-1">
-            <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="p-1.5 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent">
+          <div className="flex items-center gap-1 sm:gap-2 bg-bg-surface border border-border-strong rounded-full p-1">
+            <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent tap-press cursor-pointer" aria-label="Previous month">
               <ChevronLeft size={18} />
             </button>
-            <span className="w-32 text-center font-serif font-medium text-text-main">
+            <span className="w-28 sm:w-32 text-center font-serif text-sm sm:text-base font-medium text-text-main">
               {format(currentDate, 'MMMM yyyy')}
             </span>
-            <button onClick={nextMonth} className="p-1.5 hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main">
+            <button onClick={nextMonth} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main tap-press cursor-pointer" aria-label="Next month">
               <ChevronRight size={18} />
             </button>
           </div>
@@ -362,10 +363,10 @@ export function ProductivityHabits() {
       </header>
 
       {/* Unified Tracker Container */}
-      <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-8 md:p-12 flex flex-col gap-16">
+      <section className="bg-bg-surface border border-border-strong rounded-2xl sm:rounded-[2rem] shadow-sm overflow-hidden p-4 sm:p-8 md:p-12 flex flex-col gap-10 sm:gap-16">
         
         {/* Habit Grid */}
-        <div className="overflow-x-auto overflow-y-auto max-h-[75vh] pb-6 -mx-4 px-4 md:-mx-8 md:px-8">
+        <div className="overflow-x-auto overflow-y-auto max-h-[75vh] pb-6 -mx-2 px-2 sm:-mx-4 sm:px-4 md:-mx-8 md:px-8">
           <div className="min-w-max flex">
             {/* Days Column */}
             <div className="w-12 shrink-0 border-r border-border-strong sticky left-0 bg-bg-surface z-30">
@@ -378,7 +379,7 @@ export function ProductivityHabits() {
                   <div 
                     key={date.toISOString()} 
                     className={clsx(
-                      "h-10 flex items-center justify-center gap-1.5 text-sm font-medium",
+                      "h-11 flex items-center justify-center gap-1.5 text-sm font-medium",
                       isToday(date) ? "text-accent-red bg-accent-red-bg/50" : "text-text-main",
                       isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
                     )}
@@ -417,14 +418,15 @@ export function ProductivityHabits() {
                 >
                   
                   {/* Management Menu Trigger */}
-                  <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 opacity-0 group-hover/header:opacity-100 transition-opacity duration-300">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 z-30 opacity-100 sm:opacity-0 sm:group-hover/header:opacity-100 transition-opacity duration-300">
                     <div className="relative">
                       <button 
                         onClick={() => setActiveMenuHabitId(activeMenuHabitId === habit.id ? null : habit.id)}
                         className={clsx(
-                          "p-1.5 rounded-full text-text-muted hover:text-text-main bg-bg-base/80 backdrop-blur shadow-sm border border-border-subtle transition-all hover:scale-110",
+                          "w-8 h-8 flex items-center justify-center rounded-full text-text-muted hover:text-text-main bg-bg-base/80 backdrop-blur shadow-sm border border-border-subtle transition-all hover:scale-110 tap-press cursor-pointer",
                           activeMenuHabitId === habit.id ? "opacity-100 ring-2 ring-accent-blue/30" : ""
                         )}
+                        aria-label="Manage habit"
                       >
                         <MoreHorizontal size={14} />
                       </button>
@@ -505,7 +507,7 @@ const isSunday = date.getDay() === 0;
                       aria-label={`${habit.name}, ${dateLabel}: ${statusLabel}`}
                       title={`${habit.name} (${format(date, 'MMM d')}): ${statusLabel}`}
                       className={clsx(
-                        "w-full h-10 flex items-center justify-center transition-all group tap-press",
+                        "w-full h-11 flex items-center justify-center transition-all group tap-press",
                         !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
                         isToday(date) && "bg-accent-red-bg/20",
                         isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
@@ -585,14 +587,15 @@ const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
                 ) : (
                   <button 
                     onClick={() => setIsAddingHabit(true)}
-                    className="p-1.5 rounded-full text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-strong transition-all"
+                    className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full text-text-muted hover:text-text-main hover:bg-bg-base border border-border-subtle transition-all tap-press cursor-pointer"
+                    aria-label="Add new habit"
                   >
                     <Plus size={18} />
                   </button>
                 )}
               </div>
               {daysInMonth.map(date => (
-                <div key={date.toISOString()} className="h-10 border-b border-border-subtle w-full" />
+                <div key={date.toISOString()} className="h-11 border-b border-border-subtle w-full" />
               ))}
               <div className="h-24 w-full pt-2" />
             </div>

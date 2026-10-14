@@ -254,20 +254,20 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0">
+    <div className="min-h-[100dvh] w-full max-w-full overflow-x-hidden bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0">
       <Snowfall />
       
       {/* Floating Pill Navigation */}
       <header 
         className={clsx(
-          "fixed top-4 sm:top-6 left-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[calc(100vw-1.5rem)] w-auto",
+          "fixed top-3 sm:top-6 left-1/2 z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-[calc(100vw-1rem)] sm:max-w-[calc(100vw-1.5rem)] w-auto",
           isVisible 
             ? "-translate-x-1/2 translate-y-0 opacity-100" 
             : "-translate-x-1/2 -translate-y-28 opacity-0 pointer-events-none"
         )}
       >
-        <div className="glass-panel pl-5 pr-5.5 sm:px-6 h-14 rounded-full flex items-center justify-between gap-2 sm:gap-8 shadow-sm">
-          <Link to="/" className="text-lg font-serif italic font-semibold text-text-main hover:opacity-80 transition-opacity shrink-0">
+        <div className="glass-panel pl-4 pr-3 sm:px-6 h-14 rounded-full flex items-center justify-between gap-1.5 sm:gap-8 shadow-sm">
+          <Link to="/" className="text-lg font-serif italic font-semibold text-text-main hover:opacity-80 transition-opacity shrink-0 min-h-[44px] inline-flex items-center px-1">
             Progress<span className="text-accent-red">.</span>
           </Link>
           
@@ -282,26 +282,26 @@ export function Layout() {
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button 
               onClick={toggleSound}
-              className="w-8 h-8 flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface tap-press"
               aria-label={soundEnabled ? "Mute audio feedback" : "Enable audio feedback"}
               title={soundEnabled ? "Audio: Enabled (Click to mute)" : "Audio: Muted (Click to enable)"}
             >
-              {soundEnabled ? <Volume2 size={17} /> : <VolumeX size={17} className="opacity-60 text-accent-red" />}
+              {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} className="opacity-60 text-accent-red" />}
             </button>
 
             <button 
               onClick={toggleTheme}
-              className="w-8 h-8 flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface"
+              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface tap-press"
               aria-label="Toggle theme"
             >
-              {isDark ? <Sun size={17} /> : <Moon size={17} />}
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
             {user ? (
               <div className="relative shrink-0" ref={menuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 sm:gap-2 pl-1.5 pr-2.5 sm:pl-2 sm:pr-3 py-1 rounded-full bg-bg-surface hover:bg-bg-surface/80 border border-border-strong text-xs font-medium text-text-main transition-colors cursor-pointer shrink-0"
+                  className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 pl-2 pr-3 py-1.5 rounded-full bg-bg-surface hover:bg-bg-surface/80 border border-border-strong text-xs font-medium text-text-main transition-colors cursor-pointer shrink-0 tap-press"
                 >
                   {user.photoURL ? (
                     <img 
@@ -338,17 +338,17 @@ export function Layout() {
                     <button
                       onClick={handleManualSync}
                       disabled={isSyncing}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left disabled:opacity-50 cursor-pointer"
+                      className="w-full min-h-[44px] flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left disabled:opacity-50 cursor-pointer tap-press"
                     >
-                      <RefreshCw size={14} className={isSyncing ? "animate-spin text-accent-blue" : ""} />
+                      <RefreshCw size={15} className={isSyncing ? "animate-spin text-accent-blue" : ""} />
                       <span>{syncStatusText || (isSyncing ? 'Syncing...' : 'Sync to Cloud')}</span>
                     </button>
 
                     <button
                       onClick={handleSignOut}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-accent-red hover:bg-accent-red/10 transition-colors text-left cursor-pointer"
+                      className="w-full min-h-[44px] flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs text-accent-red hover:bg-accent-red/10 transition-colors text-left cursor-pointer tap-press"
                     >
-                      <LogOut size={14} />
+                      <LogOut size={15} />
                       <span>Sign Out</span>
                     </button>
                   </div>
@@ -358,7 +358,7 @@ export function Layout() {
               <div className="relative shrink-0" ref={menuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-accent-yellow/15 border border-accent-yellow/30 text-xs font-medium text-accent-yellow transition-colors cursor-pointer shrink-0 hover:bg-accent-yellow/25"
+                  className="min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent-yellow/15 border border-accent-yellow/30 text-xs font-medium text-accent-yellow transition-colors cursor-pointer shrink-0 hover:bg-accent-yellow/25 tap-press"
                   title="Guest Mode Active (Offline)"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-accent-yellow animate-pulse"></span>
@@ -384,9 +384,9 @@ export function Layout() {
                         setIsUserMenuOpen(false);
                         setIsAuthModalOpen(true);
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs bg-text-main text-bg-base font-semibold hover:opacity-90 transition-opacity text-left cursor-pointer mb-1"
+                      className="w-full min-h-[44px] flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs bg-text-main text-bg-base font-semibold hover:opacity-90 transition-opacity text-left cursor-pointer mb-1 tap-press"
                     >
-                      <UserIcon size={14} />
+                      <UserIcon size={15} />
                       <span>Connect Cloud Account</span>
                     </button>
 
@@ -395,9 +395,9 @@ export function Layout() {
                         setIsUserMenuOpen(false);
                         exitGuestMode();
                       }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left cursor-pointer"
+                      className="w-full min-h-[44px] flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs text-text-muted hover:text-text-main hover:bg-bg-base transition-colors text-left cursor-pointer tap-press"
                     >
-                      <LogOut size={14} />
+                      <LogOut size={15} />
                       <span>Switch to Sign In</span>
                     </button>
                   </div>
@@ -406,9 +406,9 @@ export function Layout() {
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-text-main text-bg-base text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+                className="min-h-[44px] flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-text-main text-bg-base text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0 tap-press"
               >
-                <UserIcon size={14} />
+                <UserIcon size={15} />
                 <span>Sign In</span>
               </button>
             )}
@@ -416,10 +416,10 @@ export function Layout() {
             {/* Mobile Hamburger Toggle Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden w-8 h-8 flex items-center justify-center text-text-muted hover:text-text-main transition-colors focus:outline-none cursor-pointer rounded-full hover:bg-bg-surface shrink-0"
+              className="md:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors focus:outline-none cursor-pointer rounded-full hover:bg-bg-surface shrink-0 tap-press"
               aria-label="Toggle navigation menu"
             >
-              {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -428,13 +428,13 @@ export function Layout() {
         {isMobileMenuOpen && (
           <nav 
             ref={mobileMenuRef}
-            className="md:hidden mt-2 glass-panel rounded-3xl p-3 shadow-2xl border border-border-strong flex flex-col gap-1 animate-fade-in w-full min-w-[280px]"
+            className="md:hidden mt-2 glass-panel rounded-3xl p-2 shadow-2xl border border-border-strong flex flex-col gap-1 animate-fade-in w-full min-w-[280px]"
           >
             <Link 
               to="/highlight" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
-                "px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between",
+                "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
                 location.pathname === '/highlight' ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
               )}
             >
@@ -445,7 +445,7 @@ export function Layout() {
               to="/habits" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
-                "px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between",
+                "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
                 location.pathname.startsWith('/habits') ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
               )}
             >
@@ -456,7 +456,7 @@ export function Layout() {
               to="/goals" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
-                "px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between",
+                "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
                 location.pathname.startsWith('/goals') ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
               )}
             >
@@ -467,7 +467,7 @@ export function Layout() {
               to="/logs" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
-                "px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between",
+                "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
                 location.pathname === '/logs' ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
               )}
             >
@@ -478,7 +478,7 @@ export function Layout() {
               to="/settings" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
-                "px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between",
+                "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
                 location.pathname === '/settings' ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
               )}
             >
@@ -488,7 +488,7 @@ export function Layout() {
         )}
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 pt-32 pb-20 w-full animate-fade-in flex-1 relative z-10">
+      <main className="max-w-5xl mx-auto px-3.5 sm:px-6 pt-24 sm:pt-32 pb-20 w-full animate-fade-in flex-1 relative z-10">
         <Outlet />
       </main>
 

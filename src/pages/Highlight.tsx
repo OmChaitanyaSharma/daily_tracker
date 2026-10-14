@@ -177,9 +177,9 @@ export function Highlight() {
       )}
 
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-12 border-b border-border-subtle pb-6 gap-6">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-text-muted hover:text-text-main transition-colors shrink-0">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-12 border-b border-border-subtle pb-6 gap-4 sm:gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link to="/" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer shrink-0" aria-label="Go back to home">
             <ArrowLeft size={24} />
           </Link>
           
@@ -192,7 +192,7 @@ export function Highlight() {
                   onChange={e => {
                     if (e.target.value) setOriginalDate(e.target.value);
                   }}
-                  className="bg-transparent text-2xl font-serif italic text-text-main focus:outline-none focus:border-b focus:border-text-muted transition-all cursor-pointer"
+                  className="bg-transparent text-xl sm:text-2xl font-serif italic text-text-main focus:outline-none focus:border-b focus:border-text-muted transition-all cursor-pointer min-h-[44px]"
                 />
               </div>
             ) : (
@@ -202,7 +202,7 @@ export function Highlight() {
                   type="date"
                   value={entry.date}
                   onChange={e => setEntry({ ...entry, date: e.target.value })}
-                  className="bg-bg-surface border border-border-strong rounded-lg px-3 py-2 text-lg font-serif italic text-text-main focus:outline-none focus:border-text-muted transition-all w-48"
+                  className="bg-bg-surface border border-border-strong rounded-xl px-3.5 py-2 min-h-[44px] text-base sm:text-lg font-serif italic text-text-main focus:outline-none focus:border-text-muted transition-all w-48"
                 />
               </div>
             )}
@@ -217,7 +217,7 @@ export function Highlight() {
             <button 
               onClick={attemptSave}
               disabled={isSaving}
-              className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 rounded-full font-medium text-sm hover:opacity-90 transition-all active:scale-95 shrink-0"
+              className="flex items-center justify-center gap-2 bg-text-main text-bg-base px-5 py-2.5 min-h-[44px] rounded-full font-semibold text-sm hover:opacity-90 transition-all active:scale-95 shrink-0 tap-press cursor-pointer"
             >
               <Save size={16} />
               {isSaving ? 'Saving...' : 'Save Entry'}
@@ -239,19 +239,19 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
   const moodObj = MOODS.find(m => m.value === entry.mood);
 
   return (
-    <div className="animate-fade-in space-y-12">
-      <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
+    <div className="animate-fade-in space-y-8 sm:space-y-12">
+      <div className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 md:p-12 shadow-sm relative overflow-hidden">
         
         <div className="absolute top-0 right-0 w-32 h-32 bg-accent-red-bg rounded-bl-full -z-10 opacity-50" />
 
-        <div className="flex justify-between items-start mb-8 border-b border-border-subtle pb-6">
+        <div className="flex justify-between items-start mb-8 border-b border-border-subtle pb-6 gap-4">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="text-accent-red" size={24} />
-            <h2 className="text-xl font-semibold text-text-main tracking-tight">Today's entry is complete</h2>
+            <CheckCircle2 className="text-accent-red shrink-0" size={24} />
+            <h2 className="text-lg sm:text-xl font-semibold text-text-main tracking-tight">Today's entry is complete</h2>
           </div>
           <button 
             onClick={onEdit}
-            className="flex items-center gap-2 px-4 py-2 bg-bg-base border border-border-strong rounded-full text-text-main hover:bg-bg-surface-hover transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 min-h-[44px] bg-bg-base border border-border-strong rounded-full text-text-main hover:bg-bg-surface-hover transition-colors text-sm font-medium tap-press cursor-pointer shrink-0"
           >
             <Edit2 size={14} />
             Edit Entry
@@ -314,24 +314,24 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto pt-6">
       
       {/* Mood Selector */}
-      <section className="bg-bg-surface border border-border-strong rounded-3xl p-8 shadow-sm">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-6 flex items-center gap-2">
+      <section className="bg-bg-surface border border-border-strong rounded-3xl p-5 sm:p-8 shadow-sm">
+        <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-4 sm:mb-6 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
           Mood <span className="text-accent-red ml-1">*</span>
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
           {MOODS.map(m => (
             <button
               key={m.value}
               onClick={() => setEntry({ ...entry, mood: m.value as any })}
               className={clsx(
-                "flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all duration-300",
+                "flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 min-h-[56px] rounded-2xl border transition-all duration-300 tap-press cursor-pointer",
                 entry.mood === m.value 
                   ? "border-accent-blue bg-accent-blue-bg text-text-main shadow-md scale-105" 
                   : "border-border-subtle bg-transparent text-text-muted hover:border-border-strong hover:bg-bg-surface-hover hover:scale-[1.02]"
               )}
             >
-              <m.Icon size={32} className={clsx("transition-colors", entry.mood === m.value ? m.color : "text-text-muted")} />
+              <m.Icon size={28} className={clsx("transition-colors", entry.mood === m.value ? m.color : "text-text-muted")} />
               <span className="text-xs font-medium">{m.label}</span>
             </button>
           ))}
@@ -340,24 +340,24 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
 
       {/* Highlight of the day */}
       <section className="bg-bg-surface border border-border-strong rounded-3xl overflow-hidden shadow-sm flex flex-col">
-        <div className="p-8 pb-4 border-b border-border-subtle bg-bg-surface-hover/50">
+        <div className="p-5 sm:p-8 pb-3 sm:pb-4 border-b border-border-subtle bg-bg-surface-hover/50">
            <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted flex items-center gap-2">
              <span className="w-2 h-2 rounded-full bg-accent-yellow"></span>
              Daily Highlight <span className="text-accent-red ml-1">*</span>
            </h2>
-           <p className="text-sm font-medium text-text-main mt-2">What made today worth remembering?</p>
+           <p className="text-xs sm:text-sm font-medium text-text-main mt-1 sm:mt-2">What made today worth remembering?</p>
         </div>
         <textarea
           value={entry.highlight || ''}
           onChange={e => setEntry({ ...entry, highlight: e.target.value })}
           placeholder="Start writing freely..."
-          className="w-full min-h-[220px] p-8 bg-transparent border-none resize-none focus:outline-none text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40"
+          className="w-full min-h-[180px] sm:min-h-[220px] p-5 sm:p-8 bg-transparent border-none resize-none focus:outline-none text-base sm:text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40"
         />
       </section>
 
       {/* To-Do List */}
       <section>
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-6 flex items-center gap-2 px-2">
+        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-4 sm:mb-6 flex items-center gap-2 px-2">
            <span className="w-2 h-2 rounded-full bg-accent-green"></span>
            To-Do (Tomorrow)
         </h2>
@@ -368,12 +368,12 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
 
       {/* Lightweight Reflections */}
       <section>
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-6 flex items-center gap-2 px-2">
+        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-4 sm:mb-6 flex items-center gap-2 px-2">
            <span className="w-2 h-2 rounded-full bg-accent-purple"></span>
            Daily Reflection
         </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           <ReflectionField 
             label="What went well?" 
             value={entry.wentWell} 
@@ -405,8 +405,8 @@ function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry:
 
 function ReflectionField({ label, value, onChange }: { label: string, value: string | undefined, onChange: (val: string) => void }) {
   return (
-    <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg group shadow-sm hover:border-text-muted">
-      <label className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-3 group-focus-within:text-accent-blue transition-colors">{label}</label>
+    <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg group shadow-sm hover:border-text-muted">
+      <label className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-2 sm:mb-3 group-focus-within:text-accent-blue transition-colors">{label}</label>
       <textarea
         value={value || ''}
         onChange={e => onChange(e.target.value)}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
@@ -247,27 +248,34 @@ export function Settings() {
 
   return (
     <div className="max-w-4xl mx-auto pb-24 animate-fade-in">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-2xl bg-text-main text-bg-base flex items-center justify-center">
+      <div className="flex items-center gap-3 sm:gap-4 mb-8">
+        <Link
+          to="/"
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface border border-transparent hover:border-border-subtle transition-all tap-press shrink-0"
+          aria-label="Back to dashboard"
+        >
+          <ArrowLeft size={20} />
+        </Link>
+        <div className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-2xl bg-text-main text-bg-base flex items-center justify-center shrink-0">
           <SettingsIcon size={20} />
         </div>
         <div>
-          <h1 className="text-2xl font-serif text-text-main">System Settings</h1>
+          <h1 className="text-xl sm:text-2xl font-serif text-text-main">System Settings</h1>
           <p className="text-xs text-text-muted mt-0.5">Configure your tracking rules, backups, and progression.</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-10">
+      <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
         
         {/* Audio & Feedback */}
         <section>
           <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
-            <h2 className="text-lg font-serif text-text-main flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
               <Volume2 size={18} className="text-accent-yellow" />
               Sound & Audio Feedback
             </h2>
           </div>
-          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 flex items-center justify-between gap-4">
+          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="text-sm font-semibold text-text-main">Synthesized Tactile Audio</div>
               <p className="text-xs text-text-muted mt-0.5">
@@ -278,13 +286,13 @@ export function Settings() {
               type="button"
               onClick={toggleSound}
               className={clsx(
-                "px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0",
+                "min-h-[44px] px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 tap-press",
                 soundEnabled
                   ? "bg-accent-yellow/20 text-accent-yellow border border-accent-yellow/40 hover:bg-accent-yellow/30"
                   : "bg-bg-base text-text-muted border border-border-strong hover:text-text-main"
               )}
             >
-              {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
               <span>{soundEnabled ? "Enabled" : "Muted"}</span>
             </button>
           </div>
@@ -292,35 +300,35 @@ export function Settings() {
 
         {/* Streak Requirements */}
         <section>
-          <h2 className="text-lg font-serif text-text-main mb-4 border-b border-border-subtle pb-2">Streak Requirements</h2>
+          <h2 className="text-base sm:text-lg font-serif text-text-main mb-4 border-b border-border-subtle pb-2">Streak Requirements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5">
+            <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Target Deep Work Hours / Day</label>
               <input 
                 type="number" step="0.5" min="0" max="24"
                 value={settings.streakTargetHours}
                 onChange={e => setSettings({...settings, streakTargetHours: Number(e.target.value)})}
-                className="w-full bg-bg-base border border-border-strong rounded-xl px-4 py-2 text-text-main focus:outline-none"
+                className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 text-base sm:text-sm text-text-main focus:outline-none"
               />
             </div>
 
-            <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5">
+            <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Required Habit Completion (%)</label>
               <input 
                 type="number" step="5" min="0" max="100"
                 value={settings.streakTargetHabitPercent}
                 onChange={e => setSettings({...settings, streakTargetHabitPercent: Number(e.target.value)})}
-                className="w-full bg-bg-base border border-border-strong rounded-xl px-4 py-2 text-text-main focus:outline-none"
+                className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 text-base sm:text-sm text-text-main focus:outline-none"
               />
             </div>
 
-            <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Fitness Requirement Type</label>
                 <select 
                   value={settings.streakFitnessRequirementType}
                   onChange={e => setSettings({...settings, streakFitnessRequirementType: e.target.value as 'all' | 'count' | 'reps' | 'xp'})}
-                  className="w-full bg-bg-base border border-border-strong rounded-xl px-4 py-2 text-text-main focus:outline-none cursor-pointer"
+                  className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 text-base sm:text-sm text-text-main focus:outline-none cursor-pointer"
                 >
                   <option value="all">All Active Exercises</option>
                   <option value="count">Specific Number of Exercises</option>
@@ -338,7 +346,7 @@ export function Settings() {
                     type="number" min="1" step="1"
                     value={settings.streakFitnessRequirementValue}
                     onChange={e => setSettings({...settings, streakFitnessRequirementValue: Number(e.target.value)})}
-                    className="w-full bg-bg-base border border-border-strong rounded-xl px-4 py-2 text-text-main focus:outline-none"
+                    className="w-full min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 text-base sm:text-sm text-text-main focus:outline-none"
                   />
                 </div>
               )}
@@ -349,13 +357,13 @@ export function Settings() {
         {/* Backup & Restore */}
         <section>
           <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
-            <h2 className="text-lg font-serif text-text-main flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
               <Database size={18} className="text-accent-blue" />
               Backup & Data Safety
             </h2>
           </div>
 
-          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-6">
+          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 sm:p-6">
             {isBackupStale && (
               <div className="mb-5 p-3.5 bg-accent-yellow/10 border border-accent-yellow/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-accent-yellow animate-fade-in">
                 <div className="flex items-center gap-2">
@@ -369,7 +377,7 @@ export function Settings() {
                 <button
                   type="button"
                   onClick={handleExportData}
-                  className="font-semibold underline hover:opacity-80 shrink-0 text-left cursor-pointer"
+                  className="min-h-[44px] sm:min-h-0 py-2 sm:py-0 font-semibold underline hover:opacity-80 shrink-0 text-left cursor-pointer tap-press flex items-center"
                 >
                   Export Now
                 </button>
@@ -385,14 +393,14 @@ export function Settings() {
               <button
                 type="button"
                 onClick={handleExportData}
-                className="flex items-center gap-2 px-4 py-2.5 bg-bg-base border border-border-strong hover:border-text-muted text-text-main rounded-xl font-medium text-xs transition-colors cursor-pointer"
+                className="min-h-[44px] flex items-center gap-2 px-4 py-2.5 bg-bg-base border border-border-strong hover:border-text-muted text-text-main rounded-xl font-medium text-xs sm:text-sm transition-colors cursor-pointer tap-press"
               >
-                <Download size={14} />
+                <Download size={16} />
                 Export Backup (JSON)
               </button>
 
-              <label className="flex items-center gap-2 px-4 py-2.5 bg-accent-blue/10 hover:bg-accent-blue/20 text-accent-blue rounded-xl font-medium text-xs transition-colors cursor-pointer border border-accent-blue/20">
-                <Upload size={14} />
+              <label className="min-h-[44px] flex items-center gap-2 px-4 py-2.5 bg-accent-blue/10 hover:bg-accent-blue/20 text-accent-blue rounded-xl font-medium text-xs sm:text-sm transition-colors cursor-pointer border border-accent-blue/20 tap-press">
+                <Upload size={16} />
                 Restore from Backup
                 <input
                   type="file"
@@ -413,13 +421,13 @@ export function Settings() {
 
         {/* Collapsible Advanced Progression & Season Customization */}
         <section>
-          <details className="group border border-border-strong rounded-2xl p-5 bg-bg-surface/50 transition-all">
-            <summary className="flex items-center justify-between cursor-pointer text-sm font-serif font-medium text-text-muted hover:text-text-main select-none">
+          <details className="group border border-border-strong rounded-2xl p-4 sm:p-5 bg-bg-surface/50 transition-all">
+            <summary className="flex items-center justify-between cursor-pointer text-sm font-serif font-medium text-text-muted hover:text-text-main select-none min-h-[44px]">
               <div className="flex items-center gap-2">
                 <span>Advanced Progression & Season Rules</span>
                 <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-md bg-bg-base border border-border-subtle text-text-muted">Optional</span>
               </div>
-              <ChevronDown size={16} className="text-text-muted group-open:rotate-180 transition-transform" />
+              <ChevronDown size={18} className="text-text-muted group-open:rotate-180 transition-transform" />
             </summary>
 
             <div className="pt-6 space-y-8 animate-fade-in">
@@ -430,7 +438,7 @@ export function Settings() {
                   type="text"
                   value={settings.seasonName}
                   onChange={e => setSettings({...settings, seasonName: e.target.value})}
-                  className="w-full max-w-sm bg-bg-base border border-border-strong rounded-xl px-4 py-2 text-sm text-text-main focus:outline-none"
+                  className="w-full max-w-sm min-h-[44px] bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 text-base sm:text-sm text-text-main focus:outline-none"
                 />
                 
                 <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mt-5 mb-2">Protocol Rules</h3>
@@ -438,7 +446,7 @@ export function Settings() {
                 <div className="space-y-2 max-w-lg">
                   {settings.winterArcRules.map((rule, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-accent-blue/10 text-accent-blue font-bold text-xs flex items-center justify-center shrink-0 border border-accent-blue/20">
+                      <div className="w-7 h-7 rounded-full bg-accent-blue/10 text-accent-blue font-bold text-xs flex items-center justify-center shrink-0 border border-accent-blue/20">
                         {i + 1}
                       </div>
                       <input 
@@ -449,7 +457,7 @@ export function Settings() {
                           newRules[i] = e.target.value;
                           setSettings({...settings, winterArcRules: newRules});
                         }}
-                        className="flex-1 bg-bg-base border border-border-strong rounded-lg px-3 py-1.5 text-xs text-text-main focus:outline-none focus:border-accent-blue"
+                        className="flex-1 min-h-[40px] bg-bg-base border border-border-strong rounded-xl px-3 py-2 text-base sm:text-xs text-text-main focus:outline-none focus:border-accent-blue"
                       />
                       <button 
                         type="button"
@@ -457,9 +465,10 @@ export function Settings() {
                           const newRules = settings.winterArcRules.filter((_, idx) => idx !== i);
                           setSettings({...settings, winterArcRules: newRules});
                         }}
-                        className="p-1.5 text-text-muted hover:text-accent-red transition-colors"
+                        className="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center text-text-muted hover:text-accent-red transition-colors tap-press"
+                        aria-label="Delete rule"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
@@ -467,9 +476,9 @@ export function Settings() {
                 <button 
                   type="button"
                   onClick={() => setSettings({...settings, winterArcRules: [...settings.winterArcRules, '']})}
-                  className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-accent-blue hover:text-accent-blue/80 transition-colors px-2 py-1 rounded-md hover:bg-accent-blue/10"
+                  className="mt-3 min-h-[40px] flex items-center gap-1.5 text-xs font-semibold text-accent-blue hover:text-accent-blue/80 transition-colors px-3 py-2 rounded-xl hover:bg-accent-blue/10 tap-press"
                 >
-                  <Plus size={14} /> Add Rule
+                  <Plus size={16} /> Add Rule
                 </button>
               </div>
 
@@ -491,7 +500,7 @@ export function Settings() {
                               newArr[i] = e.target.value;
                               setSettings({...settings, devRanksNames: newArr});
                             }}
-                            className="flex-1 bg-bg-base border border-border-strong rounded-lg px-2.5 py-1 text-xs text-text-main"
+                            className="flex-1 min-h-[40px] bg-bg-base border border-border-strong rounded-xl px-3 py-1.5 text-base sm:text-xs text-text-main"
                           />
                         </div>
                       ))}
@@ -512,7 +521,7 @@ export function Settings() {
                               newArr[i] = e.target.value;
                               setSettings({...settings, fitRanksNames: newArr});
                             }}
-                            className="flex-1 bg-bg-base border border-border-strong rounded-lg px-2.5 py-1 text-xs text-text-main"
+                            className="flex-1 min-h-[40px] bg-bg-base border border-border-strong rounded-xl px-3 py-1.5 text-base sm:text-xs text-text-main"
                           />
                         </div>
                       ))}
@@ -526,21 +535,21 @@ export function Settings() {
 
         {/* Data Management (Danger Zone) */}
         <section>
-          <h2 className="text-lg font-serif text-accent-red mb-4 border-b border-border-subtle pb-2 flex items-center gap-2">
+          <h2 className="text-base sm:text-lg font-serif text-accent-red mb-4 border-b border-border-subtle pb-2 flex items-center gap-2">
             <AlertTriangle size={18} />
             Data Management
           </h2>
-          <div className="bg-bg-surface border border-accent-red/20 rounded-2xl p-5">
+          <div className="bg-bg-surface border border-accent-red/20 rounded-2xl p-4 sm:p-5">
             <h3 className="text-sm font-semibold text-text-main mb-1.5">Clear Tracking Logs</h3>
             <p className="text-xs text-text-muted mb-4 leading-relaxed">
               Permanently clears daily habit completions, hours, and workouts while preserving your created habits and exercises.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <button
                 type="button"
                 onClick={handleClearData}
                 disabled={isClearing}
-                className="px-4 py-2 bg-accent-red/10 text-accent-red hover:bg-accent-red/20 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                className="min-h-[44px] px-5 py-2.5 bg-accent-red/10 text-accent-red hover:bg-accent-red/20 rounded-xl text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer tap-press"
               >
                 {isClearing ? 'Clearing...' : 'Clear All Entries'}
               </button>
@@ -552,7 +561,10 @@ export function Settings() {
         </section>
 
         <div className="sticky bottom-6 flex justify-end">
-          <button type="submit" className="flex items-center gap-2 bg-text-main text-bg-base px-6 py-2.5 rounded-full text-xs font-semibold shadow-lg hover:scale-105 transition-transform cursor-pointer">
+          <button
+            type="submit"
+            className="min-h-[44px] flex items-center justify-center gap-2 bg-text-main text-bg-base px-6 py-2.5 rounded-xl text-sm font-semibold shadow-lg hover:opacity-90 transition-transform cursor-pointer tap-press"
+          >
             <Save size={16} />
             Save All Settings
           </button>

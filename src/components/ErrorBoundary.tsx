@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-bg-base p-6">
+        <div className="min-h-[100dvh] w-full max-w-full overflow-x-hidden flex items-center justify-center bg-bg-base p-6">
           <div className="max-w-md w-full bg-bg-surface border border-border-strong rounded-2xl p-8 text-center space-y-6">
             <h1 className="text-2xl font-serif text-accent-red">Something went wrong.</h1>
             <p className="text-text-muted text-sm break-words p-4 bg-bg-base rounded-xl border border-border-subtle">
@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <button 
               onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-text-main text-bg-base rounded-full text-sm font-medium hover:opacity-90"
+              className="min-h-[44px] px-6 py-2.5 bg-text-main text-bg-base rounded-full text-sm font-semibold hover:opacity-90 inline-flex items-center justify-center cursor-pointer tap-press"
             >
               Refresh Application
             </button>

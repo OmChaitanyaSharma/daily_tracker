@@ -261,20 +261,20 @@ export function StudyTracking() {
       {/* Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle pb-6">
         <div className="flex items-center gap-4">
-          <Link to="/habits" className="text-text-muted hover:text-text-main transition-colors p-1 rounded-full hover:bg-bg-surface">
+          <Link to="/habits" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer" aria-label="Go back to habits">
             <ArrowLeft size={24} />
           </Link>
           <div>
-            <h1 className="text-3xl font-serif italic text-text-main font-semibold">Study and Deep Work</h1>
-            <p className="text-sm text-text-muted mt-1">Visualize hours logged, subject categories, and focus sessions</p>
+            <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main font-semibold">Study and Deep Work</h1>
+            <p className="text-xs sm:text-sm text-text-muted mt-0.5">Visualize hours logged, subject categories, and focus sessions</p>
           </div>
         </div>
 
         {/* Month Navigation */}
-        <div className="flex items-center gap-2 self-start sm:self-auto bg-bg-surface border border-border-strong rounded-2xl p-1.5 shadow-sm">
+        <div className="flex items-center gap-1 sm:gap-2 self-start sm:self-auto bg-bg-surface border border-border-strong rounded-2xl p-1 shadow-sm">
           <button 
             onClick={prevMonth}
-            className="p-1.5 rounded-xl hover:bg-bg-base text-text-muted hover:text-text-main transition-colors cursor-pointer"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-bg-base text-text-muted hover:text-text-main transition-colors cursor-pointer tap-press"
             aria-label="Previous month"
           >
             <ChevronLeft size={18} />
@@ -282,14 +282,14 @@ export function StudyTracking() {
           
           <button 
             onClick={goToToday}
-            className="px-3 py-1 text-sm font-medium text-text-main hover:bg-bg-base rounded-xl transition-colors cursor-pointer"
+            className="min-h-[44px] px-3.5 py-1 text-sm font-medium text-text-main hover:bg-bg-base rounded-xl transition-colors cursor-pointer tap-press"
           >
             {format(currentDate, 'MMMM yyyy')}
           </button>
 
           <button 
             onClick={nextMonth}
-            className="p-1.5 rounded-xl hover:bg-bg-base text-text-muted hover:text-text-main transition-colors cursor-pointer"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-bg-base text-text-muted hover:text-text-main transition-colors cursor-pointer tap-press"
             aria-label="Next month"
           >
             <ChevronRight size={18} />
@@ -298,8 +298,8 @@ export function StudyTracking() {
       </header>
 
       {/* KPI Stats Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 flex items-center gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-accent-blue/15 text-accent-blue flex items-center justify-center shrink-0">
             <Clock size={24} />
           </div>
@@ -309,7 +309,7 @@ export function StudyTracking() {
           </div>
         </div>
 
-        <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 flex items-center gap-4">
+        <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-accent-purple/15 text-accent-purple flex items-center justify-center shrink-0">
             <BookOpen size={24} />
           </div>
@@ -319,7 +319,7 @@ export function StudyTracking() {
           </div>
         </div>
 
-        <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 flex items-center gap-4">
+        <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-accent-green/15 text-accent-green flex items-center justify-center shrink-0">
             <Plus size={24} />
           </div>
@@ -331,19 +331,19 @@ export function StudyTracking() {
       </div>
 
       {/* Chart & Tracking Studio Container */}
-      <section className="bg-bg-surface border border-border-strong rounded-[2rem] shadow-sm overflow-hidden p-6 sm:p-10 flex flex-col gap-10">
+      <section className="bg-bg-surface border border-border-strong rounded-2xl sm:rounded-[2rem] shadow-sm overflow-hidden p-4 sm:p-10 flex flex-col gap-8 sm:gap-10">
         
         {/* Hours Line Chart */}
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
             <div>
-              <h2 className="text-2xl font-serif text-text-main font-medium">Hours Tracked</h2>
-              <p className="text-xs text-text-muted mt-1">Daily hours breakdown across subjects for {format(currentDate, 'MMMM yyyy')}</p>
+              <h2 className="text-xl sm:text-2xl font-serif text-text-main font-medium">Hours Tracked</h2>
+              <p className="text-xs text-text-muted mt-0.5">Daily hours breakdown across subjects for {format(currentDate, 'MMMM yyyy')}</p>
             </div>
             
             <button 
               onClick={() => setShowManageCategories(!showManageCategories)}
-              className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-border-strong hover:bg-bg-base text-accent-blue transition-colors self-start sm:self-auto cursor-pointer"
+              className="text-xs font-semibold min-h-[44px] px-3.5 py-2 rounded-xl border border-border-strong hover:bg-bg-base text-accent-blue transition-colors self-start sm:self-auto cursor-pointer tap-press inline-flex items-center"
             >
               {showManageCategories ? 'Hide Categories' : 'Manage Categories'}
             </button>
@@ -527,23 +527,23 @@ export function StudyTracking() {
         <div className="pt-8 border-t border-border-subtle">
           <h3 className="text-lg font-serif text-text-main font-medium mb-4">Log Focus Session</h3>
           
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="space-y-1.5">
+          <div className="flex flex-wrap items-end gap-3 sm:gap-4">
+            <div className="space-y-1.5 w-full sm:w-auto">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Date</label>
               <input 
                 type="date" 
                 value={hoursDate}
                 onChange={e => setHoursDate(e.target.value)}
-                className="block bg-bg-base border border-border-strong rounded-xl px-3.5 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
+                className="block w-full sm:w-auto bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 w-full sm:w-auto">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Subject / Category</label>
               <select 
                 value={hoursType || (activeCategories.length > 0 ? activeCategories[0].name : '')}
                 onChange={e => setHoursType(e.target.value)}
-                className="block bg-bg-base border border-border-strong rounded-xl px-3.5 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
+                className="block w-full sm:w-auto bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
               >
                 {activeCategories.map(cat => (
                   <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -551,9 +551,9 @@ export function StudyTracking() {
               </select>
             </div>
 
-            <div className="space-y-1.5 relative">
+            <div className="space-y-1.5 relative w-full sm:w-auto">
               <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Hours</label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <input 
                   type="number" 
                   step="0.5"
@@ -562,7 +562,7 @@ export function StudyTracking() {
                   value={hoursAmount}
                   onChange={e => setHoursAmount(e.target.value)}
                   placeholder="e.g. 1.5"
-                  className="block w-24 bg-bg-base border border-border-strong rounded-xl px-3.5 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
+                  className="block w-28 bg-bg-base border border-border-strong rounded-xl px-3.5 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                 />
                 
                 {/* Quick Presets */}
@@ -572,7 +572,7 @@ export function StudyTracking() {
                       key={h}
                       type="button"
                       onClick={() => setHoursAmount(h.toString())}
-                      className="px-2.5 py-2 rounded-xl bg-bg-base border border-border-strong text-xs font-semibold text-text-muted hover:text-text-main hover:bg-bg-surface transition-colors cursor-pointer tap-press"
+                      className="min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl bg-bg-base border border-border-strong text-xs font-semibold text-text-muted hover:text-text-main hover:bg-bg-surface transition-colors cursor-pointer tap-press flex items-center justify-center"
                     >
                       +{h}h
                     </button>
@@ -589,7 +589,7 @@ export function StudyTracking() {
 
             <button 
               onClick={handleAddHours}
-              className="bg-text-main text-bg-base px-6 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity mb-[2px] cursor-pointer tap-press"
+              className="w-full sm:w-auto bg-text-main text-bg-base px-6 py-2.5 min-h-[44px] rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity cursor-pointer tap-press inline-flex items-center justify-center"
             >
               Add Hours
             </button>
@@ -606,17 +606,17 @@ export function StudyTracking() {
 
             <div className="space-y-2 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
               {[...hourLogs].sort((a,b) => b.date.localeCompare(a.date)).map(log => (
-                <div key={log.id} className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-bg-base border border-border-subtle rounded-xl p-3 text-sm">
+                <div key={log.id} className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 bg-bg-base border border-border-subtle rounded-xl p-3 text-sm">
                   <input 
                     type="date"
                     value={log.date}
                     onChange={async (e) => await db.hourLogs.update(log.id, { date: e.target.value })}
-                    className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1 text-xs text-text-main outline-none focus:border-text-muted"
+                    className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1.5 min-h-[40px] text-base sm:text-xs text-text-main outline-none focus:border-text-muted"
                   />
                   <select 
                     value={log.activity}
                     onChange={async (e) => await handleUpdateLogActivity(log.id, e.target.value, log.date, log.hours)}
-                    className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1 text-xs text-text-main outline-none"
+                    className="bg-bg-surface border border-border-strong rounded-lg px-2.5 py-1.5 min-h-[40px] text-base sm:text-xs text-text-main outline-none"
                   >
                     {hourCategories.filter(cat => !cat.archived || cat.name === log.activity).map(cat => (
                       <option key={cat.id} value={cat.name}>{cat.name}</option>
@@ -631,18 +631,18 @@ export function StudyTracking() {
                         const v = parseFloat(e.target.value);
                         if (!isNaN(v)) await handleUpdateLogHours(log.id, v, log.date, log.activity);
                       }}
-                      className="w-16 bg-bg-surface border border-border-strong rounded-lg px-2 py-1 text-xs text-text-main outline-none"
+                      className="w-16 bg-bg-surface border border-border-strong rounded-lg px-2 py-1.5 min-h-[40px] text-base sm:text-xs text-text-main outline-none"
                     />
                     <span className="text-xs text-text-muted">hours</span>
                   </div>
                   
                   <button 
                     onClick={() => handleDeleteHourLog(log.id)}
-                    className="ml-auto p-1.5 text-accent-red hover:bg-accent-red-bg rounded-lg transition-colors cursor-pointer"
+                    className="ml-auto w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-accent-red hover:bg-accent-red-bg rounded-xl transition-colors cursor-pointer tap-press"
                     title="Delete log"
                     aria-label={`Delete ${log.activity} on ${log.date}`}
                   >
-                    <X size={16} />
+                    <X size={18} />
                   </button>
                 </div>
               ))}

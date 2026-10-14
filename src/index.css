@@ -64,11 +64,24 @@
   }
 
   html, body {
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
     background-color: var(--bg-base);
     color: var(--text-main);
     font-family: 'Varela Round', system-ui, -apple-system, sans-serif;
     transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
     @apply antialiased;
+  }
+
+  #root {
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
   }
 }
 

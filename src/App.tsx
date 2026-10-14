@@ -38,7 +38,7 @@ export default function App() {
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-bg-base flex items-center justify-center text-text-muted">
+      <div className="min-h-[100dvh] bg-bg-base flex items-center justify-center text-text-muted">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-accent-blue/30 border-t-accent-blue rounded-full animate-spin"></div>
           <span className="text-xs font-mono">Initializing Daily Tracker OS...</span>

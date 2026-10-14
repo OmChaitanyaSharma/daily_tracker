@@ -80,15 +80,16 @@ export function ActivityHeatmap() {
   }, [paddedData]);
 
   return (
-    <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 mb-8 overflow-x-auto shadow-sm">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-bg-surface border border-border-strong rounded-3xl p-5 sm:p-8 mb-6 sm:mb-8 shadow-sm">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
-          <h2 className="text-xl font-serif text-text-main italic">Activity Heatmap</h2>
-          <p className="text-sm text-text-muted mt-1 tracking-wider uppercase">Last 365 Days</p>
+          <h2 className="text-lg sm:text-xl font-serif text-text-main italic">Activity Heatmap</h2>
+          <p className="text-xs sm:text-sm text-text-muted mt-0.5 sm:mt-1 tracking-wider uppercase">Last 365 Days</p>
         </div>
       </div>
       
-      <div className="flex gap-1">
+      <div className="overflow-x-auto max-w-full pb-2">
+        <div className="flex gap-1 min-w-max">
         {columns.map((col, colIdx) => (
           <div key={colIdx} className="flex flex-col gap-1">
             {col.map((day, rowIdx) => {
@@ -114,6 +115,7 @@ export function ActivityHeatmap() {
             })}
           </div>
         ))}
+        </div>
       </div>
       <div className="flex items-center justify-end gap-2 mt-4 text-xs text-text-muted">
         <span>Less</span>

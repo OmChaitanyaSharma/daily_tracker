@@ -79,7 +79,7 @@ export function RestDayPlanner() {
         </div>
       </div>
 
-      <div className="flex justify-between items-center max-w-sm mx-auto">
+      <div className="flex justify-between items-center max-w-sm mx-auto gap-1 sm:gap-2">
         {days.map((d, i) => {
           const isSelected = schedule.includes(d.value);
           const wasPlanned = plannedSchedule.includes(d.value);
@@ -92,7 +92,7 @@ export function RestDayPlanner() {
               key={i}
               onClick={() => toggleDay(d.value)}
               disabled={!isSun}
-              className={`relative w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+              className={`relative w-11 h-11 min-w-[44px] min-h-[44px] rounded-full flex items-center justify-center text-xs font-bold transition-all tap-press ${
                 isSelected 
                   ? (isShiftedTo 
                       ? 'bg-accent-yellow text-bg-base shadow-md shadow-accent-yellow/20' 

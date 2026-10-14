@@ -44,7 +44,7 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
   };
 
   return (
-    <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg shadow-sm">
+    <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg shadow-sm">
       {title && (
         <h3 className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-4 group-focus-within:text-accent-blue transition-colors">
           {title}
@@ -53,13 +53,13 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
       
       <div className="space-y-3 mb-4">
         {tasks.map(task => (
-          <div key={task.id} className="flex items-start gap-3 group/item">
-            <span className="text-sm font-semibold text-text-muted mt-0.5 min-w-[1.2rem] text-right">
+          <div key={task.id} className="flex items-center gap-3 group/item min-h-[44px]">
+            <span className="text-sm font-semibold text-text-muted min-w-[1.2rem] text-right">
               {tasks.indexOf(task) + 1}.
             </span>
             <button 
               onClick={() => toggleTask(task)}
-              className="mt-0.5 shrink-0 transition-colors tap-press"
+              className="-m-2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0 transition-colors tap-press cursor-pointer"
               aria-label={task.completed ? "Mark task incomplete" : "Mark task complete"}
             >
               {task.completed ? (
@@ -74,7 +74,8 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
             {!readOnly && (
               <button 
                 onClick={() => deleteTask(task.id)}
-                className="opacity-0 group-hover/item:opacity-100 text-text-muted hover:text-accent-red p-1 transition-all"
+                className="opacity-100 sm:opacity-0 sm:group-hover/item:opacity-100 text-text-muted hover:text-accent-red -m-2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center transition-all cursor-pointer tap-press"
+                aria-label="Delete objective"
               >
                 <Trash2 size={16} />
               </button>
@@ -100,12 +101,13 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
             value={newTaskText}
             onChange={e => setNewTaskText(e.target.value)}
             placeholder="Add a new objective..."
-            className="flex-1 bg-transparent text-sm text-text-main focus:outline-none placeholder:text-text-muted/50"
+            className="flex-1 bg-transparent text-base sm:text-sm text-text-main focus:outline-none placeholder:text-text-muted/50 py-1"
           />
           <button 
             type="submit"
             disabled={!newTaskText.trim()}
-            className="text-text-muted hover:text-accent-blue disabled:opacity-30 disabled:hover:text-text-muted transition-colors p-1"
+            className="text-text-muted hover:text-accent-blue disabled:opacity-30 disabled:hover:text-text-muted transition-colors -m-2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer tap-press"
+            aria-label="Add task"
           >
             <Plus size={18} />
           </button>

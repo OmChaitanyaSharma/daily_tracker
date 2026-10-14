@@ -120,39 +120,43 @@ export function HealthGoals() {
 
       {!selectedGoalId ? (
         <>
-          <header className="flex flex-col md:flex-row md:items-center justify-between border-b border-border-subtle pb-6 mb-8 gap-4">
-            <div className="flex items-center gap-6">
-              <Link to="/goals" className="text-text-muted hover:text-text-main transition-colors">
-                <ArrowLeft size={24} />
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-6 mb-8 gap-4">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <Link
+                to="/goals"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface border border-transparent hover:border-border-subtle transition-all tap-press"
+                aria-label="Back to goals"
+              >
+                <ArrowLeft size={20} />
               </Link>
               <div>
-                <h1 className="text-3xl font-serif italic text-text-main">Health Goals</h1>
+                <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main">Health Goals</h1>
               </div>
             </div>
             
             <button 
               onClick={handleCreateGoal}
-              className="flex items-center gap-2 px-4 py-2 bg-bg-surface border border-border-strong rounded-full text-sm font-medium hover:bg-bg-surface-hover hover:text-text-main transition-all"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-bg-surface border border-border-strong rounded-xl text-sm font-medium hover:bg-bg-surface-hover hover:text-text-main transition-all tap-press"
             >
-              <Plus size={16} /> New Goal
+              <Plus size={18} /> New Goal
             </button>
           </header>
 
           {/* Quick Dashboard */}
           {dashboardStats && (
-            <div className="mb-12 grid grid-cols-3 gap-6">
-              <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 text-center">
-                <div className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Starting Weight</div>
-                <div className="text-3xl font-serif italic text-text-main">{dashboardStats.start} <span className="text-base text-text-muted">kg</span></div>
+            <div className="mb-8 sm:mb-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
+              <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 text-center">
+                <div className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5 sm:mb-2">Starting Weight</div>
+                <div className="text-2xl sm:text-3xl font-serif italic text-text-main">{dashboardStats.start} <span className="text-sm sm:text-base text-text-muted">kg</span></div>
               </div>
-              <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 text-center shadow-[0_0_15px_rgba(0,0,0,0.05)] border-t-2 border-t-accent-red/20">
-                <div className="text-xs font-semibold tracking-widest uppercase text-accent-red mb-2">Current Weight</div>
-                <div className="text-3xl font-serif italic text-text-main">{dashboardStats.current} <span className="text-base text-text-muted">kg</span></div>
+              <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 text-center shadow-[0_0_15px_rgba(0,0,0,0.05)] border-t-2 border-t-accent-red/20">
+                <div className="text-xs font-semibold tracking-widest uppercase text-accent-red mb-1.5 sm:mb-2">Current Weight</div>
+                <div className="text-2xl sm:text-3xl font-serif italic text-text-main">{dashboardStats.current} <span className="text-sm sm:text-base text-text-muted">kg</span></div>
               </div>
-              <div className="bg-bg-surface border border-border-strong rounded-2xl p-6 text-center">
-                <div className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Total Change</div>
-                <div className="text-3xl font-serif italic text-text-main">
-                  {dashboardStats.diff > 0 ? '+' : ''}{dashboardStats.diff.toFixed(1)} <span className="text-base text-text-muted">kg</span>
+              <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 text-center">
+                <div className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-1.5 sm:mb-2">Total Change</div>
+                <div className="text-2xl sm:text-3xl font-serif italic text-text-main">
+                  {dashboardStats.diff > 0 ? '+' : ''}{dashboardStats.diff.toFixed(1)} <span className="text-sm sm:text-base text-text-muted">kg</span>
                 </div>
               </div>
             </div>

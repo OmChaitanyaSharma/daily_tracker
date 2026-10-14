@@ -97,21 +97,25 @@ export function EndOfYearGoals() {
 
       {!selectedGoalId ? (
         <>
-          <header className="flex flex-col md:flex-row md:items-center justify-between border-b border-border-subtle pb-6 mb-8 gap-4">
-            <div className="flex items-center gap-6">
-              <Link to="/goals" className="text-text-muted hover:text-text-main transition-colors">
-                <ArrowLeft size={24} />
+          <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-6 mb-8 gap-4">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <Link
+                to="/goals"
+                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface border border-transparent hover:border-border-subtle transition-all tap-press"
+                aria-label="Back to goals"
+              >
+                <ArrowLeft size={20} />
               </Link>
               <div>
-                <h1 className="text-3xl font-serif italic text-text-main">Goals Till End of {getSettings().seasonName} (March 1st)</h1>
+                <h1 className="text-xl sm:text-3xl font-serif italic text-text-main">Goals Till End of {getSettings().seasonName} (March 1st)</h1>
               </div>
             </div>
             
             <button 
               onClick={handleCreateGoal}
-              className="flex items-center gap-2 px-4 py-2 bg-bg-surface border border-border-strong rounded-full text-sm font-medium hover:bg-bg-surface-hover hover:text-text-main transition-all"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] bg-bg-surface border border-border-strong rounded-xl text-sm font-medium hover:bg-bg-surface-hover hover:text-text-main transition-all tap-press"
             >
-              <Plus size={16} /> New Goal
+              <Plus size={18} /> New Goal
             </button>
           </header>
 

@@ -151,19 +151,19 @@ export function ExerciseTracking() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-24 animate-fade-in relative">
-      <header className="flex items-center justify-between border-b border-border-subtle pb-6 mb-12">
-        <div className="flex items-center gap-6">
-          <Link to="/habits" className="text-text-muted hover:text-text-main transition-colors">
+    <div className="max-w-4xl mx-auto pb-24 animate-fade-in relative space-y-6 sm:space-y-8">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border-subtle pb-6 mb-6 sm:mb-12 gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link to="/habits" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer" aria-label="Go back to habits">
             <ArrowLeft size={24} />
           </Link>
           <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-serif italic text-text-main">Exercise Tracking</h1>
+            <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main font-semibold">Exercise Tracking</h1>
           </div>
         </div>
 
         {streak > 0 && (
-          <div className="flex items-center gap-2 bg-accent-orange/10 border border-accent-orange/20 text-accent-orange px-4 py-2 rounded-full animate-fade-in">
+          <div className="flex items-center gap-2 bg-accent-orange/10 border border-accent-orange/20 text-accent-orange px-4 py-2 min-h-[44px] rounded-full animate-fade-in self-start sm:self-auto">
             <Flame size={18} className="animate-pulse" />
             <span className="text-sm font-bold">{streak} Day Streak!</span>
           </div>
@@ -173,12 +173,13 @@ export function ExerciseTracking() {
       <RestDayPlanner />
 
       {/* Date Navigator */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4 bg-bg-surface border border-border-strong rounded-full p-1">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
+        <div className="flex items-center gap-1 sm:gap-4 bg-bg-surface border border-border-strong rounded-full p-1">
           <button 
             onClick={handlePrevDay}
             disabled={isBefore(subDays(currentDate, 1), parseISO(MIN_DATE_STR + "T00:00:00"))}
-            className="p-2 text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent tap-press cursor-pointer"
+            aria-label="Previous day"
           >
             <ChevronLeft size={20} />
           </button>
@@ -186,7 +187,7 @@ export function ExerciseTracking() {
           <button 
             onClick={handleToday}
             className={clsx(
-              "px-4 py-1 rounded-full text-sm font-medium transition-colors",
+              "min-h-[44px] px-4 py-2 rounded-full text-sm font-medium transition-colors tap-press cursor-pointer",
               dateStr === todayStr 
                 ? "bg-text-main text-bg-base" 
                 : "text-text-main hover:bg-bg-surface-hover"
@@ -198,7 +199,8 @@ export function ExerciseTracking() {
           <button 
             onClick={handleNextDay}
             disabled={isFuture(addDays(currentDate, 1))}
-            className="p-2 text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors disabled:opacity-50 disabled:hover:bg-transparent tap-press cursor-pointer"
+            aria-label="Next day"
           >
             <ChevronRight size={20} />
           </button>
@@ -208,12 +210,12 @@ export function ExerciseTracking() {
       {/* Exercise List */}
       <div className="space-y-6">
         {activeExercises.length === 0 ? (
-          <div className="bg-bg-surface border border-border-subtle rounded-3xl p-12 text-center flex flex-col items-center">
+          <div className="bg-bg-surface border border-border-subtle rounded-3xl p-8 sm:p-12 text-center flex flex-col items-center">
             <Dumbbell size={48} className="text-border-strong mb-4" />
             <p className="text-text-muted">No exercises added yet.</p>
             <button 
               onClick={() => setIsAddingExercise(true)}
-              className="mt-6 bg-text-main text-bg-base px-6 py-2 rounded-full text-sm font-medium"
+              className="mt-6 bg-text-main text-bg-base min-h-[44px] px-6 py-2.5 rounded-full text-sm font-semibold tap-press cursor-pointer"
             >
               Add Your First Exercise
             </button>
@@ -250,10 +252,10 @@ export function ExerciseTracking() {
               const pointsVal = diffPoints[(ex.difficulty || 'easy') as ExerciseDifficulty];
 
               return (
-                <div key={ex.id} className="bg-bg-base border border-border-strong rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-text-muted transition-colors">
+                <div key={ex.id} className="bg-bg-base border border-border-strong rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6 hover:border-text-muted transition-colors">
                   <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-xl font-serif text-text-main">{ex.name}</h3>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                      <h3 className="text-lg sm:text-xl font-serif text-text-main font-medium">{ex.name}</h3>
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest ${diffClass}`}>
                         {diffLabel} • {pointsVal} {isTime ? 'pts/min' : 'pts'}
                       </span>
@@ -268,7 +270,7 @@ export function ExerciseTracking() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-text-muted mt-2">
+                    <p className="text-xs sm:text-sm text-text-muted mt-1.5 sm:mt-2">
                       Total today: <strong className="text-text-main">{reps}</strong> {isTime ? 'mins' : 'reps'}
                       {personalRecords[ex.id] > 0 && (
                         <span className="ml-2 text-xs opacity-50">PR: {personalRecords[ex.id]} {isTime ? 'mins' : ''}</span>
@@ -276,13 +278,13 @@ export function ExerciseTracking() {
                     </p>
                   </div>
                   
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button onClick={() => updateReps(ex.id, -1)} disabled={reps === 0} className="w-10 h-10 rounded-full border border-border-strong flex items-center justify-center text-text-muted hover:text-text-main hover:border-text-muted disabled:opacity-30 tap-press cursor-pointer">-1</button>
-                    <button onClick={() => updateReps(ex.id, +1)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer">+1</button>
-                    <button onClick={() => updateReps(ex.id, +5)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer">+5</button>
-                    <button onClick={() => updateReps(ex.id, +10)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer">+10</button>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <button onClick={() => updateReps(ex.id, -1)} disabled={reps === 0} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full border border-border-strong flex items-center justify-center text-text-muted hover:text-text-main hover:border-text-muted disabled:opacity-30 tap-press cursor-pointer text-sm font-bold">-1</button>
+                    <button onClick={() => updateReps(ex.id, +1)} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+1</button>
+                    <button onClick={() => updateReps(ex.id, +5)} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+5</button>
+                    <button onClick={() => updateReps(ex.id, +10)} className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer text-sm font-bold">+10</button>
                     
-                    <div className="w-px h-8 bg-border-strong mx-2 hidden sm:block"></div>
+                    <div className="w-px h-8 bg-border-strong mx-1 sm:mx-2 hidden sm:block"></div>
                     
                     <input 
                       type="number"
@@ -290,7 +292,7 @@ export function ExerciseTracking() {
                       value={reps || ''}
                       onChange={e => setExactReps(ex.id, parseInt(e.target.value) || 0)}
                       placeholder={isTime ? "Mins" : "Reps"}
-                      className="w-20 bg-bg-surface border border-border-strong rounded-lg px-3 py-2 text-center text-text-main focus:outline-none focus:border-text-muted"
+                      className="w-20 min-h-[44px] bg-bg-surface border border-border-strong rounded-xl px-2.5 py-2 text-center text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                     />
                   </div>
                 </div>
@@ -314,27 +316,27 @@ export function ExerciseTracking() {
                   value={newExerciseName}
                   onChange={e => setNewExerciseName(e.target.value)}
                   placeholder="e.g. Push-ups, Running..."
-                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-2 text-text-main focus:outline-none focus:border-text-muted"
+                  className="w-full bg-bg-base border border-border-strong rounded-xl px-4 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                   autoFocus
                 />
               </div>
-              <div className="w-[120px]">
+              <div className="w-full sm:w-[130px]">
                 <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Type</label>
                 <select 
                   value={newExerciseType} 
                   onChange={e => setNewExerciseType(e.target.value as TrackingType)}
-                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-2 text-text-main focus:outline-none focus:border-text-muted"
+                  className="w-full bg-bg-base border border-border-strong rounded-xl px-3 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                 >
                   <option value="reps">Reps</option>
                   <option value="time">Minutes</option>
                 </select>
               </div>
-              <div className="w-[140px]">
+              <div className="w-full sm:w-[150px]">
                 <label className="text-xs font-semibold tracking-widest uppercase text-text-muted block mb-2">Difficulty</label>
                 <select 
                   value={newExerciseDiff} 
                   onChange={e => setNewExerciseDiff(e.target.value as ExerciseDifficulty)}
-                  className="w-full bg-bg-base border border-border-strong rounded-lg px-4 py-2 text-text-main focus:outline-none focus:border-text-muted"
+                  className="w-full bg-bg-base border border-border-strong rounded-xl px-3 py-2.5 min-h-[44px] text-base sm:text-sm text-text-main focus:outline-none focus:border-text-muted"
                 >
                   <option value="very_easy">Very Easy (2)</option>
                   <option value="easy">Easy (5)</option>
@@ -343,16 +345,16 @@ export function ExerciseTracking() {
                   <option value="very_hard">Very Hard (20)</option>
                 </select>
               </div>
-              <div className="flex gap-2 pb-0.5">
-                <button type="submit" className="bg-text-main text-bg-base px-6 py-2 rounded-lg font-medium text-sm">Save</button>
-                <button type="button" onClick={() => setIsAddingExercise(false)} className="text-text-muted px-4 py-2 hover:text-text-main font-medium text-sm">Cancel</button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <button type="submit" className="flex-1 sm:flex-none bg-text-main text-bg-base px-6 py-2.5 min-h-[44px] rounded-xl font-medium text-sm tap-press cursor-pointer">Save</button>
+                <button type="button" onClick={() => setIsAddingExercise(false)} className="flex-1 sm:flex-none text-text-muted px-4 py-2.5 min-h-[44px] hover:text-text-main font-medium text-sm tap-press cursor-pointer">Cancel</button>
               </div>
             </div>
           </form>
         ) : (
           <button 
             onClick={() => setIsAddingExercise(true)}
-            className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors mb-8 text-sm font-medium"
+            className="flex items-center gap-2 text-text-muted hover:text-text-main transition-colors mb-8 text-sm font-medium min-h-[44px] px-3 py-2 rounded-xl hover:bg-bg-surface tap-press cursor-pointer"
           >
             <Plus size={18} />
             Add New Exercise
@@ -361,20 +363,20 @@ export function ExerciseTracking() {
 
         <div className="space-y-2">
           {activeExercises.map(ex => (
-            <div key={ex.id} className="flex items-center justify-between p-4 bg-bg-base border border-border-subtle rounded-xl">
+            <div key={ex.id} className="flex items-center justify-between p-3.5 sm:p-4 bg-bg-base border border-border-subtle rounded-xl min-h-[52px]">
               {editingExercise?.id === ex.id ? (
-                <form onSubmit={handleEditExercise} className="flex-1 flex flex-wrap items-center gap-4">
+                <form onSubmit={handleEditExercise} className="flex-1 flex flex-wrap items-center gap-2 sm:gap-4">
                   <input 
                     type="text"
                     value={editName}
                     onChange={e => setEditName(e.target.value)}
-                    className="flex-1 min-w-[150px] bg-bg-surface border border-border-strong rounded px-3 py-1 text-sm outline-none"
+                    className="flex-1 min-w-[150px] bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none"
                     autoFocus
                   />
                   <select 
                     value={editType} 
                     onChange={e => setEditType(e.target.value as TrackingType)}
-                    className="bg-bg-surface border border-border-strong rounded px-3 py-1 text-sm outline-none"
+                    className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none"
                   >
                     <option value="reps">Reps</option>
                     <option value="time">Mins</option>
@@ -382,7 +384,7 @@ export function ExerciseTracking() {
                   <select 
                     value={editDiff} 
                     onChange={e => setEditDiff(e.target.value as ExerciseDifficulty)}
-                    className="bg-bg-surface border border-border-strong rounded px-3 py-1 text-sm outline-none"
+                    className="bg-bg-surface border border-border-strong rounded-xl px-3 py-2 min-h-[44px] text-base sm:text-sm outline-none"
                   >
                     <option value="very_easy">Very Easy</option>
                     <option value="easy">Easy</option>
@@ -390,13 +392,15 @@ export function ExerciseTracking() {
                     <option value="hard">Hard</option>
                     <option value="very_hard">Very Hard</option>
                   </select>
-                  <button type="submit" className="text-xs font-semibold text-text-main">Save</button>
-                  <button type="button" onClick={() => setEditingExercise(null)} className="text-xs text-text-muted">Cancel</button>
+                  <div className="flex gap-2">
+                    <button type="submit" className="min-h-[44px] px-4 py-2 bg-text-main text-bg-base rounded-xl text-xs font-semibold tap-press cursor-pointer">Save</button>
+                    <button type="button" onClick={() => setEditingExercise(null)} className="min-h-[44px] px-4 py-2 border border-border-strong rounded-xl text-xs text-text-muted hover:text-text-main tap-press cursor-pointer">Cancel</button>
+                  </div>
                 </form>
               ) : (
                 <>
-                  <span className="font-medium text-text-main">{ex.name}</span>
-                  <div className="flex items-center gap-3">
+                  <span className="font-medium text-text-main text-sm sm:text-base">{ex.name}</span>
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <button 
                       onClick={() => {
                         setEditingExercise(ex);
@@ -404,14 +408,16 @@ export function ExerciseTracking() {
                         setEditDiff(ex.difficulty || 'easy');
                         setEditType(ex.trackingType || 'reps');
                       }}
-                      className="text-text-muted hover:text-text-main"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-xl hover:bg-bg-surface tap-press cursor-pointer"
+                      aria-label={`Edit ${ex.name}`}
                     >
                       <Edit2 size={16} />
                     </button>
                     <button 
                       onClick={() => handleArchiveExercise(ex)}
-                      className="text-text-muted hover:text-accent-red"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-accent-red rounded-xl hover:bg-bg-surface tap-press cursor-pointer"
                       title="Archive Exercise"
+                      aria-label={`Archive ${ex.name}`}
                     >
                       <Trash2 size={16} />
                     </button>
