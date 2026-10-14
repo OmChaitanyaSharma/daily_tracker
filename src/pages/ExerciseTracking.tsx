@@ -26,7 +26,7 @@ export function ExerciseTracking() {
   const [editDiff, setEditDiff] = useState<ExerciseDifficulty>('easy');
   const [editType, setEditType] = useState<TrackingType>('reps');
 
-  const { playClick, playSuccess } = useSound();
+  const { playClick, playFanfare, playThump } = useSound();
 
   const exercises = useLiveQuery(() => db.exercises.toArray()) ?? EMPTY_ARRAY;
   const exerciseLogs = useLiveQuery(() => db.exerciseLogs.where('date').equals(dateStr).toArray()) ?? EMPTY_ARRAY;
@@ -95,6 +95,7 @@ export function ExerciseTracking() {
   const handleArchiveExercise = async (ex: Exercise) => {
     if (confirm(`Archive ${ex.name}? It won't break your past streaks, but will be removed from your daily list.`)) {
       await db.exercises.update(ex.id, { archived: true });
+      playThump();
     }
   };
 
@@ -121,10 +122,12 @@ export function ExerciseTracking() {
     if (delta > 0) {
       const pr = personalRecords[exerciseId] || 0;
       if (pr > 0 && newReps > pr) {
-        playSuccess(); // PR broken!
+        playFanfare(); // PR broken!
       } else {
         playClick();
       }
+    } else {
+      playThump();
     }
   };
 
@@ -274,10 +277,10 @@ export function ExerciseTracking() {
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-3">
-                    <button onClick={() => updateReps(ex.id, -1)} disabled={reps === 0} className="w-10 h-10 rounded-full border border-border-strong flex items-center justify-center text-text-muted hover:text-text-main hover:border-text-muted disabled:opacity-30">-1</button>
-                    <button onClick={() => updateReps(ex.id, +1)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted">+1</button>
-                    <button onClick={() => updateReps(ex.id, +5)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted">+5</button>
-                    <button onClick={() => updateReps(ex.id, +10)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted">+10</button>
+                    <button onClick={() => updateReps(ex.id, -1)} disabled={reps === 0} className="w-10 h-10 rounded-full border border-border-strong flex items-center justify-center text-text-muted hover:text-text-main hover:border-text-muted disabled:opacity-30 tap-press cursor-pointer">-1</button>
+                    <button onClick={() => updateReps(ex.id, +1)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer">+1</button>
+                    <button onClick={() => updateReps(ex.id, +5)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer">+5</button>
+                    <button onClick={() => updateReps(ex.id, +10)} className="w-10 h-10 rounded-full bg-bg-surface border border-border-strong flex items-center justify-center text-text-main hover:border-text-muted tap-press cursor-pointer">+10</button>
                     
                     <div className="w-px h-8 bg-border-strong mx-2 hidden sm:block"></div>
                     

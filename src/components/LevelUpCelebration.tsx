@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Code, Dumbbell, Star, ChevronRight, Flame } from 'lucide-react';
 import clsx from 'clsx';
+import { useSound } from '../hooks/useSound';
 
 interface LevelUpCelebrationProps {
   type: 'dev' | 'fit' | 'streak';
@@ -11,6 +12,7 @@ interface LevelUpCelebrationProps {
 }
 
 export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCelebrationProps) {
+  const { playFanfare } = useSound();
   const isDev = type === 'dev';
   const isStreak = type === 'streak';
   const Icon = isStreak ? Flame : (isDev ? Code : Dumbbell);
@@ -19,6 +21,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
   const glowColor = isStreak ? 'rgba(234,179,8,0.2)' : (isDev ? 'rgba(59,130,246,0.2)' : 'rgba(16,185,129,0.2)');
 
   useEffect(() => {
+    playFanfare();
     const duration = 2500;
     const end = Date.now() + duration;
     let animationFrameId: number;

@@ -7,10 +7,11 @@ import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
+import confetti from 'canvas-confetti';
 import { useSound } from '../hooks/useSound';
 
 export function ProductivityHabits() {
-  const { playClick } = useSound();
+  const { playClick, playCheck, playFanfare, playThump } = useSound();
   const [currentDate, setCurrentDate] = useState(new Date());
   
   // Habit Management State
@@ -167,8 +168,25 @@ export function ProductivityHabits() {
     
     if (nextStatus === 'none' && logId) {
       await db.habitLogs.delete(logId);
+      playThump();
     } else if (logId) {
       await db.habitLogs.update(logId, { status: nextStatus as any });
+      if (nextStatus === 'completed') {
+        const otherLogs = habitLogs.filter(l => l.date === date && l.habitId !== habitId);
+        const otherCompletedCount = otherLogs.filter(l => l.status === 'completed').length;
+        if (otherCompletedCount + 1 >= visibleHabits.length && visibleHabits.length > 0) {
+          playFanfare();
+          confetti({
+            particleCount: 55,
+            spread: 60,
+            origin: { y: 0.65 }
+          });
+        } else {
+          playCheck();
+        }
+      } else {
+        playClick();
+      }
     } else {
       await db.habitLogs.add({
         id: crypto.randomUUID(),
@@ -176,8 +194,23 @@ export function ProductivityHabits() {
         habitId,
         status: nextStatus as any
       });
+      if (nextStatus === 'completed') {
+        const otherLogs = habitLogs.filter(l => l.date === date && l.habitId !== habitId);
+        const otherCompletedCount = otherLogs.filter(l => l.status === 'completed').length;
+        if (otherCompletedCount + 1 >= visibleHabits.length && visibleHabits.length > 0) {
+          playFanfare();
+          confetti({
+            particleCount: 55,
+            spread: 60,
+            origin: { y: 0.65 }
+          });
+        } else {
+          playCheck();
+        }
+      } else {
+        playClick();
+      }
     }
-    playClick();
   };
 
   return (
@@ -472,7 +505,7 @@ const isSunday = date.getDay() === 0;
                       aria-label={`${habit.name}, ${dateLabel}: ${statusLabel}`}
                       title={`${habit.name} (${format(date, 'MMM d')}): ${statusLabel}`}
                       className={clsx(
-                        "w-full h-10 flex items-center justify-center transition-all group",
+                        "w-full h-10 flex items-center justify-center transition-all group tap-press",
                         !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
                         isToday(date) && "bg-accent-red-bg/20",
                         isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
@@ -481,7 +514,8 @@ const isSunday = date.getDay() === 0;
                       <span 
                         aria-hidden="true"
                         className={clsx(
-                          "text-xl transition-transform duration-300 group-active:scale-75",
+                          "text-xl transition-transform duration-200 group-active:scale-90",
+                          currentStatus === 'completed' && "animate-check-spring",
                           isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
                         )}
                       >

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { TodoList } from '../components/TodoList';
 import { addDays, parseISO, format } from 'date-fns';
 import clsx from 'clsx';
+import { useSound } from '../hooks/useSound';
 
 const MOODS = [
   { value: 'excellent', label: 'Excellent', Icon: Sparkles, color: 'text-accent-yellow' },
@@ -16,6 +17,7 @@ const MOODS = [
 ];
 
 export function Highlight() {
+  const { playSuccess } = useSound();
   const [originalDate, setOriginalDate] = useState(getTodayDateString());
   
   const [entry, setEntry] = useState<Partial<DayEntry>>({
@@ -102,6 +104,7 @@ export function Highlight() {
     setShowConflictModal(false);
     
     setShowSuccessModal(true);
+    playSuccess();
     setTimeout(() => {
       setShowSuccessModal(false);
       setIsCompletedView(true);

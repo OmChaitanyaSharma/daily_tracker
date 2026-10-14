@@ -1,10 +1,11 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Moon, Sun, User as UserIcon, LogOut, RefreshCw, ChevronDown, Menu, X } from 'lucide-react';
+import { Moon, Sun, Volume2, VolumeX, User as UserIcon, LogOut, RefreshCw, ChevronDown, Menu, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
 import { handleDirectionalNavigation } from '../utils/spatialNavigation';
 import { Snowfall } from './Snowfall';
+import { useSound } from '../hooks/useSound';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { handleUserLoginSync, uploadLocalToCloud, clearLocalDataOnSignOut } from '../services/cloudSync';
@@ -21,6 +22,7 @@ export function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isGuest, exitGuestMode, logout } = useAuth();
+  const { soundEnabled, toggleSound } = useSound();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -277,13 +279,22 @@ export function Layout() {
             <Link to="/settings" className={clsx("hover:text-text-main transition-colors", location.pathname === '/settings' && "text-text-main font-semibold")}>Settings</Link>
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <button 
+              onClick={toggleSound}
+              className="w-8 h-8 flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface"
+              aria-label={soundEnabled ? "Mute audio feedback" : "Enable audio feedback"}
+              title={soundEnabled ? "Audio: Enabled (Click to mute)" : "Audio: Muted (Click to enable)"}
+            >
+              {soundEnabled ? <Volume2 size={17} /> : <VolumeX size={17} className="opacity-60 text-accent-red" />}
+            </button>
+
             <button 
               onClick={toggleTheme}
               className="w-8 h-8 flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface"
               aria-label="Toggle theme"
             >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+              {isDark ? <Sun size={17} /> : <Moon size={17} />}
             </button>
 
             {user ? (

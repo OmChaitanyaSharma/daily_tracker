@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Task } from '../db';
 import { Plus, Trash2, CheckCircle2, Circle } from 'lucide-react';
 import clsx from 'clsx';
+import { useSound } from '../hooks/useSound';
 
 interface TodoListProps {
   date: string; // YYYY-MM-DD
@@ -11,6 +12,7 @@ interface TodoListProps {
 }
 
 export function TodoList({ date, title = "What do I want to do tomorrow?", readOnly = false }: TodoListProps) {
+  const { playClick, playCheck, playThump } = useSound();
   const [newTaskText, setNewTaskText] = useState('');
 
   const tasks = useLiveQuery(async () => {
@@ -26,14 +28,19 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
       completed: false
     });
     setNewTaskText('');
+    playClick();
   };
 
   const toggleTask = async (task: Task) => {
-    await db.tasks.update(task.id, { completed: !task.completed });
+    const nextCompleted = !task.completed;
+    await db.tasks.update(task.id, { completed: nextCompleted });
+    if (nextCompleted) playCheck();
+    else playClick();
   };
 
   const deleteTask = async (id: string) => {
     await db.tasks.delete(id);
+    playThump();
   };
 
   return (
@@ -52,10 +59,11 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
             </span>
             <button 
               onClick={() => toggleTask(task)}
-              className="mt-0.5 shrink-0 transition-colors"
+              className="mt-0.5 shrink-0 transition-colors tap-press"
+              aria-label={task.completed ? "Mark task incomplete" : "Mark task complete"}
             >
               {task.completed ? (
-                <CheckCircle2 size={18} className="text-accent-green" />
+                <CheckCircle2 size={18} className="text-accent-green animate-check-spring" />
               ) : (
                 <Circle size={18} className="text-text-muted hover:text-accent-blue" />
               )}

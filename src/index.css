@@ -186,6 +186,66 @@
   animation: fire-flicker 1.5s infinite ease-in-out;
   transform-origin: bottom center;
 }
+
+/* Tactile button & card press feedback */
+.tap-press {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease, filter 0.15s ease;
+}
+.tap-press:active {
+  transform: scale(0.96);
+}
+
+/* Checkmark spring pop on completion */
+@keyframes checkSpring {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.animate-check-spring {
+  animation: checkSpring 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Shimmer light sweep for progress and XP bars */
+@keyframes shimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmerSweep 3.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* Streak aura pulse */
+@keyframes streakPulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(224, 175, 104, 0.3)); }
+  50% { filter: drop-shadow(0 0 12px rgba(224, 175, 104, 0.65)); }
+}
+.animate-streak-pulse {
+  animation: streakPulse 2.4s infinite ease-in-out;
+}
+
+/* Respect user accessibility motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .tap-press,
+  .hover-lift,
+  .animate-check-spring,
+  .shimmer-sweep::after,
+  .animate-fire,
+  .animate-streak-pulse {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
 /* Global spatial navigation focus outline */
 *:focus {
   outline: 2px solid var(--accent-blue);

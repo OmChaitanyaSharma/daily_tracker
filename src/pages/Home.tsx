@@ -14,7 +14,10 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import { getTodayStr } from '../utils/dateUtils';
 
+import { useSound } from '../hooks/useSound';
+
 export function Home() {
+  const { playSuccess } = useSound();
   const { streak, freezesOwned, freezeUsedToday, isLoading: streakLoading } = useStreak();
   const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
@@ -120,6 +123,7 @@ export function Home() {
       activity: catName,
       hours: val
     });
+    playSuccess();
     setQuickLogSuccess(true);
     setTimeout(() => setQuickLogSuccess(false), 2200);
   };
@@ -207,7 +211,8 @@ export function Home() {
           <button 
             onClick={() => setShowStreakModal(true)}
             className={clsx(
-              "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-500 cursor-pointer hover:border-accent-yellow relative",
+              "flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold tracking-widest uppercase shadow-sm transition-all duration-300 cursor-pointer hover:border-accent-yellow relative tap-press",
+              streak > 0 && "animate-streak-pulse",
               freezeUsedToday 
                 ? "border-accent-blue bg-accent-blue/10 text-accent-blue"
                 : streak > 0 
@@ -239,21 +244,21 @@ export function Home() {
           </button>
 
           <div className="flex gap-4">
-            <button onClick={() => setLevelModal('dev')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-blue transition-colors cursor-pointer text-left">
+            <button onClick={() => setLevelModal('dev')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-blue transition-colors cursor-pointer text-left tap-press">
               <Code size={18} className="text-accent-blue" />
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-text-muted leading-none">Dev Lvl {dev.level}</span>
-                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden">
+                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden shimmer-sweep">
                   <div className="h-full bg-accent-blue transition-all duration-1000" style={{ width: `${dev.progress}%` }} />
                 </div>
               </div>
             </button>
 
-            <button onClick={() => setLevelModal('fit')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-green transition-colors cursor-pointer text-left">
+            <button onClick={() => setLevelModal('fit')} className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-border-strong bg-bg-surface shadow-sm hover:border-accent-green transition-colors cursor-pointer text-left tap-press">
               <Dumbbell size={18} className="text-accent-green" />
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-bold text-text-muted leading-none">Fit Lvl {fitness.level}</span>
-                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden">
+                <div className="w-20 h-1.5 bg-border-strong rounded-full mt-1 overflow-hidden shimmer-sweep">
                   <div className="h-full bg-accent-green transition-all duration-1000" style={{ width: `${fitness.progress}%` }} />
                 </div>
               </div>
@@ -331,21 +336,21 @@ export function Home() {
             <button
               type="button"
               onClick={() => handleQuickLog(0.5)}
-              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +0.5h
             </button>
             <button
               type="button"
               onClick={() => handleQuickLog(1)}
-              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +1.0h
             </button>
             <button
               type="button"
               onClick={() => handleQuickLog(2)}
-              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +2.0h
             </button>
@@ -365,7 +370,7 @@ export function Home() {
             <button
               type="button"
               onClick={() => handleQuickLog()}
-              className="px-3 py-1.5 bg-text-main text-bg-base rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+              className="px-3 py-1.5 bg-text-main text-bg-base rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0 tap-press"
             >
               Log
             </button>
@@ -375,7 +380,7 @@ export function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        <Link to="/highlight" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
+        <Link to="/highlight" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
           <div className="w-20 h-20 rounded-full bg-accent-red-bg text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
             <PenTool size={32} strokeWidth={1.5} />
           </div>
@@ -387,7 +392,7 @@ export function Home() {
           </div>
         </Link>
 
-        <Link to="/habits" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
+        <Link to="/habits" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
           <div className="w-20 h-20 rounded-full bg-accent-green-bg text-accent-green flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
             <CheckSquare size={32} strokeWidth={1.5} />
           </div>
@@ -399,7 +404,7 @@ export function Home() {
           </div>
         </Link>
 
-        <Link to="/goals" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
+        <Link to="/goals" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
           <div className="w-20 h-20 rounded-full bg-accent-yellow-bg text-accent-yellow flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
             <Target size={32} strokeWidth={1.5} />
           </div>
@@ -411,7 +416,7 @@ export function Home() {
           </div>
         </Link>
 
-        <Link to="/logs" className="group hover-lift p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
+        <Link to="/logs" className="group hover-lift tap-press p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-6">
           <div className="w-20 h-20 rounded-full bg-accent-blue-bg text-accent-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
             <LineChart size={32} strokeWidth={1.5} />
           </div>

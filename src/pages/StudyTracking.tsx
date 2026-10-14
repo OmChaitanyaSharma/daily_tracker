@@ -12,7 +12,7 @@ import { useSound } from '../hooks/useSound';
 const EMPTY_ARRAY: any[] = [];
 
 export function StudyTracking() {
-  const { playClick, playSuccess } = useSound();
+  const { playClick, playSuccess, playThump } = useSound();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Hours input state
@@ -197,7 +197,7 @@ export function StudyTracking() {
 
   const handleDeleteHourLog = async (logId: string) => {
     await db.hourLogs.delete(logId);
-    playClick();
+    playThump();
   };
 
   // Prepare graph data
@@ -572,7 +572,7 @@ export function StudyTracking() {
                       key={h}
                       type="button"
                       onClick={() => setHoursAmount(h.toString())}
-                      className="px-2.5 py-2 rounded-xl bg-bg-base border border-border-strong text-xs font-semibold text-text-muted hover:text-text-main hover:bg-bg-surface transition-colors cursor-pointer"
+                      className="px-2.5 py-2 rounded-xl bg-bg-base border border-border-strong text-xs font-semibold text-text-muted hover:text-text-main hover:bg-bg-surface transition-colors cursor-pointer tap-press"
                     >
                       +{h}h
                     </button>
@@ -589,7 +589,7 @@ export function StudyTracking() {
 
             <button 
               onClick={handleAddHours}
-              className="bg-text-main text-bg-base px-6 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity mb-[2px] cursor-pointer"
+              className="bg-text-main text-bg-base px-6 py-2 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity mb-[2px] cursor-pointer tap-press"
             >
               Add Hours
             </button>

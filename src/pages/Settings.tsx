@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { format } from 'date-fns';
+import clsx from 'clsx';
 import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
 import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { db } from '../db';
 import { useAuth } from '../context/AuthContext';
+import { useSound } from '../hooks/useSound';
 import { uploadLocalToCloud } from '../services/cloudSync';
 
 export function Settings() {
   const { user } = useAuth();
+  const { soundEnabled, toggleSound } = useSound();
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [isClearing, setIsClearing] = useState(false);
   const [clearedMessage, setClearedMessage] = useState('');
@@ -269,6 +272,37 @@ export function Settings() {
 
       <form onSubmit={handleSubmit} className="space-y-10">
         
+        {/* Audio & Feedback */}
+        <section>
+          <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
+            <h2 className="text-lg font-serif text-text-main flex items-center gap-2">
+              <Volume2 size={18} className="text-accent-yellow" />
+              Sound & Audio Feedback
+            </h2>
+          </div>
+          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-5 flex items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-text-main">Synthesized Tactile Audio</div>
+              <p className="text-xs text-text-muted mt-0.5">
+                Play zero-latency tactile clicks, habit ticks, and milestone chimes during tracking.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={toggleSound}
+              className={clsx(
+                "px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shrink-0",
+                soundEnabled
+                  ? "bg-accent-yellow/20 text-accent-yellow border border-accent-yellow/40 hover:bg-accent-yellow/30"
+                  : "bg-bg-base text-text-muted border border-border-strong hover:text-text-main"
+              )}
+            >
+              {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              <span>{soundEnabled ? "Enabled" : "Muted"}</span>
+            </button>
+          </div>
+        </section>
+
         {/* Streak Requirements */}
         <section>
           <h2 className="text-lg font-serif text-text-main mb-4 border-b border-border-subtle pb-2">Streak Requirements</h2>
