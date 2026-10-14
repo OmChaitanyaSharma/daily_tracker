@@ -28,8 +28,13 @@ export function Layout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatusText, setSyncStatusText] = useState('');
+  const [avatarError, setAvatarError] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setAvatarError(false);
+  }, [user?.photoURL]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -276,14 +281,20 @@ export function Layout() {
                   aria-label="User account menu"
                   className="min-h-[44px] flex items-center gap-1.5 sm:gap-2 pl-2 pr-3 py-1.5 rounded-full bg-bg-surface hover:bg-bg-surface/80 border border-border-strong text-xs font-medium text-text-main transition-colors cursor-pointer shrink-0 tap-press"
                 >
-                  {user.photoURL ? (
+                  {user.photoURL && !avatarError ? (
                     <img 
                       src={user.photoURL} 
-                      alt="Avatar" 
-                      className="w-6 h-6 rounded-full object-cover" 
+                      alt={user.displayName ? `${user.displayName}'s avatar` : "User profile picture"} 
+                      width={24}
+                      height={24}
+                      loading="lazy"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      onError={() => setAvatarError(true)}
+                      className="w-6 h-6 rounded-full object-cover aspect-square shrink-0" 
                     />
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-accent-blue/20 text-accent-blue flex items-center justify-center font-bold text-[10px]">
+                    <div className="w-6 h-6 rounded-full bg-accent-blue/20 text-accent-blue flex items-center justify-center font-bold text-[10px] aspect-square shrink-0" aria-hidden="true">
                       {(user.displayName || user.email || 'U')[0].toUpperCase()}
                     </div>
                   )}
