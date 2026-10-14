@@ -10,6 +10,7 @@ const Highlight = lazy(() => import('./pages/Highlight').then(m => ({ default: m
 const Habits = lazy(() => import('./pages/Habits').then(m => ({ default: m.Habits })));
 const ProductivityHabits = lazy(() => import('./pages/ProductivityHabits').then(m => ({ default: m.ProductivityHabits })));
 const ExerciseTracking = lazy(() => import('./pages/ExerciseTracking').then(m => ({ default: m.ExerciseTracking })));
+const StudyTracking = lazy(() => import('./pages/StudyTracking').then(m => ({ default: m.StudyTracking })));
 const Goals = lazy(() => import('./pages/Goals').then(m => ({ default: m.Goals })));
 const EndOfYearGoals = lazy(() => import('./pages/EndOfYearGoals').then(m => ({ default: m.EndOfYearGoals })));
 const HealthGoals = lazy(() => import('./pages/HealthGoals').then(m => ({ default: m.HealthGoals })));
@@ -56,6 +57,7 @@ export default function App() {
             <Route path="habits" element={<Suspense fallback={<RouteFallback />}><Habits /></Suspense>} />
             <Route path="habits/productivity" element={<Suspense fallback={<RouteFallback />}><ProductivityHabits /></Suspense>} />
             <Route path="habits/health" element={<Suspense fallback={<RouteFallback />}><ExerciseTracking /></Suspense>} />
+            <Route path="habits/study" element={<Suspense fallback={<RouteFallback />}><StudyTracking /></Suspense>} />
             <Route path="goals" element={<Suspense fallback={<RouteFallback />}><Goals /></Suspense>} />
             <Route path="goals/end-of-year" element={<Suspense fallback={<RouteFallback />}><EndOfYearGoals /></Suspense>} />
             <Route path="goals/health" element={<Suspense fallback={<RouteFallback />}><HealthGoals /></Suspense>} />
