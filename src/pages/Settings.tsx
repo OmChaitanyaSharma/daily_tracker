@@ -8,6 +8,7 @@ import { db } from '../db';
 import { useAuth } from '../context/AuthContext';
 import { useSound } from '../hooks/useSound';
 import { uploadLocalToCloud } from '../services/cloudSync';
+import { validateBackupPayload, sanitizeBackupRecords } from '../utils/backupValidation';
 
 export function Settings() {
   const { user } = useAuth();
@@ -33,7 +34,8 @@ export function Settings() {
   const handleExportData = async () => {
     try {
       const backupData = {
-        version: 1,
+        _app: 'daily-tracker',
+        _schemaVersion: 1,
         exportDate: new Date().toISOString(),
         settings: getSettings(),
         restDaysConfig: localStorage.getItem('rest_days_config_v1'),
@@ -65,33 +67,6 @@ export function Settings() {
       console.error('Export failed:', err);
       alert('Failed to export data.');
     }
-  };
-
-  const validateBackupPayload = (data: any): { valid: boolean; error?: string } => {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) {
-      return { valid: false, error: 'Backup file must contain a valid JSON object.' };
-    }
-
-    const knownCollections = [
-      'habits',
-      'habitLogs',
-      'hourLogs',
-      'hourCategories',
-      'goals',
-      'goalMeasurements',
-      'exercises',
-      'exerciseLogs',
-      'tasks',
-      'dayEntries'
-    ];
-    const hasAnyCollection = knownCollections.some(key => Array.isArray(data[key]));
-    const hasSettings = data.settings && typeof data.settings === 'object';
-
-    if (!hasAnyCollection && !hasSettings) {
-      return { valid: false, error: 'Unrecognized backup structure. No valid Daily Tracker collections found.' };
-    }
-
-    return { valid: true };
   };
 
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,6 +110,8 @@ export function Settings() {
         throw new Error(validation.error);
       }
 
+      const payload = validation.payload;
+
       await db.transaction('rw', [
         db.dayEntries,
         db.tasks,
@@ -147,55 +124,65 @@ export function Settings() {
         db.exercises,
         db.exerciseLogs
       ], async () => {
-        if (Array.isArray(data.dayEntries)) {
+        if (Array.isArray(payload.dayEntries)) {
+          const valid = sanitizeBackupRecords(payload.dayEntries, 'date');
           await db.dayEntries.clear();
-          await db.dayEntries.bulkAdd(data.dayEntries);
+          if (valid.length > 0) await db.dayEntries.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.tasks)) {
+        if (Array.isArray(payload.tasks)) {
+          const valid = sanitizeBackupRecords(payload.tasks, 'id');
           await db.tasks.clear();
-          await db.tasks.bulkAdd(data.tasks);
+          if (valid.length > 0) await db.tasks.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.habits)) {
+        if (Array.isArray(payload.habits)) {
+          const valid = sanitizeBackupRecords(payload.habits, 'id');
           await db.habits.clear();
-          await db.habits.bulkAdd(data.habits);
+          if (valid.length > 0) await db.habits.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.habitLogs)) {
+        if (Array.isArray(payload.habitLogs)) {
+          const valid = sanitizeBackupRecords(payload.habitLogs, 'id');
           await db.habitLogs.clear();
-          await db.habitLogs.bulkAdd(data.habitLogs);
+          if (valid.length > 0) await db.habitLogs.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.hourLogs)) {
+        if (Array.isArray(payload.hourLogs)) {
+          const valid = sanitizeBackupRecords(payload.hourLogs, 'id');
           await db.hourLogs.clear();
-          await db.hourLogs.bulkAdd(data.hourLogs);
+          if (valid.length > 0) await db.hourLogs.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.hourCategories)) {
+        if (Array.isArray(payload.hourCategories)) {
+          const valid = sanitizeBackupRecords(payload.hourCategories, 'id');
           await db.hourCategories.clear();
-          await db.hourCategories.bulkAdd(data.hourCategories);
+          if (valid.length > 0) await db.hourCategories.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.goals)) {
+        if (Array.isArray(payload.goals)) {
+          const valid = sanitizeBackupRecords(payload.goals, 'id');
           await db.goals.clear();
-          await db.goals.bulkAdd(data.goals);
+          if (valid.length > 0) await db.goals.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.goalMeasurements)) {
+        if (Array.isArray(payload.goalMeasurements)) {
+          const valid = sanitizeBackupRecords(payload.goalMeasurements, 'id');
           await db.goalMeasurements.clear();
-          await db.goalMeasurements.bulkAdd(data.goalMeasurements);
+          if (valid.length > 0) await db.goalMeasurements.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.exercises)) {
+        if (Array.isArray(payload.exercises)) {
+          const valid = sanitizeBackupRecords(payload.exercises, 'id');
           await db.exercises.clear();
-          await db.exercises.bulkAdd(data.exercises);
+          if (valid.length > 0) await db.exercises.bulkAdd(valid as any);
         }
-        if (Array.isArray(data.exerciseLogs)) {
+        if (Array.isArray(payload.exerciseLogs)) {
+          const valid = sanitizeBackupRecords(payload.exerciseLogs, 'id');
           await db.exerciseLogs.clear();
-          await db.exerciseLogs.bulkAdd(data.exerciseLogs);
+          if (valid.length > 0) await db.exerciseLogs.bulkAdd(valid as any);
         }
       });
 
-      if (data.settings && typeof data.settings === 'object') {
-        saveSettings(data.settings);
+      if (payload.settings && typeof payload.settings === 'object') {
+        saveSettings(payload.settings);
       }
-      if (data.restDaysConfig) {
-        const configStr = typeof data.restDaysConfig === 'string'
-          ? data.restDaysConfig
-          : JSON.stringify(data.restDaysConfig);
+      if (payload.restDaysConfig) {
+        const configStr = typeof payload.restDaysConfig === 'string'
+          ? payload.restDaysConfig
+          : JSON.stringify(payload.restDaysConfig);
         localStorage.setItem('rest_days_config_v1', configStr);
       }
 

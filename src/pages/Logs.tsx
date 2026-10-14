@@ -101,8 +101,11 @@ export function Logs() {
   const exportData = async () => {
     try {
       const backupData = {
+        _app: 'daily-tracker',
+        _schemaVersion: 1,
         exportDate: new Date().toISOString(),
         dayEntries: await db.dayEntries.toArray(),
+        tasks: await db.tasks.toArray(),
         habits: await db.habits.toArray(),
         habitLogs: await db.habitLogs.toArray(),
         hourLogs: await db.hourLogs.toArray(),

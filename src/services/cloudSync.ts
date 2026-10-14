@@ -26,59 +26,86 @@ const SYNC_COLLECTIONS = [
 
 export type SyncCollectionName = typeof SYNC_COLLECTIONS[number];
 
+const ACTIVE_UID_KEY = 'dt_active_uid';
+let isUploadInProgress = false;
+let lastUploadTimestamp = 0;
+const UPLOAD_COOLDOWN_MS = 6000;
+
 /**
  * Uploads all current local Dexie tables and settings to the user's Firestore cloud storage.
  */
-export async function uploadLocalToCloud(userId: string): Promise<void> {
+export async function uploadLocalToCloud(userId: string, force = false): Promise<void> {
   if (!auth.currentUser || auth.currentUser.uid !== userId) {
     throw new Error('Unauthorized: Active authenticated session does not match the target user ID.');
   }
 
-  const userRef = doc(firestore, 'users', userId);
-
-  // 1. Upload settings & rest day config
-  const settings = getSettings();
-  const restDaysConfig = localStorage.getItem('rest_days_config_v1');
-  const cleanSettings = settings ? JSON.parse(JSON.stringify(settings)) : {};
-  const cleanRestDays = restDaysConfig ? JSON.parse(restDaysConfig) : null;
-  
-  await setDoc(doc(userRef, 'profile', 'settings'), {
-    settings: cleanSettings,
-    restDaysConfig: cleanRestDays,
-    updatedAt: new Date().toISOString()
-  });
-
-  // 2. Upload collections in batches (max 500 per batch in Firestore)
-  for (const colName of SYNC_COLLECTIONS) {
-    const table = (db as any)[colName];
-    if (!table) continue;
-
-    const items = await table.toArray();
-    if (items.length === 0) continue;
-
-    // Split into batches of 400
-    const chunkSize = 400;
-    for (let i = 0; i < items.length; i += chunkSize) {
-      const chunk = items.slice(i, i + chunkSize);
-      const batch = writeBatch(firestore);
-
-      for (const item of chunk) {
-        const rawId = (item as any).id ?? (item as any).date;
-        const docId = rawId ? String(rawId) : Math.random().toString(36).substring(2, 9);
-        const docRef = doc(collection(userRef, colName), docId);
-        const cleanItem = JSON.parse(JSON.stringify(item));
-        batch.set(docRef, cleanItem, { merge: true });
-      }
-
-      await batch.commit();
-    }
+  if (isUploadInProgress) {
+    return;
   }
 
-  // Set meta doc indicating data exists
-  await setDoc(doc(userRef, 'meta', 'sync'), {
-    lastSyncedAt: serverTimestamp(),
-    initialized: true
-  });
+  const now = Date.now();
+  if (!force && (now - lastUploadTimestamp < UPLOAD_COOLDOWN_MS)) {
+    return;
+  }
+
+  isUploadInProgress = true;
+
+  try {
+    const userRef = doc(firestore, 'users', userId);
+
+    // 1. Upload settings & rest day config
+    const settings = getSettings();
+    const restDaysConfig = localStorage.getItem('rest_days_config_v1');
+    const cleanSettings = settings ? JSON.parse(JSON.stringify(settings)) : {};
+    const cleanRestDays = restDaysConfig ? JSON.parse(restDaysConfig) : null;
+    
+    await setDoc(doc(userRef, 'profile', 'settings'), {
+      settings: cleanSettings,
+      restDaysConfig: cleanRestDays,
+      updatedAt: new Date().toISOString()
+    });
+
+    // 2. Upload collections in batches (max 500 per batch in Firestore)
+    for (const colName of SYNC_COLLECTIONS) {
+      const table = (db as any)[colName];
+      if (!table) continue;
+
+      const items = await table.toArray();
+      if (items.length === 0) continue;
+
+      // Split into batches of 400
+      const chunkSize = 400;
+      for (let i = 0; i < items.length; i += chunkSize) {
+        const chunk = items.slice(i, i + chunkSize);
+        const batch = writeBatch(firestore);
+
+        for (const item of chunk) {
+          const rawId = (item as any).id ?? (item as any).date;
+          const docId = rawId ? String(rawId) : Math.random().toString(36).substring(2, 9);
+          const docRef = doc(collection(userRef, colName), docId);
+          const cleanItem = JSON.parse(JSON.stringify(item));
+          batch.set(docRef, cleanItem, { merge: true });
+        }
+
+        await batch.commit();
+
+        // Pacing delay between large batch chunks to prevent resource exhaustion
+        if (i + chunkSize < items.length) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+      }
+    }
+
+    // Set meta doc indicating data exists
+    await setDoc(doc(userRef, 'meta', 'sync'), {
+      lastSyncedAt: serverTimestamp(),
+      initialized: true
+    });
+
+    lastUploadTimestamp = Date.now();
+  } finally {
+    isUploadInProgress = false;
+  }
 }
 
 /**
@@ -147,17 +174,27 @@ export async function downloadCloudToLocal(userId: string, strategy: 'merge' | '
  * If cloud has data, it merges cloud data with local records non-destructively and backs up the combined set.
  */
 export async function handleUserLoginSync(userId: string): Promise<'uploaded_local' | 'merged_cloud'> {
+  const previousUserId = typeof window !== 'undefined' ? localStorage.getItem(ACTIVE_UID_KEY) : null;
+  // Account switch isolation: If a different authenticated user owned local storage previously on this device,
+  // wipe the previous user's local tables before loading the current user's dataset to avoid cross-tenant data bleed
+  if (previousUserId && previousUserId !== userId) {
+    await clearLocalDataOnSignOut();
+  }
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(ACTIVE_UID_KEY, userId);
+  }
+
   const userRef = doc(firestore, 'users', userId);
   const metaSnap = await getDoc(doc(userRef, 'meta', 'sync'));
 
   if (!metaSnap.exists()) {
     // Cloud is empty for this user: back up local to cloud
-    await uploadLocalToCloud(userId);
+    await uploadLocalToCloud(userId, true);
     return 'uploaded_local';
   } else {
     // Cloud has data: merge non-destructively and update cloud with unified dataset
     await downloadCloudToLocal(userId, 'merge');
-    await uploadLocalToCloud(userId);
+    await uploadLocalToCloud(userId, true);
     return 'merged_cloud';
   }
 }
@@ -171,5 +208,8 @@ export async function clearLocalDataOnSignOut(): Promise<void> {
     if (table) {
       await table.clear();
     }
+  }
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(ACTIVE_UID_KEY);
   }
 }
