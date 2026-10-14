@@ -6,14 +6,17 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#F9F7F3" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daily Tracker | Personal Growth OS</title>
-    <meta name="description" content="Offline-first personal growth OS with habit tracking, workout logging, deep work graphs, and RPG progression." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://daily-tracker-iota-one.vercel.app/" />
+
+    <title>Daily Tracker — Offline-First Personal Growth OS</title>
+    <meta name="description" content="Offline-first personal growth OS with habit matrix tracking, workout logging, deep work graphs, and gamified RPG progression on your device." />
 
     <!-- OpenGraph / Facebook / LinkedIn / WhatsApp -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://daily-tracker-iota-one.vercel.app/" />
-    <meta property="og:title" content="Daily Tracker | Personal Growth OS" />
-    <meta property="og:description" content="Offline-first personal growth OS with habit tracking, workout logging, deep work graphs, and RPG progression." />
+    <meta property="og:title" content="Daily Tracker — Offline-First Personal Growth OS" />
+    <meta property="og:description" content="Offline-first personal growth OS with habit matrix tracking, workout logging, deep work graphs, and gamified RPG progression on your device." />
     <meta property="og:image" content="https://daily-tracker-iota-one.vercel.app/hero.png" />
     <meta property="og:image:width" content="343" />
     <meta property="og:image:height" content="361" />
@@ -22,11 +25,84 @@
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://daily-tracker-iota-one.vercel.app/" />
-    <meta name="twitter:title" content="Daily Tracker | Personal Growth OS" />
-    <meta name="twitter:description" content="Offline-first personal growth OS with habit tracking, workout logging, deep work graphs, and RPG progression." />
+    <meta name="twitter:title" content="Daily Tracker — Offline-First Personal Growth OS" />
+    <meta name="twitter:description" content="Offline-first personal growth OS with habit matrix tracking, workout logging, deep work graphs, and gamified RPG progression on your device." />
     <meta name="twitter:image" content="https://daily-tracker-iota-one.vercel.app/hero.png" />
     <meta name="twitter:image:width" content="343" />
     <meta name="twitter:image:height" content="361" />
+
+    <!-- Structured Data (Schema.org JSON-LD: Organization, SoftwareApplication, FAQPage) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://daily-tracker-iota-one.vercel.app/#organization",
+          "name": "Daily Tracker OS",
+          "url": "https://daily-tracker-iota-one.vercel.app/",
+          "logo": "https://daily-tracker-iota-one.vercel.app/hero.png",
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Customer Support",
+            "url": "https://daily-tracker-iota-one.vercel.app/"
+          }
+        },
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://daily-tracker-iota-one.vercel.app/#application",
+          "name": "Daily Tracker",
+          "applicationCategory": "ProductivityApplication",
+          "operatingSystem": "All modern web browsers",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "description": "Offline-first personal growth OS with habit matrix tracking, workout logging, deep work graphs, and gamified RPG progression on your device."
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://daily-tracker-iota-one.vercel.app/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How does offline-first storage work in Daily Tracker?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Daily Tracker uses Dexie.js and client-side IndexedDB to store all entries, habit logs, study hours, and workout sets locally on your device. Your data remains fully accessible and performant even without an internet connection."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How are daily streaks and streak freezes calculated?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Streaks require achieving your target daily habit completion percentage (default 75%), minimum focus hours, and exercise goals. Maintaining 7 consecutive days of completion earns a Freeze Token that protects your streak if a day is missed."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I export or backup my tracking data?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, you can export your complete tracking history as a portable JSON backup file at any time from the Logs or Settings pages, and restore it on any device."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does the RPG leveling system work?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Logged deep work hours and workout volume are converted into experience points (XP) that advance your discrete Developer and Fitness levels with custom polynomial curves and unlockable rank titles."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">

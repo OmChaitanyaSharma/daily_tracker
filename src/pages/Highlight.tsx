@@ -183,9 +183,13 @@ export function Highlight() {
             <ArrowLeft size={24} />
           </Link>
           
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-2xl sm:text-3xl font-serif italic text-text-main font-semibold">
+              Daily Highlight & Reflection
+            </h1>
             {isCompletedView ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs uppercase tracking-widest text-text-muted font-medium">Viewing Date:</span>
                 <input 
                   type="date"
                   value={originalDate}
@@ -194,18 +198,18 @@ export function Highlight() {
                   onChange={e => {
                     if (e.target.value) setOriginalDate(e.target.value);
                   }}
-                  className="bg-transparent text-xl sm:text-2xl font-serif italic text-text-main focus:outline-none focus:border-b focus:border-text-muted transition-all cursor-pointer min-h-[44px]"
+                  className="bg-transparent text-sm sm:text-base font-serif italic text-text-main focus:outline-none focus:border-b focus:border-text-muted transition-all cursor-pointer min-h-[36px]"
                 />
               </div>
             ) : (
-              <div className="flex flex-col gap-1">
-                <label htmlFor="record-date" className="text-xs uppercase tracking-widest text-text-muted font-medium">Record Date</label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="record-date" className="text-xs uppercase tracking-widest text-text-muted font-medium">Record Date:</label>
                 <input 
                   id="record-date"
                   type="date"
                   value={entry.date}
                   onChange={e => setEntry({ ...entry, date: e.target.value })}
-                  className="bg-bg-surface border border-border-strong rounded-xl px-3.5 py-2 min-h-[44px] text-base sm:text-lg font-serif italic text-text-main focus:outline-none focus:border-text-muted transition-all w-48"
+                  className="bg-bg-surface border border-border-strong rounded-xl px-3 py-1.5 min-h-[36px] text-sm font-serif italic text-text-main focus:outline-none focus:border-text-muted transition-all w-40"
                 />
               </div>
             )}

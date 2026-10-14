@@ -9,8 +9,10 @@ import { useSound } from '../hooks/useSound';
 import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { handleUserLoginSync, uploadLocalToCloud, clearLocalDataOnSignOut } from '../services/cloudSync';
+import { usePageSEO } from '../hooks/usePageSEO';
 
 export function Layout() {
+  usePageSEO();
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem('theme');
     return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
