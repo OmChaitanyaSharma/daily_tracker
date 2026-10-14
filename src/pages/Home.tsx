@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { LevelUpCelebration } from '../components/LevelUpCelebration';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check } from 'lucide-react';
+import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check, Clock, Plus, Sparkles, CheckCircle2 } from 'lucide-react';
 import { TodoList } from '../components/TodoList';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
@@ -103,6 +103,36 @@ export function Home() {
   const todaysExerciseLogs = useLiveQuery(() => db.exerciseLogs.where('date').equals(todayStr).toArray()) || [];
   const todaysHabitLogs = useLiveQuery(() => db.habitLogs.where('date').equals(todayStr).toArray()) || [];
   const todaysHourLogs = useLiveQuery(() => db.hourLogs.where('date').equals(todayStr).toArray()) || [];
+  const hourCategories = useLiveQuery(() => db.hourCategories.toArray()) || [];
+
+  const [quickHours, setQuickHours] = useState('1');
+  const [quickCat, setQuickCat] = useState('');
+  const [quickLogSuccess, setQuickLogSuccess] = useState(false);
+
+  const handleQuickLog = async (hoursToAdd?: number) => {
+    const val = hoursToAdd !== undefined ? hoursToAdd : parseFloat(quickHours);
+    if (isNaN(val) || val <= 0) return;
+    const activeCats = hourCategories.filter(c => !c.archived);
+    const catName = quickCat || (activeCats[0]?.name || 'Deep Work');
+    await db.hourLogs.add({
+      id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
+      date: todayStr,
+      activity: catName,
+      hours: val
+    });
+    setQuickLogSuccess(true);
+    setTimeout(() => setQuickLogSuccess(false), 2200);
+  };
+
+  const handleSeedStarterHabits = async () => {
+    const now = new Date().toISOString();
+    await db.habits.bulkAdd([
+      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h1', name: 'Deep Work (2h)', frequencyType: 'daily', priority: 1, startDate: todayStr, archived: false, createdAt: now },
+      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h2', name: 'Read 20 Pages', frequencyType: 'daily', priority: 2, startDate: todayStr, archived: false, createdAt: now },
+      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h3', name: 'Daily Workout', frequencyType: 'daily', priority: 1, startDate: todayStr, archived: false, createdAt: now },
+      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h4', name: 'Hydration (3L)', frequencyType: 'daily', priority: 2, startDate: todayStr, archived: false, createdAt: now }
+    ]);
+  };
   
   let habitScore = 0;
   todaysHabitLogs.forEach(log => {
@@ -231,6 +261,117 @@ export function Home() {
           </div>
         </div>
       </header>
+
+      {/* Cold Start Starter Habits Prompt */}
+      {activeHabits.length === 0 && (
+        <div className="my-8 p-6 bg-gradient-to-r from-accent-blue/10 via-bg-surface to-accent-purple/10 border border-border-strong rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm animate-fade-in">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-accent-blue/20 text-accent-blue flex items-center justify-center shrink-0">
+              <Sparkles size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-serif font-semibold text-text-main">Welcome to Daily Tracker OS</h3>
+              <p className="text-sm text-text-muted mt-0.5">Initialize your dashboard with core habits or create custom routines.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              onClick={handleSeedStarterHabits}
+              className="px-4 py-2 bg-text-main text-bg-base font-semibold text-xs rounded-xl hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2"
+            >
+              <Plus size={14} />
+              <span>Load Starter Habits</span>
+            </button>
+            <Link
+              to="/habits/productivity"
+              className="px-4 py-2 bg-bg-surface border border-border-strong text-text-main font-semibold text-xs rounded-xl hover:bg-bg-surface/80 transition-colors"
+            >
+              Custom
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* 2-Click Quick Work Logger Widget */}
+      <div className="my-8 p-4 sm:p-5 bg-bg-surface border border-border-subtle rounded-3xl shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 animate-fade-in">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-accent-blue/15 text-accent-blue flex items-center justify-center shrink-0">
+            <Clock size={20} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">Quick Work Log</span>
+              {quickLogSuccess && (
+                <span className="text-[11px] text-accent-green font-medium flex items-center gap-1 animate-fade-in">
+                  <CheckCircle2 size={12} /> Logged!
+                </span>
+              )}
+            </div>
+            <p className="text-sm font-medium text-text-main mt-0.5">
+              Today: <span className="font-mono font-semibold text-accent-blue">{todaysTotalHours}h</span>
+              <span className="text-text-muted font-normal text-xs ml-1">/ {settings.streakTargetHours}h target</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {hourCategories.filter(c => !c.archived).length > 0 && (
+            <select
+              value={quickCat}
+              onChange={e => setQuickCat(e.target.value)}
+              className="bg-bg-base border border-border-strong rounded-xl px-3 py-1.5 text-xs text-text-main outline-none focus:border-text-muted cursor-pointer"
+            >
+              {hourCategories.filter(c => !c.archived).map(cat => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+          )}
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => handleQuickLog(0.5)}
+              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer"
+            >
+              +0.5h
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickLog(1)}
+              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer"
+            >
+              +1.0h
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickLog(2)}
+              className="px-2.5 py-1.5 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer"
+            >
+              +2.0h
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5 pl-1 border-l border-border-subtle">
+            <input
+              type="number"
+              step="0.5"
+              min="0.25"
+              max="24"
+              value={quickHours}
+              onChange={e => setQuickHours(e.target.value)}
+              placeholder="Hrs"
+              className="w-14 bg-bg-base border border-border-strong rounded-xl px-2 py-1.5 text-xs text-text-main font-mono text-center outline-none focus:border-text-muted"
+            />
+            <button
+              type="button"
+              onClick={() => handleQuickLog()}
+              className="px-3 py-1.5 bg-text-main text-bg-base rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+            >
+              Log
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         

@@ -13,9 +13,12 @@ import { auth, googleProvider } from '../firebase';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isGuest: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string) => Promise<void>;
+  continueAsGuest: () => void;
+  exitGuestMode: () => void;
   logout: () => Promise<void>;
 }
 
@@ -24,6 +27,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(() => localStorage.getItem('dt_guest_mode') === 'true');
 
   useEffect(() => {
     // Process returning from signInWithRedirect (Brave / Mobile / Safari)
@@ -31,6 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((result) => {
         if (result?.user) {
           setUser(result.user);
+          setIsGuest(false);
+          localStorage.removeItem('dt_guest_mode');
         }
       })
       .catch((err) => {
@@ -39,15 +45,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        setIsGuest(false);
+        localStorage.removeItem('dt_guest_mode');
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
+  const continueAsGuest = () => {
+    setIsGuest(true);
+    localStorage.setItem('dt_guest_mode', 'true');
+  };
+
+  const exitGuestMode = () => {
+    setIsGuest(false);
+    localStorage.removeItem('dt_guest_mode');
+  };
+
   const signInWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      setIsGuest(false);
+      localStorage.removeItem('dt_guest_mode');
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       throw error;
@@ -57,6 +79,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, pass: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      setIsGuest(false);
+      localStorage.removeItem('dt_guest_mode');
     } catch (error: any) {
       console.error('Email sign-in error:', error);
       throw error;
@@ -66,6 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUpWithEmail = async (email: string, pass: string) => {
     try {
       await createUserWithEmailAndPassword(auth, email, pass);
+      setIsGuest(false);
+      localStorage.removeItem('dt_guest_mode');
     } catch (error: any) {
       console.error('Email sign-up error:', error);
       throw error;
@@ -75,6 +101,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await signOut(auth);
+      setIsGuest(false);
+      localStorage.removeItem('dt_guest_mode');
     } catch (error: any) {
       console.error('Logout error:', error);
       throw error;
@@ -82,7 +110,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithEmail, signUpWithEmail, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      isGuest, 
+      signInWithGoogle, 
+      signInWithEmail, 
+      signUpWithEmail, 
+      continueAsGuest, 
+      exitGuestMode, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,12 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Habit, type HourCategory } from '../db';
+import { db, type Habit } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO, isBefore } from 'date-fns';
 const EMPTY_ARRAY: any[] = [];
 import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
-import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, ArchiveRestore, X, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
 
@@ -29,19 +28,6 @@ export function ProductivityHabits() {
   const [archivingHabit, setArchivingHabit] = useState<Habit | null>(null);
   const [deletingHabit, setDeletingHabit] = useState<Habit | null>(null);
 
-  // Hours input state
-  const [hoursDate, setHoursDate] = useState(getTodayStr());
-  const [hoursType, setHoursType] = useState<string>('');
-  const [hoursAmount, setHoursAmount] = useState('');
-
-  // Category management state
-  const [showManageCategories, setShowManageCategories] = useState(false);
-  const [newCatName, setNewCatName] = useState('');
-  const [newCatColor, setNewCatColor] = useState('#8b5cf6');
-  const [editingCat, setEditingCat] = useState<HourCategory | null>(null);
-  const [editCatName, setEditCatName] = useState('');
-  const [editCatColor, setEditCatColor] = useState('');
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Backspace') {
@@ -52,7 +38,7 @@ export function ProductivityHabits() {
           }
         }
 
-        if (isAddingHabit || activeMenuHabitId || editingHabit || archivingHabit || deletingHabit || showManageCategories) {
+        if (isAddingHabit || activeMenuHabitId || editingHabit || archivingHabit || deletingHabit) {
           e.preventDefault();
           e.stopPropagation();
           setIsAddingHabit(false);
@@ -60,14 +46,13 @@ export function ProductivityHabits() {
           setEditingHabit(null);
           setArchivingHabit(null);
           setDeletingHabit(null);
-          setShowManageCategories(false);
         }
       }
     };
     
     window.addEventListener('keydown', handleKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [isAddingHabit, activeMenuHabitId, editingHabit, archivingHabit, deletingHabit, showManageCategories]);
+  }, [isAddingHabit, activeMenuHabitId, editingHabit, archivingHabit, deletingHabit]);
 
   const allHabits = useLiveQuery(() => db.habits.toArray()) ?? EMPTY_ARRAY;
   
@@ -81,12 +66,6 @@ export function ProductivityHabits() {
   const habitLogs = useLiveQuery(() => 
     db.habitLogs.where('date').between(monthStartStr, monthEndStr, true, true).toArray()
   , [monthStartStr, monthEndStr]) ?? EMPTY_ARRAY;
-
-  const hourLogs = useLiveQuery(() => 
-    db.hourLogs.where('date').between(monthStartStr, monthEndStr, true, true).toArray()
-  , [monthStartStr, monthEndStr]) ?? EMPTY_ARRAY;
-
-  const hourCategories = useLiveQuery(() => db.hourCategories.toArray()) ?? EMPTY_ARRAY;
 
   // Streak logic moved to Home.tsx
 
@@ -200,157 +179,6 @@ export function ProductivityHabits() {
     }
     playClick();
   };
-
-
-
-  const handleAddCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCatName.trim()) return;
-    await db.hourCategories.add({
-      id: crypto.randomUUID(),
-      name: newCatName.trim(),
-      color: newCatColor,
-      createdAt: new Date().toISOString()
-    });
-    setNewCatName('');
-  };
-
-  const handleEditCategory = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCat || !editCatName.trim()) return;
-    
-    // Also update all hour logs that used the old name
-    const oldName = editingCat.name;
-    const newName = editCatName.trim();
-    
-    if (oldName !== newName) {
-      const logsToUpdate = await db.hourLogs.filter(l => l.activity === oldName).toArray();
-      for (const log of logsToUpdate) {
-        await db.hourLogs.update(log.id, { activity: newName });
-      }
-    }
-    
-    await db.hourCategories.update(editingCat.id, {
-      name: newName,
-      color: editCatColor
-    });
-    setEditingCat(null);
-  };
-
-  const handleDeleteCategory = async (cat: HourCategory) => {
-    if (confirm(`Delete category "${cat.name}"? This will ALSO delete all historical hours logged under this category. This cannot be undone.`)) {
-      const logsToDelete = await db.hourLogs.filter(l => l.activity === cat.name).toArray();
-      const keys = logsToDelete.map(l => l.id);
-      await db.hourLogs.bulkDelete(keys);
-      await db.hourCategories.delete(cat.id);
-    }
-  };
-
-  const handleToggleArchiveCategory = async (cat: HourCategory) => {
-    await db.hourCategories.update(cat.id, { archived: !cat.archived });
-    if (!cat.archived && hoursType === cat.name) {
-      // If we just archived the currently selected type for new hours, switch it
-      const nextAvailable = hourCategories.find(c => c.id !== cat.id && !c.archived);
-      if (nextAvailable) setHoursType(nextAvailable.name);
-      else setHoursType('');
-    }
-  };
-
-  const [errorMsg, setErrorMsg] = useState('');
-
-  const handleAddHours = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const amount = parseFloat(hoursAmount);
-    if (isNaN(amount) || amount <= 0) return;
-
-    const selectedActivity = hoursType || hourCategories[0]?.name;
-    
-    if (!selectedActivity) {
-      setErrorMsg('Please select an activity.');
-      setTimeout(() => setErrorMsg(''), 5000);
-      return;
-    }
-
-    const dateHourLogs = await db.hourLogs.where('date').equals(hoursDate).toArray();
-    const currentTotal = dateHourLogs.reduce((acc, curr) => acc + curr.hours, 0);
-    const subjectTotal = dateHourLogs.filter(log => log.activity === selectedActivity).reduce((acc, curr) => acc + curr.hours, 0);
-
-    if (subjectTotal + amount > 12) {
-      setErrorMsg(`Maximum 12 hours can be logged per subject.`);
-      setTimeout(() => setErrorMsg(''), 5000);
-      return;
-    }
-
-    if (currentTotal + amount > 19) {
-      setErrorMsg(`Maximum 19 hours total can be logged per day.`);
-      setTimeout(() => setErrorMsg(''), 5000);
-      return;
-    }
-
-    setErrorMsg('');
-
-    await db.hourLogs.add({
-      id: crypto.randomUUID(),
-      date: hoursDate,
-      activity: selectedActivity,
-      hours: amount
-    });
-    setHoursAmount('');
-  };
-
-  const handleUpdateLogHours = async (logId: string, newHours: number, date: string, activity: string) => {
-    if (isNaN(newHours) || newHours <= 0) return;
-    const dateHourLogs = await db.hourLogs.where('date').equals(date).toArray();
-    
-    // We must exclude the CURRENT log we are editing from the totals to see if the NEW amount is valid
-    const currentTotal = dateHourLogs.reduce((acc, curr) => curr.id === logId ? acc : acc + curr.hours, 0);
-    const subjectTotal = dateHourLogs.filter(l => l.activity === activity).reduce((acc, curr) => curr.id === logId ? acc : acc + curr.hours, 0);
-
-    if (subjectTotal + newHours > 12) {
-      alert(`Maximum 12 hours can be logged per subject.`);
-      return;
-    }
-
-    if (currentTotal + newHours > 19) {
-      alert(`Maximum 19 hours total can be logged per day.`);
-      return;
-    }
-
-    await db.hourLogs.update(logId, { hours: newHours });
-  };
-
-  const handleUpdateLogActivity = async (logId: string, newActivity: string, date: string, hours: number) => {
-    const dateHourLogs = await db.hourLogs.where('date').equals(date).toArray();
-    const subjectTotal = dateHourLogs.filter(l => l.activity === newActivity).reduce((acc, curr) => curr.id === logId ? acc : acc + curr.hours, 0);
-
-    if (subjectTotal + hours > 12) {
-      alert(`Maximum 12 hours can be logged per subject.`);
-      return;
-    }
-
-    await db.hourLogs.update(logId, { activity: newActivity });
-  };
-
-  // Prepare graph data
-  const graphData = useMemo(() => {
-    return daysInMonth.map(date => {
-      const dateStr = format(date, 'yyyy-MM-dd');
-      const dailyHours = hourLogs.filter(log => log.date === dateStr);
-      
-      const dataPoint: any = {
-        date: format(date, 'd'),
-        fullDate: dateStr,
-      };
-
-      // Populate dynamic categories
-      hourCategories.forEach(cat => {
-        const hours = dailyHours.filter(l => l.activity === cat.name).reduce((acc, curr) => acc + curr.hours, 0);
-        dataPoint[cat.name] = hours; // Return 0 to ensure the line connects
-      });
-
-      return dataPoint;
-    });
-  }, [daysInMonth, hourLogs, hourCategories]);
 
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in relative">
@@ -473,11 +301,12 @@ export function ProductivityHabits() {
 
       <header className="flex items-center justify-between border-b border-border-subtle pb-6 mb-12">
         <div className="flex items-center gap-6">
-          <Link to="/habits" className="text-text-muted hover:text-text-main transition-colors">
+          <Link to="/habits" className="text-text-muted hover:text-text-main transition-colors p-1 rounded-full hover:bg-bg-surface">
             <ArrowLeft size={24} />
           </Link>
-          <div className="flex items-center gap-4">
-            <h1 className="text-3xl font-serif italic text-text-main">Productivity Tracking</h1>
+          <div>
+            <h1 className="text-3xl font-serif italic text-text-main font-semibold">Daily Habits</h1>
+            <p className="text-sm text-text-muted mt-1">Daily habits matrix and consistency tracking</p>
           </div>
         </div>
 
@@ -626,11 +455,22 @@ setEditingHabit(habit);
 if (isEligible && habit.frequencyType === 'specific_days' && habit.specificDays) { isEligible = habit.specificDays.includes(date.getDay()); }
 const isSunday = date.getDay() === 0;
                   
+                  const statusLabel = !isEligible 
+                    ? 'Not scheduled' 
+                    : currentStatus === 'completed' 
+                      ? 'Completed' 
+                      : currentStatus === 'partial' 
+                        ? 'Partially completed' 
+                        : 'Incomplete';
+                  const dateLabel = format(date, 'EEEE, MMM d, yyyy');
+                  
                   return (
                     <button
                       key={dateStr}
                       disabled={!isEligible}
                       onClick={() => toggleHabit(habit.id, dateStr, log?.status, log?.id)}
+                      aria-label={`${habit.name}, ${dateLabel}: ${statusLabel}`}
+                      title={`${habit.name} (${format(date, 'MMM d')}): ${statusLabel}`}
                       className={clsx(
                         "w-full h-10 flex items-center justify-center transition-all group",
                         !isEligible ? "bg-bg-base/30 cursor-not-allowed opacity-40" : "hover:bg-bg-surface-hover cursor-pointer",
@@ -638,10 +478,13 @@ const isSunday = date.getDay() === 0;
                         isSunday ? "border-b-[3px] border-b-border-strong" : "border-b border-b-border-subtle"
                       )}
                     >
-                      <span className={clsx(
-                        "text-xl transition-transform duration-300 group-active:scale-75",
-                        isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
-                      )}>
+                      <span 
+                        aria-hidden="true"
+                        className={clsx(
+                          "text-xl transition-transform duration-300 group-active:scale-75",
+                          isEligible && currentStatus !== 'none' ? (currentStatus === 'completed' ? "text-text-main" : "text-text-muted opacity-80") : "text-text-muted opacity-20"
+                        )}
+                      >
                         {isEligible ? (currentStatus === 'completed' ? '●' : currentStatus === 'partial' ? '◐' : '○') : '-'}
                       </span>
                     </button>
@@ -720,269 +563,6 @@ const log = habitLogs.find(l => l.date === dateStr && l.habitId === habit.id);
               <div className="h-24 w-full pt-2" />
             </div>
           </div>
-        </div>
-
-        {/* Progress Graph integrated inside the container */}
-        <div className="border-t border-border-subtle pt-16">
-          <h2 className="text-2xl font-serif text-text-main mb-10 font-medium">Hours Tracked</h2>
-          
-          <div className="h-[360px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={graphData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="none" vertical={true} stroke="var(--border-strong)" />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={{ stroke: 'var(--border-strong)' }} 
-                  tickLine={{ stroke: 'var(--border-strong)' }} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
-                  dy={10}
-                />
-                <YAxis 
-                  axisLine={{ stroke: 'var(--border-strong)' }} 
-                  tickLine={{ stroke: 'var(--border-strong)' }} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(var(--bg-surface), 0.8)', 
-                    backdropFilter: 'blur(12px)',
-                    borderColor: 'var(--border-strong)', 
-                    borderRadius: '16px',
-                    boxShadow: 'var(--shadow-soft)'
-                  }}
-                  itemStyle={{ fontSize: '14px', fontWeight: 600 }}
-                  labelStyle={{ fontWeight: 'bold', color: 'var(--text-main)', marginBottom: '4px' }}
-                />
-                <Legend verticalAlign="top" height={40} wrapperStyle={{ fontSize: '14px', color: 'var(--text-main)', fontWeight: 500 }} />
-                
-                {hourCategories.map(cat => (
-                  <Line 
-                    key={cat.id}
-                    type="linear" 
-                    dataKey={cat.name} 
-                    stroke={cat.color} 
-                    strokeWidth={2} 
-                    connectNulls={false}
-                    dot={(props: any) => props.value ? <circle key={props.key || props.index} cx={props.cx} cy={props.cy} r={4} fill={props.stroke} stroke="var(--bg-surface)" strokeWidth={1} /> : null} 
-                    activeDot={{ r: 6, fill: cat.color, strokeWidth: 0, style: { filter: `drop-shadow(0 0 8px ${cat.color})` } }} 
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Category Management */}
-          <div className="mt-8 pt-8 border-t border-border-subtle">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold tracking-widest uppercase text-text-muted">Graph Categories</h3>
-              <button 
-                onClick={() => setShowManageCategories(!showManageCategories)}
-                className="text-xs font-semibold text-accent-blue hover:underline"
-              >
-                {showManageCategories ? 'Hide' : 'Manage'}
-              </button>
-            </div>
-            
-            {showManageCategories && (
-              <div className="bg-bg-base border border-border-strong rounded-xl p-4 mb-6 space-y-6">
-                
-                {/* Existing Categories */}
-                <div className="flex flex-wrap gap-2">
-                  {hourCategories.map(cat => (
-                    <div key={cat.id} className={clsx("flex items-center gap-2 border rounded-lg px-3 py-1.5 text-sm transition-opacity", cat.archived ? "bg-bg-base border-border-subtle opacity-60" : "bg-bg-surface border-border-subtle")}>
-                      <div className={clsx("w-3 h-3 rounded-full", cat.archived && "grayscale")} style={{ backgroundColor: cat.color }} />
-                      <span className={clsx("font-medium text-text-main", cat.archived && "line-through text-text-muted")}>{cat.name}</span>
-                      
-                      <button 
-                        onClick={() => {
-                          let hex = cat.color;
-                          if (hex === 'var(--accent-red)') hex = '#ff7e79';
-                          if (hex === 'var(--accent-purple)') hex = '#a78bfa';
-                          if (hex === 'var(--accent-green)') hex = '#4fb693';
-                          if (hex === 'var(--accent-yellow)') hex = '#f1db75';
-                          if (hex === 'var(--accent-blue)') hex = '#6ea8fe';
-                          setEditingCat(cat);
-                          setEditCatName(cat.name);
-                          setEditCatColor(hex);
-                        }}
-                        className="text-text-muted hover:text-text-main ml-2"
-                        title="Edit"
-                      >
-                        <Edit2 size={12} />
-                      </button>
-                      <button 
-                        onClick={() => handleToggleArchiveCategory(cat)}
-                        className="text-text-muted hover:text-accent-yellow"
-                        title={cat.archived ? "Unarchive" : "Archive"}
-                      >
-                        {cat.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteCategory(cat)}
-                        className="text-text-muted hover:text-accent-red"
-                        title="Delete"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Edit Category Form */}
-                {editingCat && (
-                  <form onSubmit={handleEditCategory} className="flex flex-wrap items-end gap-3 p-3 bg-bg-surface-hover rounded-lg border border-border-subtle">
-                    <div className="space-y-1">
-                      <label className="text-xs text-text-muted">Edit Name</label>
-                      <input 
-                        type="text" 
-                        value={editCatName}
-                        onChange={e => setEditCatName(e.target.value)}
-                        className="block bg-bg-base border border-border-strong rounded-lg px-3 py-1.5 text-sm outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-text-muted">Edit Color</label>
-                      <div className="flex items-center gap-2 bg-bg-base border border-border-strong rounded-lg px-2 py-1">
-                        <input 
-                          type="color" 
-                          value={editCatColor}
-                          onChange={e => setEditCatColor(e.target.value)}
-                          className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
-                        />
-                        <span className="text-sm font-mono text-text-muted uppercase">{editCatColor}</span>
-                      </div>
-                    </div>
-                    <button type="submit" className="bg-text-main text-bg-base px-4 py-1.5 rounded-lg text-sm font-medium h-9">Save</button>
-                    <button type="button" onClick={() => setEditingCat(null)} className="text-text-muted text-sm font-medium hover:text-text-main h-9">Cancel</button>
-                  </form>
-                )}
-
-                {/* Add Category Form */}
-                {!editingCat && (
-                  <form onSubmit={handleAddCategory} className="flex flex-wrap items-end gap-3 pt-4 border-t border-border-subtle">
-                    <div className="space-y-1">
-                      <label className="text-xs text-text-muted">New Category</label>
-                      <input 
-                        type="text" 
-                        value={newCatName}
-                        onChange={e => setNewCatName(e.target.value)}
-                        placeholder="e.g. Reading"
-                        className="block bg-bg-base border border-border-strong rounded-lg px-3 py-1.5 text-sm outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs text-text-muted">Color</label>
-                      <div className="flex items-center gap-2 bg-bg-base border border-border-strong rounded-lg px-2 py-1">
-                        <input 
-                          type="color" 
-                          value={newCatColor}
-                          onChange={e => setNewCatColor(e.target.value)}
-                          className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0"
-                        />
-                        <span className="text-sm font-mono text-text-muted uppercase">{newCatColor}</span>
-                      </div>
-                    </div>
-                    <button type="submit" className="bg-text-main text-bg-base px-4 py-1.5 rounded-lg text-sm font-medium h-9">Add</button>
-                  </form>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Add Hours Control */}
-          <div className="pt-4 flex flex-wrap items-end gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Date</label>
-              <input 
-                type="date" 
-                value={hoursDate}
-                onChange={e => setHoursDate(e.target.value)}
-                className="block bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Activity</label>
-              <select 
-                value={hoursType || (hourCategories.filter(c => !c.archived).length > 0 ? hourCategories.filter(c => !c.archived)[0].name : '')}
-                onChange={e => setHoursType(e.target.value)}
-                className="block bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
-              >
-                {hourCategories.filter(c => !c.archived).map(cat => (
-                  <option key={cat.id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2 relative">
-              <label className="text-xs font-semibold tracking-widest uppercase text-text-muted">Hours to add</label>
-              <input 
-                type="number" 
-                step="0.5"
-                min="0.5"
-                max="12"
-                value={hoursAmount}
-                onChange={e => setHoursAmount(e.target.value)}
-                placeholder="e.g. 1.5"
-                className="block w-24 bg-bg-base border border-border-strong rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:border-text-muted"
-              />
-              {errorMsg && (
-                <div className="absolute top-full left-0 mt-2 w-max bg-accent-red-bg border border-accent-red/20 text-accent-red px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm animate-slide-up z-50">
-                  {errorMsg}
-                </div>
-              )}
-            </div>
-            <button 
-              onClick={handleAddHours}
-              className="bg-text-main text-bg-base px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity mb-[2px]"
-            >
-              Add Hours
-            </button>
-          </div>
-
-          {/* Edit Historical Hours */}
-          {hourLogs.length > 0 && (
-            <div className="mt-12">
-              <h3 className="text-sm font-semibold tracking-widest uppercase text-text-muted mb-4">Logged Hours History</h3>
-              <div className="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                {[...hourLogs].sort((a,b) => b.date.localeCompare(a.date)).map(log => (
-                  <div key={log.id} className="flex items-center gap-4 bg-bg-base border border-border-subtle rounded-lg p-3 text-sm">
-                    <input 
-                      type="date"
-                      value={log.date}
-                      onChange={async (e) => await db.hourLogs.update(log.id, { date: e.target.value })}
-                      className="bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none focus:border-text-muted"
-                    />
-                    <select 
-                      value={log.activity}
-                      onChange={async (e) => await handleUpdateLogActivity(log.id, e.target.value, log.date, log.hours)}
-                      className="bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none"
-                    >
-                      {hourCategories.filter(cat => !cat.archived || cat.name === log.activity).map(cat => (
-                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                      ))}
-                    </select>
-                    <input 
-                      type="number"
-                      step="0.5"
-                      value={log.hours}
-                      onChange={async (e) => {
-                        const v = parseFloat(e.target.value);
-                        if (!isNaN(v)) await handleUpdateLogHours(log.id, v, log.date, log.activity);
-                      }}
-                      className="w-16 bg-bg-surface border border-border-strong rounded px-2 py-1 outline-none"
-                    />
-                    <span className="text-text-muted">hours</span>
-                    <button 
-                      onClick={async () => await db.hourLogs.delete(log.id)}
-                      className="ml-auto p-1.5 text-accent-red hover:bg-accent-red-bg rounded transition-colors"
-                      title="Delete log"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
       </section>

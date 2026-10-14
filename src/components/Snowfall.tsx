@@ -15,10 +15,22 @@ export function Snowfall() {
 
     let width = window.innerWidth;
     let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+    const dpr = window.devicePixelRatio || 1;
 
-    const numParticles = 120; // Slightly more snow
+    const setupCanvas = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    setupCanvas();
+
+    // Original calm, subtle snowfall settings
+    const numParticles = 40;
     const flakeChars = ['❄', '❅', '❆'];
     const particles: Array<{
       x: number;
@@ -37,20 +49,17 @@ export function Snowfall() {
         x: Math.random() * width,
         y: Math.random() * height,
         size: Math.random() * 12 + 6, // 6px to 18px
-        speed: Math.random() * 0.8 + 0.2, // slightly faster
-        wind: (Math.random() - 0.5) * 0.5, // slightly more wind
-        opacity: Math.random() * 0.4 + 0.2, // slightly more visible
+        speed: Math.random() * 0.4 + 0.1, // gentle, peaceful drift
+        wind: (Math.random() - 0.5) * 0.3, // soft horizontal drift
+        opacity: Math.random() * 0.3 + 0.1, // subtle 0.1 to 0.4 opacity
         char: flakeChars[Math.floor(Math.random() * flakeChars.length)],
         rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.03
+        rotSpeed: (Math.random() - 0.5) * 0.02
       });
     }
 
     const handleResize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
+      setupCanvas();
     };
 
     window.addEventListener('resize', handleResize);
@@ -61,7 +70,7 @@ export function Snowfall() {
       ctx.clearRect(0, 0, width, height);
       
       const isDark = document.documentElement.classList.contains('dark');
-      // Icy "Frozen" blue (blue-300 in dark mode, blue-400 in light mode for visibility)
+      // Icy blue (blue-300 in dark mode, blue-400 in light mode)
       const fillStyle = isDark ? '147, 197, 253' : '96, 165, 250';
 
       for (let i = 0; i < particles.length; i++) {
@@ -105,7 +114,7 @@ export function Snowfall() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[-1] opacity-80"
+      className="fixed inset-0 pointer-events-none z-0 opacity-80"
       aria-hidden="true"
     />
   );
