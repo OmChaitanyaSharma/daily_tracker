@@ -9,15 +9,7 @@ export interface AppSettings {
   fitRanksNames: string[];
 }
 
-const DEFAULT_WINTER_ARC = [
-  "Wake up at 6 am daily / sleep by 10 pm",
-  "Train consistently",
-  "Skin care + hair care",
-  "Work for over 8 hours daily (coding + skills + study)",
-  "Discipline >> Motivation",
-  "Less social media, more books",
-  "Count every calorie you eat"
-];
+export const DEFAULT_WINTER_ARC: string[] = [];
 
 const DEFAULT_DEV = [
   "Logic Initiate", "Code Apprentice", "Algorithm Adept", "Systems Craftsman",
@@ -34,12 +26,12 @@ const DEFAULT_FIT = [
 export function sanitizeSettings(raw: any): AppSettings {
   if (!raw || typeof raw !== 'object') {
     return {
-      streakTargetHours: 6.0,
+      streakTargetHours: 3.0,
       streakTargetHabitPercent: 75,
       streakFitnessRequirementType: 'all',
       streakFitnessRequirementValue: 0,
-      seasonName: 'Winter Arc',
-      winterArcRules: DEFAULT_WINTER_ARC,
+      seasonName: 'Season 1',
+      winterArcRules: [],
       devRanksNames: DEFAULT_DEV,
       fitRanksNames: DEFAULT_FIT
     };
@@ -52,7 +44,7 @@ export function sanitizeSettings(raw: any): AppSettings {
 
   const streakTargetHours = typeof raw.streakTargetHours === 'number' && !isNaN(raw.streakTargetHours)
     ? Math.max(0, Math.min(24, raw.streakTargetHours))
-    : 6.0;
+    : 3.0;
 
   const streakTargetHabitPercent = typeof raw.streakTargetHabitPercent === 'number' && !isNaN(raw.streakTargetHabitPercent)
     ? Math.max(0, Math.min(100, raw.streakTargetHabitPercent))
@@ -64,11 +56,11 @@ export function sanitizeSettings(raw: any): AppSettings {
 
   const seasonName = typeof raw.seasonName === 'string' && raw.seasonName.trim().length > 0
     ? raw.seasonName.slice(0, 100)
-    : 'Winter Arc';
+    : 'Season 1';
 
   const winterArcRules = Array.isArray(raw.winterArcRules)
     ? raw.winterArcRules.filter((r: unknown) => typeof r === 'string' && r.trim() !== '').map((r: string) => r.slice(0, 200))
-    : DEFAULT_WINTER_ARC;
+    : [];
 
   const devRanksNames = Array.isArray(raw.devRanksNames) && raw.devRanksNames.length > 0
     ? raw.devRanksNames.filter((r: unknown) => typeof r === 'string').map((r: string) => r.slice(0, 100))
@@ -84,7 +76,7 @@ export function sanitizeSettings(raw: any): AppSettings {
     streakFitnessRequirementType: fitnessType,
     streakFitnessRequirementValue,
     seasonName,
-    winterArcRules: winterArcRules.length > 0 ? winterArcRules : DEFAULT_WINTER_ARC,
+    winterArcRules,
     devRanksNames: devRanksNames.length > 0 ? devRanksNames : DEFAULT_DEV,
     fitRanksNames: fitRanksNames.length > 0 ? fitRanksNames : DEFAULT_FIT
   };

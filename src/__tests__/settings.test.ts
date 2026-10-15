@@ -12,10 +12,10 @@ describe('settings logic', () => {
 
   it('getSettings returns defaults when empty', () => {
     const s = getSettings();
-    expect(s.streakTargetHours).toBe(6.0);
+    expect(s.streakTargetHours).toBe(3.0);
     expect(s.streakTargetHabitPercent).toBe(75);
-    expect(s.seasonName).toBe('Winter Arc');
-    expect(s.winterArcRules.length).toBe(7);
+    expect(s.seasonName).toBe('Season 1');
+    expect(s.winterArcRules.length).toBe(0);
     expect(s.devRanksNames.length).toBe(11);
     expect(s.fitRanksNames.length).toBe(11);
   });
@@ -35,8 +35,8 @@ describe('settings logic', () => {
     const s = getSettings();
     expect(s.streakTargetHours).toBe(2.0);
     expect(s.streakTargetHabitPercent).toBe(75);
-    expect(s.seasonName).toBe('Winter Arc');
-    expect(s.winterArcRules.length).toBe(7);
+    expect(s.seasonName).toBe('Season 1');
+    expect(s.winterArcRules.length).toBe(0);
   });
 });
 

@@ -138,8 +138,8 @@ export function Home() {
     const validRules = editRulesList.filter(r => r.trim() !== '');
     const updated = {
       ...currentSettings,
-      seasonName: editSeasonName.trim() || 'Winter Arc',
-      winterArcRules: validRules.length > 0 ? validRules : ['Discipline >> Motivation']
+      seasonName: editSeasonName.trim() || 'Season 1',
+      winterArcRules: validRules
     };
     saveSettings(updated);
     setCurrentSettings(getSettings());

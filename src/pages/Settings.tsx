@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX, ArrowLeft, Palette, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
-import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
+import { getSettings, saveSettings, sanitizeSettings, type AppSettings } from '../utils/settings';
 import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { db } from '../db';
 import { useAuth } from '../context/AuthContext';
@@ -237,6 +237,60 @@ export function Settings() {
     } catch (err) {
       console.error('Failed to clear entries:', err);
       alert('Failed to clear entries.');
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  const handleFactoryReset = async () => {
+    const confirmed = window.confirm(
+      'FACTORY RESET WARNING:\n\nThis will permanently delete EVERYTHING: all habits, goals, exercises, tasks, logs, hour categories, and season rules, resetting the app to a 100% clean, blank state.\n\nAre you sure you want to proceed?'
+    );
+    if (!confirmed) return;
+
+    setIsClearing(true);
+    try {
+      await Promise.all([
+        db.dayEntries.clear(),
+        db.tasks.clear(),
+        db.habits.clear(),
+        db.habitLogs.clear(),
+        db.hourLogs.clear(),
+        db.hourCategories.clear(),
+        db.goals.clear(),
+        db.goalMeasurements.clear(),
+        db.exercises.clear(),
+        db.exerciseLogs.clear()
+      ]);
+
+      const blankSettings = sanitizeSettings({
+        streakTargetHours: 3.0,
+        streakTargetHabitPercent: 75,
+        streakFitnessRequirementType: 'all',
+        streakFitnessRequirementValue: 0,
+        seasonName: 'Season 1',
+        winterArcRules: []
+      });
+      saveSettings(blankSettings);
+      setSettings(blankSettings);
+
+      localStorage.removeItem('rest_days_config_v1');
+      localStorage.removeItem('dt_last_backup_downloaded_at');
+      localStorage.removeItem('v3_ack_dev_level');
+      localStorage.removeItem('v3_ack_fit_level');
+      localStorage.removeItem('v3_ack_streak');
+
+      if (user) {
+        await uploadLocalToCloud(user.uid, true);
+      }
+
+      setClearedMessage('Factory reset complete. App is now completely blank.');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (err) {
+      console.error('Failed to factory reset:', err);
+      alert('Failed to reset app data.');
     } finally {
       setIsClearing(false);
     }
@@ -607,24 +661,48 @@ export function Settings() {
             <AlertTriangle size={18} />
             Data Management
           </h2>
-          <div className="bg-bg-surface border border-accent-red/20 rounded-2xl p-4 sm:p-5">
-            <h3 className="text-sm font-semibold text-text-main mb-1.5">Clear Tracking Logs</h3>
-            <p className="text-xs text-text-muted mb-4 leading-relaxed">
-              Permanently clears daily habit completions, hours, and workouts while preserving your created habits and exercises.
-            </p>
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                type="button"
-                onClick={handleClearData}
-                disabled={isClearing}
-                aria-label={isClearing ? 'Clearing tracking entries...' : 'Clear all tracking entries'}
-                className="min-h-[44px] px-5 py-2.5 bg-accent-red/10 text-accent-red hover:bg-accent-red/20 rounded-xl text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer tap-press"
-              >
-                {isClearing ? 'Clearing...' : 'Clear All Entries'}
-              </button>
-              {clearedMessage && (
-                <span className="text-accent-green text-xs font-medium animate-fade-in">{clearedMessage}</span>
-              )}
+          <div className="space-y-4">
+            <div className="bg-bg-surface border border-accent-red/20 rounded-2xl p-4 sm:p-5">
+              <h3 className="text-sm font-semibold text-text-main mb-1.5">Clear Tracking Logs</h3>
+              <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                Permanently clears daily habit completions, hours, and workouts while preserving your created habits and exercises.
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleClearData}
+                  disabled={isClearing}
+                  aria-label={isClearing ? 'Clearing tracking entries...' : 'Clear all tracking entries'}
+                  className="min-h-[44px] px-5 py-2.5 bg-accent-red/10 text-accent-red hover:bg-accent-red/20 rounded-xl text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer tap-press"
+                >
+                  {isClearing ? 'Clearing...' : 'Clear All Entries'}
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-bg-surface border border-accent-red/40 rounded-2xl p-4 sm:p-5">
+              <h3 className="text-sm font-semibold text-accent-red mb-1.5 flex items-center gap-2">
+                <Trash2 size={16} />
+                Factory Reset (Start from Scratch)
+              </h3>
+              <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                Permanently wipes EVERYTHING: all habits, goals, exercises, tasks, logs, hour categories, and season rules. Returns the app to a 100% clean, blank slate.
+              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleFactoryReset}
+                  disabled={isClearing}
+                  aria-label={isClearing ? 'Resetting application...' : 'Factory reset all data'}
+                  className="min-h-[44px] px-5 py-2.5 bg-accent-red text-white hover:bg-accent-red/90 rounded-xl text-xs sm:text-sm font-semibold transition-all disabled:opacity-50 cursor-pointer tap-press flex items-center gap-2"
+                >
+                  <Trash2 size={16} />
+                  <span>{isClearing ? 'Resetting...' : 'Factory Reset All Data'}</span>
+                </button>
+                {clearedMessage && (
+                  <span className="text-accent-green text-xs font-medium animate-fade-in">{clearedMessage}</span>
+                )}
+              </div>
             </div>
           </div>
         </section>
