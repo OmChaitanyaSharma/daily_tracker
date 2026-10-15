@@ -321,7 +321,7 @@ export function Layout() {
               </button>
 
               {isThemeMenuOpen && (
-                <div className="absolute right-0 top-14 w-64 bg-bg-surface border border-border-strong rounded-2xl p-3 shadow-2xl z-50 animate-scale-in">
+                <div className="absolute right-0 top-14 w-64 max-w-[calc(100vw-2rem)] bg-bg-surface border border-border-strong rounded-2xl p-3 shadow-2xl z-50 animate-scale-in">
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-border-subtle px-1">
                     <span className="text-xs font-serif font-semibold text-text-main">Monkeytype Themes</span>
                     <span className="text-[10px] font-mono text-text-muted uppercase">Dark</span>
@@ -583,38 +583,6 @@ export function Layout() {
             >
               <span>Settings</span>
             </Link>
-
-            {/* Mobile Theme Selector */}
-            <div className="pt-2 mt-1 border-t border-border-subtle px-1 pb-1">
-              <div className="flex items-center justify-between mb-2 px-1">
-                <span className="text-[10px] uppercase font-mono tracking-wider text-text-muted">Theme</span>
-                <span className="text-[10px] font-mono text-text-muted uppercase">11 Options</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1">
-                {COLOR_THEMES.map(theme => (
-                  <button
-                    key={theme.id}
-                    type="button"
-                    onClick={() => {
-                      handleSelectTheme(theme.id);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={clsx(
-                      "flex items-center gap-1.5 p-2 rounded-xl text-[11px] font-medium border tap-press cursor-pointer transition-colors",
-                      currentTheme === theme.id 
-                        ? "bg-bg-base border-accent-blue text-text-main font-semibold shadow-sm ring-1 ring-accent-blue/50" 
-                        : "bg-bg-base/60 border-border-subtle hover:border-border-strong text-text-muted hover:text-text-main"
-                    )}
-                  >
-                    <span 
-                      className="w-2.5 h-2.5 rounded-full shrink-0 border border-white/20"
-                      style={{ backgroundColor: theme.preview.accent }}
-                    />
-                    <span className="truncate">{theme.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
           </nav>
         )}
       </header>
