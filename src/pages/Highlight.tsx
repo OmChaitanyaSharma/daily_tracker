@@ -1,24 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
-import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain } from 'lucide-react';
+import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TodoList } from '../components/TodoList';
 import { addDays, parseISO, format } from 'date-fns';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
+import { getSettings, saveSettings, DEFAULT_MOOD_LABELS, type MoodLabels } from '../utils/settings';
 
-const MOODS = [
-  { value: 'excellent', label: 'Excellent', Icon: Sparkles, color: 'text-accent-yellow' },
-  { value: 'good', label: 'Good', Icon: Smile, color: 'text-accent-green' },
-  { value: 'okay', label: 'Okay', Icon: Meh, color: 'text-text-muted' },
-  { value: 'not-great', label: 'Not great', Icon: Frown, color: 'text-accent-purple' },
-  { value: 'bad', label: 'Bad', Icon: CloudRain, color: 'text-accent-red' },
+export const MOOD_DEFINITIONS = [
+  { value: 'excellent' as const, defaultLabel: 'Excellent', Icon: Sparkles, color: 'text-accent-yellow' },
+  { value: 'good' as const, defaultLabel: 'Good', Icon: Smile, color: 'text-accent-green' },
+  { value: 'okay' as const, defaultLabel: 'Okay', Icon: Meh, color: 'text-text-muted' },
+  { value: 'not-great' as const, defaultLabel: 'Not great', Icon: Frown, color: 'text-accent-purple' },
+  { value: 'bad' as const, defaultLabel: 'Bad', Icon: CloudRain, color: 'text-accent-red' },
 ];
 
 export function Highlight() {
   const { playSuccess } = useSound();
   const [originalDate, setOriginalDate] = useState(getTodayDateString());
+  const [settings, setSettings] = useState(() => getSettings());
+  const [isEditingMoods, setIsEditingMoods] = useState(false);
+  const [editMoodLabels, setEditMoodLabels] = useState<MoodLabels>(() => ({ ...settings.moodLabels }));
   
   const [entry, setEntry] = useState<Partial<DayEntry>>({
     date: getTodayDateString(),
@@ -117,16 +121,40 @@ export function Highlight() {
     setEntry(prev => ({ ...prev, date: originalDate }));
   }, [originalDate]);
 
+  const handleSaveMoodLabels = (e: React.FormEvent) => {
+    e.preventDefault();
+    const updated = {
+      ...settings,
+      moodLabels: {
+        excellent: editMoodLabels.excellent.trim() || DEFAULT_MOOD_LABELS.excellent,
+        good: editMoodLabels.good.trim() || DEFAULT_MOOD_LABELS.good,
+        okay: editMoodLabels.okay.trim() || DEFAULT_MOOD_LABELS.okay,
+        'not-great': editMoodLabels['not-great'].trim() || DEFAULT_MOOD_LABELS['not-great'],
+        bad: editMoodLabels.bad.trim() || DEFAULT_MOOD_LABELS.bad,
+      }
+    };
+    saveSettings(updated);
+    setSettings(updated);
+    setEditMoodLabels({ ...updated.moodLabels });
+    setIsEditingMoods(false);
+    playSuccess();
+  };
+
+  const handleResetMoodLabels = () => {
+    setEditMoodLabels({ ...DEFAULT_MOOD_LABELS });
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (showConflictModal) cancelConflict();
         if (showSuccessModal) setShowSuccessModal(false);
+        if (isEditingMoods) setIsEditingMoods(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showConflictModal, showSuccessModal, cancelConflict]);
+  }, [showConflictModal, showSuccessModal, isEditingMoods, cancelConflict]);
 
   if (isLoading) return null;
 
@@ -235,16 +263,130 @@ export function Highlight() {
       </header>
 
       {isCompletedView ? (
-        <CompletedView entry={entry} onEdit={() => setIsCompletedView(false)} />
+        <CompletedView 
+          entry={entry} 
+          onEdit={() => setIsCompletedView(false)} 
+          moodLabels={settings.moodLabels}
+          onOpenEditMoods={() => setIsEditingMoods(true)}
+        />
       ) : (
-        <EditableForm entry={entry} setEntry={setEntry} />
+        <EditableForm 
+          entry={entry} 
+          setEntry={setEntry} 
+          moodLabels={settings.moodLabels}
+          onOpenEditMoods={() => setIsEditingMoods(true)}
+        />
+      )}
+
+      {/* Mood Customization Modal */}
+      {isEditingMoods && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-bg-base/70 backdrop-blur-sm animate-fade-in p-4" 
+          role="dialog" 
+          aria-modal="true" 
+          aria-labelledby="edit-moods-title"
+          onClick={() => setIsEditingMoods(false)}
+        >
+          <div 
+            className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 shadow-2xl max-w-md w-full animate-scale-in relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 mb-6 border-b border-border-subtle">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-accent-blue/15 text-accent-blue flex items-center justify-center">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h3 id="edit-moods-title" className="text-lg font-serif italic text-text-main font-semibold">
+                    Customize Mood Names
+                  </h3>
+                  <p className="text-xs text-text-muted">
+                    Rename each mood to match your personal vibe
+                  </p>
+                </div>
+              </div>
+              <button 
+                type="button"
+                onClick={() => setIsEditingMoods(false)}
+                className="w-10 h-10 min-w-[40px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base transition-colors cursor-pointer tap-press"
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMoodLabels} className="space-y-3.5">
+              {MOOD_DEFINITIONS.map(m => (
+                <div key={m.value} className="flex items-center gap-3 bg-bg-base/60 border border-border-subtle p-2.5 rounded-2xl">
+                  <div className={clsx("w-9 h-9 rounded-xl flex items-center justify-center bg-bg-surface border border-border-strong shrink-0", m.color)}>
+                    <m.Icon size={18} />
+                  </div>
+                  <div className="flex-1">
+                    <label htmlFor={`mood-label-${m.value}`} className="text-[10px] uppercase font-bold tracking-wider text-text-muted block leading-none mb-1">
+                      Default: {m.defaultLabel}
+                    </label>
+                    <input 
+                      id={`mood-label-${m.value}`}
+                      type="text"
+                      maxLength={30}
+                      value={editMoodLabels[m.value as keyof MoodLabels] || ''}
+                      onChange={e => setEditMoodLabels(prev => ({
+                        ...prev,
+                        [m.value]: e.target.value
+                      }))}
+                      placeholder={m.defaultLabel}
+                      className="w-full bg-transparent border-none text-sm font-medium text-text-main focus:outline-none placeholder:text-text-muted/40"
+                    />
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex items-center justify-between pt-4 border-t border-border-subtle mt-6 gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetMoodLabels}
+                  className="min-h-[40px] px-3 py-2 text-xs text-text-muted hover:text-text-main transition-colors cursor-pointer tap-press"
+                >
+                  Reset Defaults
+                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingMoods(false)}
+                    className="min-h-[40px] px-4 py-2 rounded-xl border border-border-strong text-text-muted hover:text-text-main text-xs font-semibold cursor-pointer tap-press"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="min-h-[40px] px-4 py-2 rounded-xl bg-text-main text-bg-base text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer tap-press flex items-center gap-1.5"
+                  >
+                    <Check size={14} />
+                    <span>Save Names</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: () => void }) {
-  const moodObj = MOODS.find(m => m.value === entry.mood);
+function CompletedView({ 
+  entry, 
+  onEdit, 
+  moodLabels, 
+  onOpenEditMoods 
+}: { 
+  entry: Partial<DayEntry>, 
+  onEdit: () => void, 
+  moodLabels: MoodLabels,
+  onOpenEditMoods: () => void
+}) {
+  const moodObj = MOOD_DEFINITIONS.find(m => m.value === entry.mood);
+  const moodLabel = moodObj ? (moodLabels[moodObj.value] || moodObj.defaultLabel) : entry.mood;
 
   return (
     <div className="animate-fade-in space-y-8 sm:space-y-12">
@@ -269,9 +411,20 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
         <div className="space-y-10">
           {moodObj && (
             <div>
-              <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">How was your day?</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted">How was your day?</h3>
+                <button
+                  type="button"
+                  onClick={onOpenEditMoods}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border-subtle bg-bg-base hover:border-accent-blue/50 text-[11px] font-medium text-text-muted hover:text-text-main transition-all cursor-pointer tap-press"
+                  aria-label="Edit mood names"
+                >
+                  <Edit2 size={11} className="text-accent-blue" />
+                  <span>Edit Mood Names</span>
+                </button>
+              </div>
               <p className="text-xl text-text-main flex items-center gap-2">
-                <span className={moodObj.color}><moodObj.Icon size={24} /></span> {moodObj.label}
+                <span className={moodObj.color}><moodObj.Icon size={24} /></span> {moodLabel}
               </p>
             </div>
           )}
@@ -317,32 +470,68 @@ function CompletedView({ entry, onEdit }: { entry: Partial<DayEntry>, onEdit: ()
   );
 }
 
-function EditableForm({ entry, setEntry }: { entry: Partial<DayEntry>, setEntry: (e: Partial<DayEntry>) => void }) {
+function EditableForm({ 
+  entry, 
+  setEntry, 
+  moodLabels, 
+  onOpenEditMoods 
+}: { 
+  entry: Partial<DayEntry>, 
+  setEntry: (e: Partial<DayEntry>) => void,
+  moodLabels: MoodLabels,
+  onOpenEditMoods: () => void
+}) {
   return (
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto pt-6">
       
       {/* Mood Selector */}
       <section className="bg-bg-surface border border-border-strong rounded-3xl p-5 sm:p-8 shadow-sm">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-4 sm:mb-6 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
-          Mood <span className="text-accent-red ml-1">*</span>
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
-          {MOODS.map(m => (
-            <button
-              key={m.value}
-              onClick={() => setEntry({ ...entry, mood: m.value as any })}
-              className={clsx(
-                "flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 min-h-[56px] rounded-2xl border transition-all duration-300 tap-press cursor-pointer",
-                entry.mood === m.value 
-                  ? "border-accent-blue bg-accent-blue-bg text-text-main shadow-md scale-105" 
-                  : "border-border-subtle bg-transparent text-text-muted hover:border-border-strong hover:bg-bg-surface-hover hover:scale-[1.02]"
-              )}
-            >
-              <m.Icon size={28} className={clsx("transition-colors", entry.mood === m.value ? m.color : "text-text-muted")} />
-              <span className="text-xs font-medium">{m.label}</span>
-            </button>
-          ))}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-text-muted flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-accent-blue"></span>
+            Mood <span className="text-accent-red ml-1">*</span>
+          </h2>
+          <button
+            type="button"
+            onClick={onOpenEditMoods}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border-subtle bg-bg-surface hover:border-accent-blue/50 hover:bg-accent-blue/10 text-xs font-medium text-text-muted hover:text-text-main transition-all cursor-pointer tap-press"
+            aria-label="Edit mood names"
+          >
+            <Edit2 size={12} className="text-accent-blue" />
+            <span>Edit Names</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-3">
+          {MOOD_DEFINITIONS.map(m => {
+            const label = moodLabels[m.value] || m.defaultLabel;
+            return (
+              <button
+                key={m.value}
+                onClick={() => setEntry({ ...entry, mood: m.value as any })}
+                className={clsx(
+                  "flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 min-h-[56px] rounded-2xl border transition-all duration-300 tap-press cursor-pointer",
+                  entry.mood === m.value 
+                    ? "border-accent-blue bg-accent-blue-bg text-text-main shadow-md scale-105" 
+                    : "border-border-subtle bg-transparent text-text-muted hover:border-border-strong hover:bg-bg-surface-hover hover:scale-[1.02]"
+                )}
+              >
+                <m.Icon size={28} className={clsx("transition-colors", entry.mood === m.value ? m.color : "text-text-muted")} />
+                <span className="text-xs font-medium text-center truncate max-w-full px-1">{label}</span>
+              </button>
+            );
+          })}
+
+          {/* 6th Slot: Customize Mood Names button (fills 6th cell in 2-column mobile grid!) */}
+          <button
+            type="button"
+            onClick={onOpenEditMoods}
+            className="flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 min-h-[56px] rounded-2xl border border-dashed border-border-strong bg-transparent text-text-muted hover:border-accent-blue hover:text-text-main hover:bg-bg-surface-hover transition-all duration-300 tap-press cursor-pointer group"
+            aria-label="Customize mood names"
+          >
+            <Edit2 size={24} className="text-text-muted group-hover:text-accent-blue transition-colors" />
+            <span className="text-xs font-medium">Edit Names</span>
+          </button>
         </div>
       </section>
 

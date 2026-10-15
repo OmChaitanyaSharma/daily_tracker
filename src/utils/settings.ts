@@ -1,3 +1,19 @@
+export interface MoodLabels {
+  excellent: string;
+  good: string;
+  okay: string;
+  'not-great': string;
+  bad: string;
+}
+
+export const DEFAULT_MOOD_LABELS: MoodLabels = {
+  excellent: 'Excellent',
+  good: 'Good',
+  okay: 'Okay',
+  'not-great': 'Not great',
+  bad: 'Bad'
+};
+
 export interface AppSettings {
   streakTargetHours: number;
   streakTargetHabitPercent: number;
@@ -7,6 +23,7 @@ export interface AppSettings {
   winterArcRules: string[];
   devRanksNames: string[];
   fitRanksNames: string[];
+  moodLabels: MoodLabels;
 }
 
 export const DEFAULT_WINTER_ARC: string[] = [];
@@ -33,7 +50,8 @@ export function sanitizeSettings(raw: any): AppSettings {
       seasonName: 'Season 1',
       winterArcRules: [],
       devRanksNames: DEFAULT_DEV,
-      fitRanksNames: DEFAULT_FIT
+      fitRanksNames: DEFAULT_FIT,
+      moodLabels: { ...DEFAULT_MOOD_LABELS }
     };
   }
 
@@ -70,6 +88,17 @@ export function sanitizeSettings(raw: any): AppSettings {
     ? raw.fitRanksNames.filter((r: unknown) => typeof r === 'string').map((r: string) => r.slice(0, 100))
     : DEFAULT_FIT;
 
+  const rawMood = raw.moodLabels;
+  const moodLabels: MoodLabels = (rawMood && typeof rawMood === 'object' && !Array.isArray(rawMood))
+    ? {
+        excellent: typeof rawMood.excellent === 'string' && rawMood.excellent.trim() ? rawMood.excellent.trim().slice(0, 30) : DEFAULT_MOOD_LABELS.excellent,
+        good: typeof rawMood.good === 'string' && rawMood.good.trim() ? rawMood.good.trim().slice(0, 30) : DEFAULT_MOOD_LABELS.good,
+        okay: typeof rawMood.okay === 'string' && rawMood.okay.trim() ? rawMood.okay.trim().slice(0, 30) : DEFAULT_MOOD_LABELS.okay,
+        'not-great': typeof rawMood['not-great'] === 'string' && rawMood['not-great'].trim() ? rawMood['not-great'].trim().slice(0, 30) : DEFAULT_MOOD_LABELS['not-great'],
+        bad: typeof rawMood.bad === 'string' && rawMood.bad.trim() ? rawMood.bad.trim().slice(0, 30) : DEFAULT_MOOD_LABELS.bad
+      }
+    : { ...DEFAULT_MOOD_LABELS };
+
   return {
     streakTargetHours,
     streakTargetHabitPercent,
@@ -78,7 +107,8 @@ export function sanitizeSettings(raw: any): AppSettings {
     seasonName,
     winterArcRules,
     devRanksNames: devRanksNames.length > 0 ? devRanksNames : DEFAULT_DEV,
-    fitRanksNames: fitRanksNames.length > 0 ? fitRanksNames : DEFAULT_FIT
+    fitRanksNames: fitRanksNames.length > 0 ? fitRanksNames : DEFAULT_FIT,
+    moodLabels
   };
 }
 

@@ -37,6 +37,20 @@ describe('settings logic', () => {
     expect(s.streakTargetHabitPercent).toBe(75);
     expect(s.seasonName).toBe('Season 1');
     expect(s.winterArcRules.length).toBe(0);
+    expect(s.moodLabels.excellent).toBe('Excellent');
+    expect(s.moodLabels.bad).toBe('Bad');
+  });
+
+  it('customizes and persists moodLabels', () => {
+    const s = getSettings();
+    s.moodLabels.excellent = 'Godly';
+    s.moodLabels.bad = 'Rough';
+    saveSettings(s);
+
+    const reloaded = getSettings();
+    expect(reloaded.moodLabels.excellent).toBe('Godly');
+    expect(reloaded.moodLabels.bad).toBe('Rough');
+    expect(reloaded.moodLabels.good).toBe('Good');
   });
 });
 
