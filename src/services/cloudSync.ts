@@ -5,6 +5,9 @@ import {
   writeBatch, 
   getDoc, 
   setDoc,
+  deleteDoc,
+  query,
+  where,
   serverTimestamp 
 } from 'firebase/firestore';
 import { firestore, auth } from '../firebase';
@@ -279,4 +282,51 @@ export async function wipeCloudDataForUser(userId: string): Promise<void> {
 
   lastUploadTimestamp = Date.now();
 }
+
+/**
+ * Deletes a goal and all its cascade measurements from Firestore cloud storage.
+ */
+export async function deleteGoalFromCloud(userId: string, goalId: string): Promise<void> {
+  if (!auth.currentUser || auth.currentUser.uid !== userId) return;
+
+  try {
+    const userRef = doc(firestore, 'users', userId);
+
+    // 1. Delete the goal document
+    await deleteDoc(doc(collection(userRef, 'goals'), String(goalId)));
+
+    // 2. Cascade delete all goal measurements in Firestore
+    const measurementsRef = collection(userRef, 'goalMeasurements');
+    const q = query(measurementsRef, where('goalId', '==', String(goalId)));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const batch = writeBatch(firestore);
+      snapshot.forEach(docSnap => {
+        batch.delete(docSnap.ref);
+      });
+      await batch.commit();
+    }
+  } catch (err) {
+    console.warn(`[CloudSync] Failed to delete goal ${goalId} from Firestore:`, err);
+  }
+}
+
+/**
+ * Deletes a single document from a user's Firestore cloud collection.
+ */
+export async function deleteDocumentFromCloud(
+  userId: string, 
+  colName: SyncCollectionName, 
+  docId: string
+): Promise<void> {
+  if (!auth.currentUser || auth.currentUser.uid !== userId) return;
+
+  try {
+    const userRef = doc(firestore, 'users', userId);
+    await deleteDoc(doc(collection(userRef, colName), String(docId)));
+  } catch (err) {
+    console.warn(`[CloudSync] Failed to delete document ${docId} from ${colName}:`, err);
+  }
+}
+
 

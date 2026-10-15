@@ -114,7 +114,17 @@ export function GoalRow({
   );
 }
 
-export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measurements: GoalMeasurement[], onBack: () => void }) {
+export function GoalDetail({ 
+  goal, 
+  measurements, 
+  onBack,
+  onEdit 
+}: { 
+  goal: Goal; 
+  measurements: GoalMeasurement[]; 
+  onBack: () => void;
+  onEdit?: () => void;
+}) {
   const scheduleDates = useMemo(() => getMeasurementDates(goal.startDate), [goal.startDate]);
   const measurementDates = measurements.map(m => m.date);
   
@@ -148,13 +158,26 @@ export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measure
 
   return (
     <div className="bg-bg-surface border border-border-strong rounded-3xl p-5 sm:p-8 md:p-12 shadow-sm animate-scale-in">
-      <button
-        onClick={onBack}
-        className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-subtle transition-all tap-press mb-6"
-        aria-label="Back to goals"
-      >
-        <ArrowLeft size={20} />
-      </button>
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={onBack}
+          className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-base border border-transparent hover:border-border-subtle transition-all tap-press cursor-pointer"
+          aria-label="Back to goals"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
+        {onEdit && (
+          <button
+            onClick={onEdit}
+            className="min-h-[44px] flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-text-muted hover:text-text-main bg-bg-base border border-border-strong rounded-xl transition-all tap-press cursor-pointer hover:border-text-muted"
+            aria-label="Edit goal settings"
+          >
+            <Settings size={16} />
+            <span>Goal Settings</span>
+          </button>
+        )}
+      </div>
       
       <div className="mb-8 sm:mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>

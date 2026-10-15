@@ -114,7 +114,13 @@ export function HealthGoals() {
       {editingGoal && (
         <GoalSettingsModal 
           goal={editingGoal} 
-          onClose={() => setEditingGoal(null)} 
+          onClose={() => setEditingGoal(null)}
+          onDelete={(deletedId) => {
+            if (selectedGoalId === deletedId) {
+              setSelectedGoalId(null);
+            }
+            setEditingGoal(null);
+          }}
         />
       )}
 
@@ -206,6 +212,7 @@ export function HealthGoals() {
             goal={selectedGoal} 
             measurements={measurements.filter(m => m.goalId === selectedGoal.id)}
             onBack={() => setSelectedGoalId(null)}
+            onEdit={() => setEditingGoal(selectedGoal)}
           />
         )
       )}

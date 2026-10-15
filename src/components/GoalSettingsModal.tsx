@@ -3,14 +3,20 @@ import { type Goal, db } from '../db';
 import { X, Trash2 } from 'lucide-react';
 import { getSettings } from '../utils/settings';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import { deleteGoalFromCloud } from '../services/cloudSync';
+import { auth } from '../firebase';
 
 interface Props {
   goal: Goal;
   onClose: () => void;
+  onDelete?: (deletedGoalId: string) => void;
 }
 
-export function GoalSettingsModal({ goal, onClose }: Props) {
+export function GoalSettingsModal({ goal, onClose, onDelete }: Props) {
   const containerRef = useFocusTrap(true, onClose);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const [formData, setFormData] = useState<Partial<Goal>>({
     title: goal.title,
     category: goal.category,
@@ -24,24 +30,77 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await db.goals.update(goal.id, {
-      title: formData.title,
-      category: formData.category,
-      type: formData.type,
-      unit: formData.unit,
-      targetValue: formData.targetValue,
-      subCategory: formData.subCategory,
-      startDate: formData.startDate,
-      startingValue: formData.startingValue
-    });
-    onClose();
+    setIsSaving(true);
+    try {
+      if (goal?.id) {
+        await db.goals.update(goal.id, {
+          title: formData.title,
+          category: formData.category,
+          type: formData.type,
+          unit: formData.unit,
+          targetValue: formData.targetValue,
+          subCategory: formData.subCategory,
+          startDate: formData.startDate,
+          startingValue: formData.startingValue
+        });
+      }
+      onClose();
+    } catch (err) {
+      console.error('Failed to update goal settings:', err);
+      alert('Failed to save goal settings. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this goal and all its measurements? This action cannot be undone.')) {
-      await db.goals.delete(goal.id);
-      const measurements = await db.goalMeasurements.where('goalId').equals(goal.id).toArray();
-      await db.goalMeasurements.bulkDelete(measurements.map(m => m.id));
+  const handleDelete = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this goal and all its measurements? This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setIsDeleting(true);
+    try {
+      const goalId = goal?.id;
+      if (goalId) {
+        // 1. Atomic local Dexie cascade delete
+        await db.transaction('rw', [db.goals, db.goalMeasurements], async () => {
+          const measurements = await db.goalMeasurements.where('goalId').equals(goalId).toArray();
+          const measurementIds = measurements
+            .map(m => m.id)
+            .filter((id): id is string => typeof id === 'string' && id.trim().length > 0);
+          
+          if (measurementIds.length > 0) {
+            await db.goalMeasurements.bulkDelete(measurementIds);
+          }
+
+          // Delete goal by ID
+          await db.goals.delete(goalId);
+          if (!isNaN(Number(goalId))) {
+            await db.goals.delete(Number(goalId) as any);
+          }
+        });
+
+        // 2. Cascade delete from cloud if user is authenticated
+        if (auth.currentUser) {
+          await deleteGoalFromCloud(auth.currentUser.uid, String(goalId));
+        }
+
+        // 3. Notify parent listener (e.g. to clear active goal selection)
+        if (onDelete) {
+          onDelete(String(goalId));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete goal:', err);
+      alert('An error occurred while deleting the goal. Please try again.');
+    } finally {
+      setIsDeleting(false);
       onClose();
     }
   };
@@ -186,17 +245,19 @@ export function GoalSettingsModal({ goal, onClose }: Props) {
             <button 
               type="button" 
               onClick={handleDelete}
-              className="min-h-[44px] flex items-center justify-center gap-2 text-accent-red hover:bg-accent-red-bg px-4 py-2.5 rounded-xl transition-colors text-sm font-medium tap-press"
+              disabled={isDeleting || isSaving}
+              className="min-h-[44px] flex items-center justify-center gap-2 text-accent-red hover:bg-accent-red-bg px-4 py-2.5 rounded-xl transition-colors text-sm font-medium tap-press disabled:opacity-50 cursor-pointer"
             >
               <Trash2 size={16} />
-              Delete Goal
+              {isDeleting ? 'Deleting...' : 'Delete Goal'}
             </button>
             
             <button
               type="submit"
-              className="min-h-[44px] bg-text-main text-bg-base px-6 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity tap-press flex items-center justify-center"
+              disabled={isDeleting || isSaving}
+              className="min-h-[44px] bg-text-main text-bg-base px-6 py-2.5 rounded-xl font-medium text-sm hover:opacity-90 transition-opacity tap-press flex items-center justify-center disabled:opacity-50 cursor-pointer"
             >
-              Save Changes
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>
