@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX, ArrowLeft } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX, ArrowLeft, Palette, Check } from 'lucide-react';
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import { getSettings, saveSettings, type AppSettings } from '../utils/settings';
@@ -10,10 +10,12 @@ import { useAuth } from '../context/AuthContext';
 import { useSound } from '../hooks/useSound';
 import { uploadLocalToCloud } from '../services/cloudSync';
 import { validateBackupPayload, sanitizeBackupRecords } from '../utils/backupValidation';
+import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
 
 export function Settings() {
   const { user } = useAuth();
   const { soundEnabled, toggleSound } = useSound();
+  const [currentTheme, setCurrentTheme] = useState(() => getSavedTheme());
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [isClearing, setIsClearing] = useState(false);
   const [clearedMessage, setClearedMessage] = useState('');
@@ -267,6 +269,61 @@ export function Settings() {
 
       <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
         
+        {/* Color Theme (Monkeytype Aesthetic) */}
+        <section>
+          <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
+            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
+              <Palette size={18} className="text-accent-blue" />
+              Theme & Aesthetic
+            </h2>
+            <span className="text-[11px] font-mono text-text-muted uppercase">
+              Dark Mode
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            {COLOR_THEMES.map(theme => {
+              const isActive = currentTheme === theme.id;
+              return (
+                <div
+                  key={theme.id}
+                  onClick={() => {
+                    setCurrentTheme(theme.id);
+                    applyTheme(theme.id);
+                  }}
+                  className={clsx(
+                    "rounded-2xl p-4 border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between tap-press",
+                    isActive
+                      ? "border-accent-blue shadow-lg ring-1 ring-accent-blue bg-bg-surface"
+                      : "border-border-subtle hover:border-border-strong bg-bg-surface/60"
+                  )}
+                >
+                  <div>
+                    {/* Theme mini preview banner */}
+                    <div 
+                      className="w-full h-12 rounded-xl border border-white/10 mb-3 p-2 flex items-center justify-between"
+                      style={{ backgroundColor: theme.preview.bg }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: theme.preview.surface }} />
+                        <div className="text-xs font-mono font-bold" style={{ color: theme.preview.main }}>Aa</div>
+                      </div>
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.preview.accent }} />
+                    </div>
+
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-sm font-semibold text-text-main">{theme.name}</h3>
+                      {isActive && <Check size={16} className="text-accent-blue" />}
+                    </div>
+                    <span className="text-[10px] font-mono text-text-muted block mb-1 uppercase tracking-wider">{theme.category}</span>
+                    <p className="text-xs text-text-muted leading-relaxed">{theme.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
         {/* Audio & Feedback */}
         <section>
           <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">

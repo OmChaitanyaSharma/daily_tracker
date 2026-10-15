@@ -1,7 +1,8 @@
-﻿- Add a calendar
+- Add a calendar
 - Add dates and important things to the calendar
 - Add an option to put deadlines in that calendar feature
 - Dynamic UI and UX themes that change automatically according to the month and quarterly arcs (Winter Arc, Spring Arc, Summer Arc, Autumn Arc)
 - Specific habit frequency scheduling (e.g., 'twice a week' or specific days for things like Minoxidil) so weekly/monthly scores accurately reflect x/x instead of x/31
 - Built-in Focus Timer / Stopwatch in Study and Deep Work with auto-logging to hourLogs
 - Interactive Category Legend Soloing on the Hours Line Graph (click a category in the legend to solo/toggle its line)
+- Custom font selector in Settings (e.g., Serif Editorial, Sans Clean, Monospace Terminal) to customize primary body and heading typography across the application

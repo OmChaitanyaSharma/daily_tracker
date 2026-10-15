@@ -1,19 +1,71 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type HourCategory } from '../db';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, parseISO, isBefore } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, parseISO, isBefore, isSameMonth, isAfter } from 'date-fns';
 import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
-import { ChevronLeft, ChevronRight, ArrowLeft, Edit2, Archive, ArchiveRestore, X, Trash2, Plus, Clock, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowLeft, Edit2, Archive, ArchiveRestore, X, Trash2, Plus, Clock, BookOpen, Activity, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
 
 const EMPTY_ARRAY: any[] = [];
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const totalItem = payload.find((p: any) => p.dataKey === 'Total');
+    const totalVal = totalItem ? totalItem.value : null;
+    const fullDate = payload[0]?.payload?.fullDate || '';
+    
+    return (
+      <div className="bg-[#0e0f13]/95 border border-[#23262f] backdrop-blur-md rounded-2xl p-4 shadow-2xl min-w-[200px] text-xs font-sans">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#23262f]">
+          <span className="font-mono text-[#71717a] font-medium text-[11px]">
+            {fullDate ? format(parseISO(`${fullDate}T12:00:00`), 'EEE, MMM d, yyyy') : `Day ${label}`}
+          </span>
+          <span className="font-mono text-xs font-bold text-white bg-white/10 px-2 py-0.5 rounded-full">
+            {totalVal !== null && totalVal !== undefined ? `${totalVal} hrs` : 'No logs'}
+          </span>
+        </div>
+        
+        <div className="space-y-1.5">
+          {payload.map((item: any, i: number) => {
+            if (item.dataKey === 'Total' || item.dataKey === 'RollingAvg') return null;
+            if (item.value === null || item.value === undefined || item.value === 0) return null;
+            return (
+              <div key={i} className="flex items-center justify-between py-0.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.stroke || item.color }} />
+                  <span className="text-[#a1a1aa] font-medium">{item.name}</span>
+                </div>
+                <span className="font-mono font-semibold text-white">
+                  {item.value}h
+                </span>
+              </div>
+            );
+          })}
+          {payload.some((p: any) => p.dataKey === 'RollingAvg' && p.value !== null) && (
+            <div className="flex items-center justify-between pt-1 mt-1 border-t border-[#23262f]/60 text-[11px] text-[#71717a]">
+              <span>7-Day Trend</span>
+              <span className="font-mono font-medium text-[#a1a1aa]">
+                {payload.find((p: any) => p.dataKey === 'RollingAvg')?.value ?? 0}h
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function StudyTracking() {
   const { playClick, playSuccess, playThump } = useSound();
   const [currentDate, setCurrentDate] = useState(new Date());
+
+  // Graph state (Monkeytype flow vs categories)
+  const [graphViewMode, setGraphViewMode] = useState<'flow' | 'categories'>('flow');
+  const [hiddenCategories, setHiddenCategories] = useState<string[]>([]);
 
   // Hours input state
   const [hoursDate, setHoursDate] = useState(getTodayStr());
@@ -201,30 +253,106 @@ export function StudyTracking() {
     playThump();
   };
 
-  // Prepare graph data
-  const graphData = useMemo(() => {
-    return daysInMonth.map(date => {
-      const dateStr = format(date, 'yyyy-MM-dd');
-      const dailyHours = hourLogs.filter(log => log.date === dateStr);
-
-      const dataPoint: any = {
-        date: format(date, 'd'),
-        fullDate: dateStr,
-      };
-
-      hourCategories.forEach(cat => {
-        const hours = dailyHours.filter(l => l.activity === cat.name).reduce((acc, curr) => acc + curr.hours, 0);
-        dataPoint[cat.name] = hours;
-      });
-
-      return dataPoint;
-    });
-  }, [daysInMonth, hourLogs, hourCategories]);
-
   // Aggregate metrics
   const totalMonthHours = useMemo(() => {
     return hourLogs.reduce((acc, curr) => acc + curr.hours, 0);
   }, [hourLogs]);
+
+  const daysElapsedInMonth = useMemo(() => {
+    const today = new Date();
+    const isCurrent = isSameMonth(currentDate, today);
+    if (isCurrent) {
+      return Math.min(daysInMonth.length, today.getDate());
+    }
+    return daysInMonth.length;
+  }, [daysInMonth, currentDate]);
+
+  const monthlyDailyAvg = useMemo(() => {
+    return daysElapsedInMonth > 0 ? (totalMonthHours / daysElapsedInMonth) : 0;
+  }, [totalMonthHours, daysElapsedInMonth]);
+
+  const monthlyPeakHours = useMemo(() => {
+    const totalsByDay: Record<string, number> = {};
+    hourLogs.forEach(l => {
+      totalsByDay[l.date] = (totalsByDay[l.date] || 0) + l.hours;
+    });
+    const values = Object.values(totalsByDay);
+    return values.length > 0 ? Math.max(...values) : 0;
+  }, [hourLogs]);
+
+  const yAxisConfig = useMemo(() => {
+    const peak = Math.max(12, monthlyPeakHours);
+    if (peak <= 12) {
+      return {
+        domain: [0, 12],
+        ticks: [0, 4, 8, 12]
+      };
+    }
+    const roundedMax = Math.ceil(peak / 4) * 4;
+    return {
+      domain: [0, roundedMax],
+      ticks: [0, Math.round(roundedMax * 0.33), Math.round(roundedMax * 0.66), roundedMax]
+    };
+  }, [monthlyPeakHours]);
+
+  // Prepare graph data with future date suppression and 7-day rolling average
+  const graphData = useMemo(() => {
+    const today = new Date();
+    const todayStr = getTodayStr();
+    const isCurrent = isSameMonth(currentDate, today);
+
+    const dailyPoints = daysInMonth.map(date => {
+      const dateStr = format(date, 'yyyy-MM-dd');
+      const isFuture = isCurrent && isAfter(date, today) && dateStr !== todayStr;
+      const dailyHours = hourLogs.filter(log => log.date === dateStr);
+      const totalHours = dailyHours.reduce((acc, curr) => acc + curr.hours, 0);
+
+      const catHours: Record<string, number | null> = {};
+      hourCategories.forEach(cat => {
+        if (isFuture) {
+          catHours[cat.name] = null;
+        } else {
+          const h = dailyHours.filter(l => l.activity === cat.name).reduce((acc, curr) => acc + curr.hours, 0);
+          catHours[cat.name] = h;
+        }
+      });
+
+      return {
+        date,
+        dateStr,
+        dayNum: format(date, 'd'),
+        isFuture,
+        totalHours: isFuture ? null : totalHours,
+        catHours
+      };
+    });
+
+    return dailyPoints.map((dp, idx) => {
+      if (dp.isFuture) {
+        return {
+          date: dp.dayNum,
+          fullDate: dp.dateStr,
+          Total: null,
+          RollingAvg: null,
+          ...dp.catHours
+        };
+      }
+
+      // Compute smooth 7-day rolling average
+      const windowStart = Math.max(0, idx - 6);
+      const windowSlice = dailyPoints.slice(windowStart, idx + 1).filter(p => !p.isFuture);
+      const windowSum = windowSlice.reduce((acc, curr) => acc + (curr.totalHours || 0), 0);
+      const rollingAvg = windowSlice.length > 0 ? parseFloat((windowSum / windowSlice.length).toFixed(1)) : 0;
+
+      return {
+        date: dp.dayNum,
+        fullDate: dp.dateStr,
+        Total: dp.totalHours,
+        RollingAvg: rollingAvg,
+        ...dp.catHours
+      };
+    });
+  }, [daysInMonth, hourLogs, hourCategories, currentDate]);
 
   const topCategory = useMemo(() => {
     const totals: Record<string, number> = {};
@@ -343,12 +471,44 @@ export function StudyTracking() {
               <p className="text-xs text-text-muted mt-0.5">Daily hours breakdown across subjects for {format(currentDate, 'MMMM yyyy')}</p>
             </div>
             
-            <button 
-              onClick={() => setShowManageCategories(!showManageCategories)}
-              className="text-xs font-semibold min-h-[44px] px-3.5 py-2 rounded-xl border border-border-strong hover:bg-bg-base text-accent-blue transition-colors self-start sm:self-auto cursor-pointer tap-press inline-flex items-center"
-            >
-              {showManageCategories ? 'Hide Categories' : 'Manage Categories'}
-            </button>
+            <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+              {/* Monkeytype Mode Switch */}
+              <div className="flex items-center bg-bg-base border border-border-strong rounded-xl p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setGraphViewMode('flow')}
+                  className={clsx(
+                    "min-h-[36px] px-3 py-1 rounded-lg transition-all cursor-pointer font-medium flex items-center gap-1.5 tap-press",
+                    graphViewMode === 'flow' 
+                      ? "bg-text-main text-bg-base font-semibold shadow-sm" 
+                      : "text-text-muted hover:text-text-main"
+                  )}
+                >
+                  <Activity size={12} />
+                  <span>Flow (Dual Line)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGraphViewMode('categories')}
+                  className={clsx(
+                    "min-h-[36px] px-3 py-1 rounded-lg transition-all cursor-pointer font-medium flex items-center gap-1.5 tap-press",
+                    graphViewMode === 'categories' 
+                      ? "bg-text-main text-bg-base font-semibold shadow-sm" 
+                      : "text-text-muted hover:text-text-main"
+                  )}
+                >
+                  <Layers size={12} />
+                  <span>Categories</span>
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setShowManageCategories(!showManageCategories)}
+                className="text-xs font-semibold min-h-[36px] px-3.5 py-1.5 rounded-xl border border-border-strong hover:bg-bg-base text-accent-blue transition-colors cursor-pointer tap-press inline-flex items-center"
+              >
+                {showManageCategories ? 'Hide Categories' : 'Manage Categories'}
+              </button>
+            </div>
           </div>
 
           {/* Category Management Drawer */}
@@ -486,49 +646,167 @@ export function StudyTracking() {
             </div>
           )}
 
-          {/* Recharts LineChart */}
-          <div className="h-[380px] w-full pt-2">
+          {/* Legend & quick indicators */}
+          <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+            {graphViewMode === 'flow' ? (
+              <div className="flex items-center gap-5 text-xs font-mono text-text-muted">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-1 bg-text-main rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
+                  <span className="text-text-main font-medium">Daily Total Hours</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-1 bg-[#525660] rounded-full" />
+                  <span className="text-[#8e95a5]">7-Day Trend</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 mr-2 text-xs font-mono text-text-muted">
+                  <div className="w-2.5 h-0.5 bg-text-main/70" />
+                  <span>Total</span>
+                </div>
+                {hourCategories.filter(c => !c.archived).map(cat => {
+                  const isHidden = hiddenCategories.includes(cat.id);
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setHiddenCategories(prev => 
+                          prev.includes(cat.id) ? prev.filter(id => id !== cat.id) : [...prev, cat.id]
+                        );
+                      }}
+                      className={clsx(
+                        "px-2.5 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition-all cursor-pointer tap-press",
+                        isHidden 
+                          ? "border-transparent bg-transparent text-text-muted opacity-40 line-through" 
+                          : "border-border-strong bg-bg-base text-text-main hover:border-text-muted"
+                      )}
+                    >
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                      <span>{cat.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="text-[11px] font-mono text-text-muted">
+              Monthly Avg: {monthlyDailyAvg.toFixed(1)}h / day
+            </div>
+          </div>
+
+          {/* Monkeytype Chart Area */}
+          <div className="h-[380px] w-full relative pt-2">
+            {/* Monospace watermark identical to Monkeytype read_ahead_easy */}
+            <div className="absolute bottom-6 left-12 pointer-events-none select-none text-[12px] font-mono text-text-muted/40 tracking-wider z-0">
+              daily_focus_hours // {graphViewMode === 'flow' ? 'flow_mode' : 'category_breakdown'}
+            </div>
+
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={graphData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="var(--border-strong)" opacity={0.4} />
+              <LineChart data={graphData} margin={{ top: 15, right: 15, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="2 4" vertical={false} stroke="var(--border-subtle)" opacity={0.6} />
                 <XAxis 
                   dataKey="date" 
-                  axisLine={{ stroke: 'var(--border-strong)' }} 
-                  tickLine={{ stroke: 'var(--border-strong)' }} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: 'var(--text-muted)', fontSize: 13, fontFamily: 'monospace' }}
                   dy={10}
                 />
                 <YAxis 
-                  axisLine={{ stroke: 'var(--border-strong)' }} 
-                  tickLine={{ stroke: 'var(--border-strong)' }} 
-                  tick={{ fill: 'var(--text-muted)', fontSize: 12, fontWeight: 500 }}
+                  axisLine={false} 
+                  tickLine={false} 
+                  domain={yAxisConfig.domain}
+                  ticks={yAxisConfig.ticks}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 13, fontFamily: 'monospace' }}
                 />
                 <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(23, 23, 28, 0.95)', 
-                    backdropFilter: 'blur(16px)',
-                    borderColor: 'var(--border-strong)', 
-                    borderRadius: '16px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                    padding: '12px 16px'
-                  }}
-                  itemStyle={{ fontSize: '13px', fontWeight: 600 }}
-                  labelStyle={{ fontWeight: 'bold', color: 'var(--text-main)', marginBottom: '6px' }}
+                  content={<CustomTooltip />}
                 />
-                <Legend verticalAlign="top" height={44} wrapperStyle={{ fontSize: '13px', color: 'var(--text-main)', fontWeight: 500 }} />
                 
-                {chartCategories.map(cat => (
-                  <Line 
-                    key={cat.id}
-                    type="linear" 
-                    dataKey={cat.name} 
-                    stroke={cat.color} 
-                    strokeWidth={2.5} 
-                    connectNulls={false}
-                    dot={(props: any) => props.value ? <circle key={props.key || props.index} cx={props.cx} cy={props.cy} r={3.5} fill={props.stroke} stroke="var(--bg-surface)" strokeWidth={1} /> : null} 
-                    activeDot={{ r: 6, fill: cat.color, strokeWidth: 0, style: { filter: `drop-shadow(0 0 8px ${cat.color})` } }} 
-                  />
-                ))}
+                {graphViewMode === 'flow' ? (
+                  <>
+                    {/* Muted Slate Curve (7-day trend) */}
+                    <Line 
+                      type="monotone" 
+                      dataKey="RollingAvg" 
+                      name="7-Day Trend"
+                      stroke="#525660" 
+                      strokeWidth={2.5} 
+                      connectNulls={false}
+                      dot={(props: any) => {
+                        if (props.value === null || props.value === undefined || props.value === 0) return null;
+                        return (
+                          <circle 
+                            key={props.key || props.index} 
+                            cx={props.cx} 
+                            cy={props.cy} 
+                            r={3} 
+                            fill="#525660" 
+                            stroke="var(--bg-surface)" 
+                            strokeWidth={1.5} 
+                          />
+                        );
+                      }}
+                      activeDot={{ r: 5, fill: '#525660', stroke: '#8e96a4', strokeWidth: 1.5 }}
+                    />
+
+                    {/* Crisp Theme Curve (Total Hours) */}
+                    <Line 
+                      type="monotone" 
+                      dataKey="Total" 
+                      name="Total Hours"
+                      stroke="var(--text-main)" 
+                      strokeWidth={3} 
+                      connectNulls={false}
+                      dot={(props: any) => {
+                        if (props.value === null || props.value === undefined || props.value === 0) return null;
+                        return (
+                          <circle 
+                            key={props.key || props.index} 
+                            cx={props.cx} 
+                            cy={props.cy} 
+                            r={3.5} 
+                            fill="var(--text-main)" 
+                            stroke="var(--bg-surface)" 
+                            strokeWidth={1.5} 
+                          />
+                        );
+                      }}
+                      activeDot={{ r: 6, fill: 'var(--text-main)', stroke: 'var(--accent-blue)', strokeWidth: 2, style: { filter: 'drop-shadow(0 0 6px var(--accent-blue))' } }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    {/* Categories Mode Curves */}
+                    {chartCategories.filter(cat => !hiddenCategories.includes(cat.id)).map(cat => (
+                      <Line 
+                        key={cat.id}
+                        type="monotone" 
+                        dataKey={cat.name} 
+                        name={cat.name}
+                        stroke={cat.color} 
+                        strokeWidth={2.5} 
+                        connectNulls={false}
+                        dot={(props: any) => {
+                          if (props.value === null || props.value === undefined || props.value === 0) return null;
+                          return (
+                            <circle 
+                              key={props.key || props.index} 
+                              cx={props.cx} 
+                              cy={props.cy} 
+                              r={3} 
+                              fill={cat.color} 
+                              stroke="var(--bg-surface)" 
+                              strokeWidth={1.5} 
+                            />
+                          );
+                        }}
+                        activeDot={{ r: 6, fill: cat.color, strokeWidth: 0, style: { filter: `drop-shadow(0 0 8px ${cat.color})` } }} 
+                      />
+                    ))}
+                  </>
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>

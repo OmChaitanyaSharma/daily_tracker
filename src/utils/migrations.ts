@@ -1,5 +1,4 @@
 import { db } from '../db';
-import { resetAndSeedDatabase } from '../seedData';
 import { syncExercisesScores } from './exerciseSync';
 
 const CURRENT_MIGRATION_VERSION = 3;
@@ -29,12 +28,8 @@ export async function runDatabaseMigrations(): Promise<void> {
     return;
   }
 
-  // Migration 1: Initial database seeding
+  // Migration 1: Clean startup initialization (no auto-seeding - start completely blank)
   if (startVersion < 1) {
-    const habitCount = await db.habits.count();
-    if (habitCount === 0) {
-      await resetAndSeedDatabase();
-    }
     startVersion = 1;
     localStorage.setItem(MIGRATION_KEY, '1');
   }

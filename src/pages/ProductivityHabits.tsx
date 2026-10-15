@@ -365,8 +365,25 @@ export function ProductivityHabits() {
       </header>
 
       {/* Unified Tracker Container */}
-      <section className="bg-bg-surface border border-border-strong rounded-2xl sm:rounded-[2rem] shadow-sm overflow-hidden p-4 sm:p-8 md:p-12 flex flex-col gap-10 sm:gap-16">
+      <section className="bg-bg-surface border border-border-strong rounded-2xl sm:rounded-[2rem] shadow-sm overflow-hidden p-4 sm:p-8 md:p-12 flex flex-col gap-8 sm:gap-12">
         
+        {/* Empty State Callout */}
+        {visibleHabits.length === 0 && (
+          <div className="bg-bg-base/60 border border-border-subtle rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in">
+            <div>
+              <h3 className="text-sm font-semibold text-text-main">No habits created yet</h3>
+              <p className="text-xs text-text-muted mt-0.5">Your matrix is completely empty. Click the '+' button in the grid header to create your first habit.</p>
+            </div>
+            <button
+              onClick={() => setIsAddingHabit(true)}
+              className="min-h-[40px] px-3.5 py-1.5 rounded-xl bg-text-main text-bg-base text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5 tap-press shrink-0"
+            >
+              <Plus size={14} />
+              <span>Add Habit</span>
+            </button>
+          </div>
+        )}
+
         {/* Habit Grid */}
         <div className="overflow-x-auto overflow-y-auto max-h-[75vh] pb-6 -mx-2 px-2 sm:-mx-4 sm:px-4 md:-mx-8 md:px-8">
           <div className="min-w-max flex">

@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { Moon, Sun, Volume2, VolumeX, User as UserIcon, LogOut, RefreshCw, ChevronDown, Menu, X } from 'lucide-react';
+import { Palette, Check, Volume2, VolumeX, User as UserIcon, LogOut, RefreshCw, ChevronDown, Menu, X } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
 
@@ -10,13 +10,13 @@ import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { handleUserLoginSync, uploadLocalToCloud, clearLocalDataOnSignOut } from '../services/cloudSync';
 import { usePageSEO } from '../hooks/usePageSEO';
+import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
 
 export function Layout() {
   usePageSEO();
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
+  const [currentTheme, setCurrentTheme] = useState(() => getSavedTheme());
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
   
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -43,6 +43,9 @@ export function Layout() {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setIsThemeMenuOpen(false);
       }
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setIsMobileMenuOpen(false);
@@ -98,21 +101,24 @@ export function Layout() {
     const confirm = window.confirm('Sign out? Local data will be cleared from this device so the next user starts fresh. Your data remains safely backed up in your Google cloud account.');
     if (!confirm) return;
     try {
+      if (user?.uid) {
+        setIsSyncing(true);
+        try {
+          await uploadLocalToCloud(user.uid, true);
+        } catch (syncErr) {
+          console.warn('Pre-logout cloud sync warning:', syncErr);
+        }
+      }
       await logout();
       await clearLocalDataOnSignOut();
       window.location.reload();
     } catch (err) {
       console.error('Sign out error:', err);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -219,15 +225,10 @@ export function Layout() {
     return () => window.removeEventListener('scroll', throttledScroll);
   }, [lastScrollY]);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    if (!isDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+  const handleSelectTheme = (id: string) => {
+    setCurrentTheme(id);
+    applyTheme(id);
+    setIsThemeMenuOpen(false);
   };
 
   return (
@@ -266,13 +267,61 @@ export function Layout() {
               {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} className="opacity-60 text-accent-red" />}
             </button>
 
-            <button 
-              onClick={toggleTheme}
-              className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface tap-press"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+            {/* Monkeytype Dark Theme Switcher */}
+            <div className="relative shrink-0" ref={themeMenuRef}>
+              <button 
+                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface tap-press"
+                aria-label="Select color theme"
+                title="Change theme"
+                aria-expanded={isThemeMenuOpen}
+              >
+                <Palette size={18} />
+              </button>
+
+              {isThemeMenuOpen && (
+                <div className="absolute right-0 top-14 w-64 bg-bg-surface border border-border-strong rounded-2xl p-3 shadow-2xl z-50 animate-scale-in">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-border-subtle px-1">
+                    <span className="text-xs font-serif font-semibold text-text-main">Monkeytype Themes</span>
+                    <span className="text-[10px] font-mono text-text-muted uppercase">Dark</span>
+                  </div>
+
+                  <div className="space-y-1">
+                    {COLOR_THEMES.map(theme => {
+                      const isActive = currentTheme === theme.id;
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => handleSelectTheme(theme.id)}
+                          className={clsx(
+                            "w-full flex items-center justify-between p-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer",
+                            isActive 
+                              ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" 
+                              : "hover:bg-bg-surface-hover text-text-muted hover:text-text-main border border-transparent"
+                          )}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div 
+                              className="w-4 h-4 rounded-full border border-white/20 shrink-0 flex items-center justify-center overflow-hidden" 
+                              style={{ backgroundColor: theme.preview.bg }}
+                            >
+                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.preview.accent }} />
+                            </div>
+                            <div>
+                              <div className="leading-none text-text-main">{theme.name}</div>
+                              <div className="text-[10px] text-text-muted leading-tight mt-0.5">{theme.category}</div>
+                            </div>
+                          </div>
+
+                          {isActive && <Check size={14} className="text-accent-blue" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {user ? (
               <div className="relative shrink-0" ref={menuRef}>
@@ -475,6 +524,35 @@ export function Layout() {
             >
               <span>Settings</span>
             </Link>
+
+            {/* Mobile Theme Selector */}
+            <div className="pt-2 mt-1 border-t border-border-subtle px-2 pb-1">
+              <div className="text-[10px] uppercase font-mono tracking-wider text-text-muted mb-2 px-1">Theme</div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {COLOR_THEMES.map(theme => (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => {
+                      handleSelectTheme(theme.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={clsx(
+                      "flex items-center gap-1.5 p-2 rounded-xl text-[11px] font-medium border tap-press cursor-pointer",
+                      currentTheme === theme.id 
+                        ? "bg-bg-surface border-border-strong text-text-main font-semibold" 
+                        : "bg-bg-base/40 border-transparent text-text-muted"
+                    )}
+                  >
+                    <span 
+                      className="w-2.5 h-2.5 rounded-full shrink-0 border border-white/20"
+                      style={{ backgroundColor: theme.preview.accent }}
+                    />
+                    <span className="truncate">{theme.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </nav>
         )}
       </header>

@@ -2,13 +2,13 @@ import { useEffect } from 'react';
 import { LevelUpCelebration } from '../components/LevelUpCelebration';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check, Clock, Plus, Sparkles, CheckCircle2 } from 'lucide-react';
+import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check, Clock, Plus, CheckCircle2, Edit2, Trash2 } from 'lucide-react';
 import { TodoList } from '../components/TodoList';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
 import { calculateFitnessXPForLogs } from '../hooks/useLevelSystem';
 import { useLevelSystem, DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
-import { getSettings } from '../utils/settings';
+import { getSettings, saveSettings } from '../utils/settings';
 import clsx from 'clsx';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
@@ -22,9 +22,13 @@ export function Home() {
   const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
   const todayStr = getTodayStr();
+  const [currentSettings, setCurrentSettings] = useState(() => getSettings());
   const [levelModal, setLevelModal] = useState<'dev' | 'fit' | null>(null);
   const [showStreakModal, setShowStreakModal] = useState(false);
   const [showWinterArcRules, setShowWinterArcRules] = useState(false);
+  const [isEditingWinterRules, setIsEditingWinterRules] = useState(false);
+  const [editSeasonName, setEditSeasonName] = useState(() => getSettings().seasonName);
+  const [editRulesList, setEditRulesList] = useState<string[]>(() => [...getSettings().winterArcRules]);
   const [showTodosModal, setShowTodosModal] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{type: 'dev' | 'fit' | 'streak', level: number, title: string} | null>(null);
   
@@ -130,14 +134,17 @@ export function Home() {
     setTimeout(() => setQuickLogSuccess(false), 2200);
   };
 
-  const handleSeedStarterHabits = async () => {
-    const now = new Date().toISOString();
-    await db.habits.bulkAdd([
-      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h1', name: 'Deep Work (2h)', frequencyType: 'daily', priority: 1, startDate: todayStr, archived: false, createdAt: now },
-      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h2', name: 'Read 20 Pages', frequencyType: 'daily', priority: 2, startDate: todayStr, archived: false, createdAt: now },
-      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h3', name: 'Daily Workout', frequencyType: 'daily', priority: 1, startDate: todayStr, archived: false, createdAt: now },
-      { id: crypto.randomUUID ? crypto.randomUUID() : 'sw_h4', name: 'Hydration (3L)', frequencyType: 'daily', priority: 2, startDate: todayStr, archived: false, createdAt: now }
-    ]);
+  const handleSaveWinterRules = () => {
+    const validRules = editRulesList.filter(r => r.trim() !== '');
+    const updated = {
+      ...currentSettings,
+      seasonName: editSeasonName.trim() || 'Winter Arc',
+      winterArcRules: validRules.length > 0 ? validRules : ['Discipline >> Motivation']
+    };
+    saveSettings(updated);
+    setCurrentSettings(getSettings());
+    setIsEditingWinterRules(false);
+    playSuccess();
   };
   
   let habitScore = 0;
@@ -145,7 +152,7 @@ export function Home() {
     if (log.status === 'completed') habitScore += 1.0;
     else if (log.status === 'partial') habitScore += 0.5;
   });
-  const settings = getSettings();
+  const settings = currentSettings;
   const targetPercent = settings.streakTargetHabitPercent / 100;
   const habitConditionMet = activeHabits.length > 0 ? (habitScore / activeHabits.length >= targetPercent) : true;
   
@@ -269,33 +276,20 @@ export function Home() {
         </div>
       </header>
 
-      {/* Cold Start Starter Habits Prompt */}
+      {/* Clean Empty State Banner (No Presets) */}
       {activeHabits.length === 0 && (
-        <div className="my-8 p-6 bg-gradient-to-r from-accent-blue/10 via-bg-surface to-accent-purple/10 border border-border-strong rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm animate-fade-in">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-accent-blue/20 text-accent-blue flex items-center justify-center shrink-0">
-              <Sparkles size={24} />
-            </div>
-            <div>
-              <h3 className="text-lg font-serif font-semibold text-text-main">Welcome to Daily Tracker OS</h3>
-              <p className="text-sm text-text-muted mt-0.5">Initialize your dashboard with core habits or create custom routines.</p>
-            </div>
+        <div className="my-8 p-5 sm:p-6 bg-bg-surface border border-border-subtle rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm animate-fade-in">
+          <div>
+            <h3 className="text-base sm:text-lg font-serif font-semibold text-text-main">No Habits Configured</h3>
+            <p className="text-xs sm:text-sm text-text-muted mt-0.5">Your habit dashboard is completely empty. Add your own custom routines to begin tracking.</p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={handleSeedStarterHabits}
-              className="min-h-[44px] px-4 py-2 bg-text-main text-bg-base font-semibold text-xs rounded-xl hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-2 tap-press"
-            >
-              <Plus size={14} />
-              <span>Load Starter Habits</span>
-            </button>
-            <Link
-              to="/habits/productivity"
-              className="min-h-[44px] px-4 py-2 bg-bg-surface border border-border-strong text-text-main font-semibold text-xs rounded-xl hover:bg-bg-surface/80 transition-colors inline-flex items-center tap-press"
-            >
-              Custom
-            </Link>
-          </div>
+          <Link
+            to="/habits/productivity"
+            className="min-h-[44px] px-4 py-2 bg-text-main text-bg-base font-semibold text-xs rounded-xl hover:opacity-90 transition-opacity inline-flex items-center gap-1.5 shrink-0 tap-press"
+          >
+            <Plus size={14} />
+            <span>Create Habits</span>
+          </Link>
         </div>
       )}
 
@@ -688,34 +682,137 @@ const dynamicTitle = levelModal === 'dev' ? settings.devRanksNames[idx] : settin
       )}
 
       {showWinterArcRules && (
-        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowWinterArcRules(false)}>
-          <div className="bg-bg-surface border border-border-strong rounded-3xl p-8 max-w-md w-full shadow-2xl relative" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="winter-arc-rules-title">
-            <button onClick={() => setShowWinterArcRules(false)} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
+        <div className="fixed inset-0 bg-bg-base/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => { setShowWinterArcRules(false); setIsEditingWinterRules(false); }}>
+          <div className="bg-bg-surface border border-border-strong rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="winter-arc-rules-title">
+            <button onClick={() => { setShowWinterArcRules(false); setIsEditingWinterRules(false); }} className="absolute top-4 sm:top-6 right-4 sm:right-6 w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main rounded-full hover:bg-bg-base/60 transition-colors cursor-pointer tap-press" aria-label="Close modal">
               <X size={20} />
             </button>
             
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center bg-accent-blue/10 text-accent-blue border border-accent-blue/20">
-                <Snowflake size={24} />
+            <div className="flex items-center justify-between gap-4 mb-6 pr-8">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center bg-accent-blue/10 text-accent-blue border border-accent-blue/20 shrink-0">
+                  <Snowflake size={24} />
+                </div>
+                <div>
+                  <h2 id="winter-arc-rules-title" className="text-xl sm:text-2xl font-serif text-text-main">
+                    {isEditingWinterRules ? 'Edit Season Rules' : `${settings.seasonName} Rules`}
+                  </h2>
+                  <p className="text-text-muted text-xs sm:text-sm">
+                    {isEditingWinterRules ? 'Customize goals and operating rules' : 'Core operating rules for the season'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 id="winter-arc-rules-title" className="text-2xl font-serif text-text-main">
-                  {settings.seasonName} Rules
-                </h2>
-                <p className="text-text-muted text-sm">
-                  Core operating rules for the season
-                </p>
-              </div>
+
+              {!isEditingWinterRules && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditSeasonName(settings.seasonName);
+                    setEditRulesList([...settings.winterArcRules]);
+                    setIsEditingWinterRules(true);
+                  }}
+                  className="min-h-[40px] px-3 py-1.5 rounded-xl border border-border-strong hover:bg-bg-base text-accent-blue text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer tap-press"
+                  aria-label="Edit season rules"
+                >
+                  <Edit2 size={13} />
+                  <span>Edit</span>
+                </button>
+              )}
             </div>
 
-            <ul className="space-y-4 text-sm font-medium">
-              {settings.winterArcRules.map((rule, idx) => (
-                <li key={idx} className="flex gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-xl">
-                  <span className="text-accent-blue font-bold opacity-80 w-4 text-center">{idx + 1}</span>
-                  <span className="text-text-main">{rule}</span>
-                </li>
-              ))}
-            </ul>
+            {isEditingWinterRules ? (
+              <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+                <div>
+                  <label htmlFor="edit-season-name" className="text-xs font-semibold uppercase tracking-widest text-text-muted block mb-1.5">Season Title</label>
+                  <input
+                    id="edit-season-name"
+                    type="text"
+                    value={editSeasonName}
+                    onChange={e => setEditSeasonName(e.target.value)}
+                    className="w-full bg-bg-base border border-border-strong rounded-xl px-3.5 py-2 min-h-[44px] text-sm text-text-main focus:outline-none"
+                    placeholder="e.g. Winter Arc, Summer Sprint"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">Rules & Goals</span>
+                    <button
+                      type="button"
+                      onClick={() => setEditRulesList(prev => [...prev, ''])}
+                      className="text-xs font-semibold text-accent-blue hover:underline flex items-center gap-1 cursor-pointer tap-press"
+                    >
+                      <Plus size={13} />
+                      <span>Add Rule</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                    {editRulesList.map((rule, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className="w-6 text-center text-xs font-mono text-accent-blue font-bold shrink-0">{idx + 1}</span>
+                        <input
+                          type="text"
+                          value={rule}
+                          onChange={e => {
+                            const updated = [...editRulesList];
+                            updated[idx] = e.target.value;
+                            setEditRulesList(updated);
+                          }}
+                          placeholder={`Rule #${idx + 1}`}
+                          className="flex-1 bg-bg-base border border-border-strong rounded-xl px-3 py-2 min-h-[40px] text-xs sm:text-sm text-text-main focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setEditRulesList(prev => prev.filter((_, i) => i !== idx))}
+                          className="w-10 h-10 min-w-[40px] flex items-center justify-center text-text-muted hover:text-accent-red rounded-lg transition-colors cursor-pointer tap-press shrink-0"
+                          aria-label={`Delete rule ${idx + 1}`}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                    {editRulesList.length === 0 && (
+                      <p className="text-xs text-text-muted italic text-center py-4">No rules in list. Click "Add Rule" to add one.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-border-subtle">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingWinterRules(false)}
+                    className="min-h-[40px] px-4 py-2 rounded-xl border border-border-strong text-text-muted hover:text-text-main text-xs font-semibold cursor-pointer tap-press"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveWinterRules}
+                    className="min-h-[40px] px-4 py-2 rounded-xl bg-text-main text-bg-base text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer tap-press flex items-center gap-1.5"
+                  >
+                    <Check size={14} />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-y-auto pr-1 flex-1">
+                <ul className="space-y-3 text-sm font-medium">
+                  {settings.winterArcRules.map((rule, idx) => (
+                    <li key={idx} className="flex gap-3 sm:gap-4 items-center bg-bg-base border border-border-subtle p-3 rounded-2xl">
+                      <span className="text-accent-blue font-bold opacity-80 w-5 text-center shrink-0">{idx + 1}</span>
+                      <span className="text-text-main leading-relaxed text-xs sm:text-sm">{rule}</span>
+                    </li>
+                  ))}
+                  {settings.winterArcRules.length === 0 && (
+                    <li className="text-center py-6 text-text-muted text-xs italic">
+                      No season rules configured yet. Click "Edit" above to add your goals.
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
       )}

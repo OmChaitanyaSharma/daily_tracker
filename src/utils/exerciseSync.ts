@@ -40,7 +40,7 @@ export const DIFFICULTY_POINTS: Record<ExerciseDifficulty, number> = {
 
 export async function syncExercisesScores(): Promise<void> {
   const existingExercises = await db.exercises.toArray();
-  const createdAt = new Date().toISOString();
+  if (existingExercises.length === 0) return; // Keep database completely empty on fresh install
 
   for (const config of EXERCISE_CONFIGS) {
     const targetNames = [config.name.toLowerCase(), ...(config.aliases?.map(a => a.toLowerCase()) || [])];
@@ -50,16 +50,6 @@ export async function syncExercisesScores(): Promise<void> {
       // Update existing exercise difficulty and name if needed
       await db.exercises.update(match.id, {
         name: config.name,
-        difficulty: config.difficulty,
-        trackingType: config.trackingType
-      });
-    } else {
-      // Add new exercise
-      await db.exercises.add({
-        id: crypto.randomUUID(),
-        name: config.name,
-        createdAt,
-        archived: false,
         difficulty: config.difficulty,
         trackingType: config.trackingType
       });
