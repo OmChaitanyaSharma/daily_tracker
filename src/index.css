@@ -1,40 +1,9 @@
 @import "tailwindcss";
 
 @layer base {
-  /* DEFAULT / MONKEYTYPE CARBON THEME (DARK) */
+  /* DEFAULT / MONKEYTYPE PHANTOM THEME (DARK) */
   :root,
   .dark,
-  [data-theme="carbon"] {
-    --bg-base: #121214;
-    --bg-surface: #1a1a1e;
-    --bg-surface-hover: #24242a;
-    
-    --text-main: #f4f4f5; 
-    --text-muted: #6b7280; 
-    
-    --border-subtle: #262830;
-    --border-strong: #3f4350;
-    
-    --accent-red: #ef4444;
-    --accent-red-hover: #dc2626;
-    --accent-red-bg: rgba(239, 68, 68, 0.15);
-
-    --accent-blue: #60a5fa; 
-    --accent-blue-bg: rgba(96, 165, 250, 0.15);
-
-    --accent-purple: #c084fc;
-    --accent-purple-bg: rgba(192, 132, 252, 0.15);
-
-    --accent-yellow: #fbbf24; 
-    --accent-yellow-bg: rgba(251, 191, 36, 0.15);
-
-    --accent-green: #4ade80; 
-    --accent-green-bg: rgba(74, 222, 128, 0.15);
-
-    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
-  }
-
-  /* MONKEYTYPE PHANTOM THEME */
   [data-theme="phantom"] {
     --bg-base: #000011;
     --bg-surface: #101224;
@@ -63,6 +32,37 @@
     --accent-green-bg: rgba(158, 206, 106, 0.15);
 
     --shadow-soft: 0 8px 30px rgba(0, 0, 10, 0.6), 0 4px 10px rgba(0, 0, 10, 0.4);
+  }
+
+  /* MONKEYTYPE CARBON THEME */
+  [data-theme="carbon"] {
+    --bg-base: #121214;
+    --bg-surface: #1a1a1e;
+    --bg-surface-hover: #24242a;
+    
+    --text-main: #f4f4f5; 
+    --text-muted: #6b7280; 
+    
+    --border-subtle: #262830;
+    --border-strong: #3f4350;
+    
+    --accent-red: #ef4444;
+    --accent-red-hover: #dc2626;
+    --accent-red-bg: rgba(239, 68, 68, 0.15);
+
+    --accent-blue: #60a5fa; 
+    --accent-blue-bg: rgba(96, 165, 250, 0.15);
+
+    --accent-purple: #c084fc;
+    --accent-purple-bg: rgba(192, 132, 252, 0.15);
+
+    --accent-yellow: #fbbf24; 
+    --accent-yellow-bg: rgba(251, 191, 36, 0.15);
+
+    --accent-green: #4ade80; 
+    --accent-green-bg: rgba(74, 222, 128, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
   }
 
   /* MONKEYTYPE DEEP OCEAN & CORAL THEME */

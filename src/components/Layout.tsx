@@ -286,7 +286,7 @@ export function Layout() {
                     <span className="text-[10px] font-mono text-text-muted uppercase">Dark</span>
                   </div>
 
-                  <div className="space-y-1">
+                  <div className="space-y-1 max-h-60 overflow-y-auto pr-1 overscroll-contain">
                     {COLOR_THEMES.map(theme => {
                       const isActive = currentTheme === theme.id;
                       return (
@@ -528,7 +528,7 @@ export function Layout() {
             {/* Mobile Theme Selector */}
             <div className="pt-2 mt-1 border-t border-border-subtle px-2 pb-1">
               <div className="text-[10px] uppercase font-mono tracking-wider text-text-muted mb-2 px-1">Theme</div>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1">
                 {COLOR_THEMES.map(theme => (
                   <button
                     key={theme.id}
