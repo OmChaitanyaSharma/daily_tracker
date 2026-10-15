@@ -33,27 +33,48 @@ export function Layout() {
   const [avatarError, setAvatarError] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setAvatarError(false);
   }, [user?.photoURL]);
 
-  // Close dropdowns on outside click
+  // Close dropdowns on outside click or touch
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      const target = event.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
         setIsUserMenuOpen(false);
       }
-      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(target)) {
         setIsThemeMenuOpen(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+      if (
+        mobileMenuRef.current && 
+        !mobileMenuRef.current.contains(target) &&
+        (!mobileMenuBtnRef.current || !mobileMenuBtnRef.current.contains(target))
+      ) {
         setIsMobileMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
+
+  // Lock body scroll when mobile drawer is open to prevent background bleed scrolling
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isMobileMenuOpen]);
 
   // Auto-close mobile menu on route change
   useEffect(() => {
@@ -157,6 +178,13 @@ export function Layout() {
           }
           break;
         case 'escape': 
+          if (isMobileMenuOpen || isThemeMenuOpen || isUserMenuOpen) {
+            e.preventDefault();
+            setIsMobileMenuOpen(false);
+            setIsThemeMenuOpen(false);
+            setIsUserMenuOpen(false);
+            break;
+          }
           e.preventDefault();
           navigate('/'); 
           break;
@@ -475,6 +503,7 @@ export function Layout() {
 
             {/* Mobile Hamburger Toggle Button */}
             <button
+              ref={mobileMenuBtnRef}
               onClick={() => {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
                 setIsThemeMenuOpen(false);
