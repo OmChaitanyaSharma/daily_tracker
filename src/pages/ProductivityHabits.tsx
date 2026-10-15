@@ -454,7 +454,7 @@ export function ProductivityHabits() {
                       {activeMenuHabitId === habit.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setActiveMenuHabitId(null)} />
-                          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-36 glass-panel rounded-2xl shadow-lg z-50 overflow-hidden text-sm flex flex-col animate-slide-up">
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-36 bg-bg-surface border border-border-strong rounded-2xl shadow-2xl z-50 overflow-hidden text-sm flex flex-col animate-slide-up">
                             <button 
                               onClick={() => {
                                 setEditName(habit.name);
