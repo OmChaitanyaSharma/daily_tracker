@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX, ArrowLeft, Palette, Check } from 'lucide-react';
 import { format } from 'date-fns';
@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSound } from '../hooks/useSound';
 import { uploadLocalToCloud, wipeCloudCollectionsForUser, wipeCloudDataForUser } from '../services/cloudSync';
 import { validateBackupPayload, sanitizeBackupRecords } from '../utils/backupValidation';
-import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
+import { COLOR_THEMES, getSavedTheme, applyTheme, previewTheme, cancelThemePreview } from '../utils/theme';
 
 export function Settings() {
   const { user } = useAuth();
@@ -30,6 +30,20 @@ export function Settings() {
   const isBackupStale = useMemo(() => {
     return !lastBackupTime || (mountTime - lastBackupTime > 14 * 24 * 60 * 60 * 1000);
   }, [lastBackupTime, mountTime]);
+
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ themeId: string }>;
+      if (custom.detail?.themeId) {
+        setCurrentTheme(custom.detail.themeId);
+      }
+    };
+    window.addEventListener('app_theme_changed', handleThemeChange);
+    return () => {
+      window.removeEventListener('app_theme_changed', handleThemeChange);
+      cancelThemePreview();
+    };
+  }, []);
 
   const handleExportData = async () => {
     try {
@@ -585,7 +599,10 @@ export function Settings() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          <div 
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
+            onMouseLeave={cancelThemePreview}
+          >
             {COLOR_THEMES.map(theme => {
               const isActive = currentTheme === theme.id;
               return (
@@ -594,6 +611,18 @@ export function Settings() {
                   onClick={() => {
                     setCurrentTheme(theme.id);
                     applyTheme(theme.id);
+                  }}
+                  onMouseEnter={() => previewTheme(theme.id)}
+                  onFocus={() => previewTheme(theme.id)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Select ${theme.name} theme`}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setCurrentTheme(theme.id);
+                      applyTheme(theme.id);
+                    }
                   }}
                   className={clsx(
                     "rounded-2xl p-4 border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between tap-press",

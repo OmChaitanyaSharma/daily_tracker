@@ -270,4 +270,28 @@ export function applyTheme(themeId: string) {
   document.documentElement.setAttribute('data-theme', theme.id);
   localStorage.setItem('app_color_theme', theme.id);
   localStorage.setItem('theme', 'dark');
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('app_theme_changed', { detail: { themeId: theme.id } }));
+  }
 }
+
+/**
+ * Temporarily previews a theme without persisting it to localStorage.
+ */
+export function previewTheme(themeId: string): void {
+  if (typeof document === 'undefined') return;
+  const theme = COLOR_THEMES.find(t => t.id === themeId);
+  if (theme) {
+    document.documentElement.setAttribute('data-theme', theme.id);
+  }
+}
+
+/**
+ * Reverts the live theme preview back to the saved user preference.
+ */
+export function cancelThemePreview(): void {
+  if (typeof document === 'undefined') return;
+  const saved = getSavedTheme();
+  document.documentElement.setAttribute('data-theme', saved);
+}
+

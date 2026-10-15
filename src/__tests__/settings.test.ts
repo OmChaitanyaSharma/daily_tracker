@@ -118,7 +118,7 @@ describe('backup validation and sanitization security', () => {
   });
 });
 
-import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
+import { COLOR_THEMES, getSavedTheme, applyTheme, previewTheme, cancelThemePreview } from '../utils/theme';
 
 describe('theme system', () => {
   it('contains valid and unique theme definitions', () => {
@@ -146,6 +146,24 @@ describe('theme system', () => {
     applyTheme('taro');
     expect(getSavedTheme()).toBe('taro');
     expect(document.documentElement.getAttribute('data-theme')).toBe('taro');
+  });
+
+  it('previews theme without persisting to localStorage and cancels cleanly', () => {
+    applyTheme('phantom');
+    expect(getSavedTheme()).toBe('phantom');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('phantom');
+
+    // Hover preview
+    previewTheme('aether');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('aether');
+    // localStorage should remain phantom
+    expect(localStorage.getItem('app_color_theme')).toBe('phantom');
+    expect(getSavedTheme()).toBe('phantom');
+
+    // Cancel preview (mouse leave)
+    cancelThemePreview();
+    expect(document.documentElement.getAttribute('data-theme')).toBe('phantom');
+    expect(getSavedTheme()).toBe('phantom');
   });
 });
 

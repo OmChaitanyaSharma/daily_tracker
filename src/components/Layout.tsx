@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 import { AuthModal } from './AuthModal';
 import { handleUserLoginSync, uploadLocalToCloud, clearLocalDataOnSignOut } from '../services/cloudSync';
 import { usePageSEO } from '../hooks/usePageSEO';
-import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
+import { COLOR_THEMES, getSavedTheme, applyTheme, previewTheme, cancelThemePreview } from '../utils/theme';
 
 export function Layout() {
   usePageSEO();
@@ -50,6 +50,21 @@ export function Layout() {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  // Sync active theme when modified externally (e.g. in Settings)
+  useEffect(() => {
+    const handleThemeChange = (e: Event) => {
+      const custom = e as CustomEvent<{ themeId: string }>;
+      if (custom.detail?.themeId) {
+        setCurrentTheme(custom.detail.themeId);
+      }
+    };
+    window.addEventListener('app_theme_changed', handleThemeChange);
+    return () => {
+      window.removeEventListener('app_theme_changed', handleThemeChange);
+      cancelThemePreview();
+    };
+  }, []);
+
   // Close dropdowns on outside click or touch
   useEffect(() => {
     function handleClickOutside(event: MouseEvent | TouchEvent) {
@@ -59,6 +74,7 @@ export function Layout() {
       }
       if (themeMenuRef.current && !themeMenuRef.current.contains(target)) {
         setIsThemeMenuOpen(false);
+        cancelThemePreview();
       }
       if (
         mobileMenuRef.current && 
@@ -194,6 +210,7 @@ export function Layout() {
             setIsMobileMenuOpen(false);
             setIsThemeMenuOpen(false);
             setIsUserMenuOpen(false);
+            cancelThemePreview();
             break;
           }
           e.preventDefault();
@@ -320,6 +337,9 @@ export function Layout() {
             <div className="relative shrink-0" ref={themeMenuRef}>
               <button 
                 onClick={() => {
+                  if (isThemeMenuOpen) {
+                    cancelThemePreview();
+                  }
                   setIsThemeMenuOpen(!isThemeMenuOpen);
                   setIsMobileMenuOpen(false);
                   setIsUserMenuOpen(false);
@@ -333,13 +353,19 @@ export function Layout() {
               </button>
 
               {isThemeMenuOpen && (
-                <div className="absolute right-0 top-14 w-64 max-w-[calc(100vw-2rem)] bg-bg-surface border border-border-strong rounded-2xl p-3 shadow-2xl z-50 animate-scale-in">
+                <div 
+                  className="absolute right-0 top-14 w-64 max-w-[calc(100vw-2rem)] bg-bg-surface border border-border-strong rounded-2xl p-3 shadow-2xl z-50 animate-scale-in"
+                  onMouseLeave={cancelThemePreview}
+                >
                   <div className="flex items-center justify-between pb-2 mb-2 border-b border-border-subtle px-1">
                     <span className="text-xs font-serif font-semibold text-text-main">Monkeytype Themes</span>
                     <span className="text-[10px] font-mono text-text-muted uppercase">Dark</span>
                   </div>
 
-                  <div className="space-y-1 max-h-60 overflow-y-auto pr-1 overscroll-contain">
+                  <div 
+                    className="space-y-1 max-h-60 overflow-y-auto pr-1 overscroll-contain"
+                    onMouseLeave={cancelThemePreview}
+                  >
                     {COLOR_THEMES.map(theme => {
                       const isActive = currentTheme === theme.id;
                       return (
@@ -347,6 +373,8 @@ export function Layout() {
                           key={theme.id}
                           type="button"
                           onClick={() => handleSelectTheme(theme.id)}
+                          onMouseEnter={() => previewTheme(theme.id)}
+                          onFocus={() => previewTheme(theme.id)}
                           className={clsx(
                             "w-full flex items-center justify-between p-2 rounded-xl text-xs font-medium transition-all text-left cursor-pointer",
                             isActive 
