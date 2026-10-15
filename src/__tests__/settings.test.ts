@@ -140,6 +140,11 @@ describe('theme system', () => {
       expect(theme.preview.main).toMatch(/^#[0-9a-fA-F]{6}$/);
       expect(theme.preview.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
     }
+
+    // Verify ascending alphabetical sort order by display name
+    const names = COLOR_THEMES.map(t => t.name);
+    const sortedNames = [...names].sort((a, b) => a.localeCompare(b));
+    expect(names).toEqual(sortedNames);
   });
 
   it('saves and applies theme', () => {
