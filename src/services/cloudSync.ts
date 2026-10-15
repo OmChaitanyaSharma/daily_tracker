@@ -213,3 +213,70 @@ export async function clearLocalDataOnSignOut(): Promise<void> {
     localStorage.removeItem(ACTIVE_UID_KEY);
   }
 }
+
+/**
+ * Deletes all documents in the specified Firestore collections for a given user.
+ */
+export async function wipeCloudCollectionsForUser(
+  userId: string,
+  collections: readonly SyncCollectionName[] = SYNC_COLLECTIONS
+): Promise<void> {
+  if (!auth.currentUser || auth.currentUser.uid !== userId) {
+    throw new Error('Unauthorized: Active authenticated session does not match the target user ID.');
+  }
+
+  const userRef = doc(firestore, 'users', userId);
+
+  for (const colName of collections) {
+    const colRef = collection(userRef, colName);
+    const snapshot = await getDocs(colRef);
+    if (snapshot.empty) continue;
+
+    const chunkSize = 400;
+    const docSnaps = snapshot.docs;
+    for (let i = 0; i < docSnaps.length; i += chunkSize) {
+      const chunk = docSnaps.slice(i, i + chunkSize);
+      const batch = writeBatch(firestore);
+      for (const docSnap of chunk) {
+        batch.delete(docSnap.ref);
+      }
+      await batch.commit();
+
+      if (i + chunkSize < docSnaps.length) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    }
+  }
+}
+
+/**
+ * Completely purges all cloud subcollections and resets profile settings in Firestore.
+ */
+export async function wipeCloudDataForUser(userId: string): Promise<void> {
+  if (!auth.currentUser || auth.currentUser.uid !== userId) {
+    throw new Error('Unauthorized: Active authenticated session does not match the target user ID.');
+  }
+
+  // Purge all synced subcollections
+  await wipeCloudCollectionsForUser(userId, SYNC_COLLECTIONS);
+
+  // Reset settings & rest days in cloud profile
+  const userRef = doc(firestore, 'users', userId);
+  const settings = getSettings();
+  const cleanSettings = settings ? JSON.parse(JSON.stringify(settings)) : {};
+
+  await setDoc(doc(userRef, 'profile', 'settings'), {
+    settings: cleanSettings,
+    restDaysConfig: null,
+    updatedAt: new Date().toISOString()
+  });
+
+  // Update sync metadata
+  await setDoc(doc(userRef, 'meta', 'sync'), {
+    lastSyncedAt: serverTimestamp(),
+    initialized: true
+  });
+
+  lastUploadTimestamp = Date.now();
+}
+

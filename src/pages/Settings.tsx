@@ -8,7 +8,7 @@ import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { db } from '../db';
 import { useAuth } from '../context/AuthContext';
 import { useSound } from '../hooks/useSound';
-import { uploadLocalToCloud } from '../services/cloudSync';
+import { uploadLocalToCloud, wipeCloudCollectionsForUser, wipeCloudDataForUser } from '../services/cloudSync';
 import { validateBackupPayload, sanitizeBackupRecords } from '../utils/backupValidation';
 import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
 
@@ -227,7 +227,15 @@ export function Settings() {
       localStorage.removeItem('v3_ack_streak');
 
       if (user) {
-        await uploadLocalToCloud(user.uid);
+        await wipeCloudCollectionsForUser(user.uid, [
+          'dayEntries',
+          'tasks',
+          'habitLogs',
+          'hourLogs',
+          'exerciseLogs',
+          'goalMeasurements'
+        ]);
+        await uploadLocalToCloud(user.uid, true);
       }
 
       setClearedMessage('All entries cleared.');
@@ -281,7 +289,7 @@ export function Settings() {
       localStorage.removeItem('v3_ack_streak');
 
       if (user) {
-        await uploadLocalToCloud(user.uid, true);
+        await wipeCloudDataForUser(user.uid);
       }
 
       setClearedMessage('Factory reset complete. App is now completely blank.');
