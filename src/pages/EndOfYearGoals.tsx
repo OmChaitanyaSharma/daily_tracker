@@ -107,7 +107,7 @@ export function EndOfYearGoals() {
                 <ArrowLeft size={20} />
               </Link>
               <div>
-                <h1 className="text-xl sm:text-3xl font-serif italic text-text-main">Goals Till End of {getSettings().seasonName} (March 1st)</h1>
+                <h1 className="text-xl sm:text-3xl font-serif italic text-text-main">Goals Till End of {getSettings().seasonName}</h1>
               </div>
             </div>
             

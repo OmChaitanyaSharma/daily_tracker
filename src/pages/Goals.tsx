@@ -28,7 +28,7 @@ export function Goals() {
             <div>
               <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">End of {getSettings().seasonName}</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Core milestones and qualitative targets for the season (March 1st).
+                Core milestones and qualitative targets for the season.
               </p>
             </div>
           </div>
