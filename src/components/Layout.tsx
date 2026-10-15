@@ -234,6 +234,15 @@ export function Layout() {
   return (
     <div className="min-h-[100dvh] w-full max-w-full overflow-x-hidden bg-bg-base text-text-main font-sans selection:bg-accent-yellow-bg selection:text-text-main flex flex-col relative z-0">
       <Snowfall />
+
+      {/* Mobile Navigation Backdrop Scrim */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm md:hidden animate-fade-in transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
       
       {/* Floating Pill Navigation */}
       <header 
@@ -270,7 +279,11 @@ export function Layout() {
             {/* Monkeytype Dark Theme Switcher */}
             <div className="relative shrink-0" ref={themeMenuRef}>
               <button 
-                onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                onClick={() => {
+                  setIsThemeMenuOpen(!isThemeMenuOpen);
+                  setIsMobileMenuOpen(false);
+                  setIsUserMenuOpen(false);
+                }}
                 className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-transform duration-300 hover:scale-110 focus:outline-none cursor-pointer shrink-0 rounded-full hover:bg-bg-surface tap-press"
                 aria-label="Select color theme"
                 title="Change theme"
@@ -326,7 +339,11 @@ export function Layout() {
             {user ? (
               <div className="relative shrink-0" ref={menuRef}>
                 <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  onClick={() => {
+                    setIsUserMenuOpen(!isUserMenuOpen);
+                    setIsMobileMenuOpen(false);
+                    setIsThemeMenuOpen(false);
+                  }}
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
                   aria-label="User account menu"
@@ -393,7 +410,11 @@ export function Layout() {
             ) : isGuest ? (
               <div className="relative shrink-0" ref={menuRef}>
                 <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  onClick={() => {
+                    setIsUserMenuOpen(!isUserMenuOpen);
+                    setIsMobileMenuOpen(false);
+                    setIsThemeMenuOpen(false);
+                  }}
                   aria-expanded={isUserMenuOpen}
                   aria-haspopup="true"
                   aria-label="Guest account menu"
@@ -454,7 +475,11 @@ export function Layout() {
 
             {/* Mobile Hamburger Toggle Button */}
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => {
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+                setIsThemeMenuOpen(false);
+                setIsUserMenuOpen(false);
+              }}
               className="md:hidden w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors focus:outline-none cursor-pointer rounded-full hover:bg-bg-surface shrink-0 tap-press"
               aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isMobileMenuOpen}
@@ -468,66 +493,74 @@ export function Layout() {
         {isMobileMenuOpen && (
           <nav 
             ref={mobileMenuRef}
-            className="md:hidden mt-2 glass-panel rounded-3xl p-2 shadow-2xl border border-border-strong flex flex-col gap-1 animate-fade-in w-full min-w-[280px]"
+            className="md:hidden mt-2 bg-bg-surface border border-border-strong rounded-3xl p-3 shadow-2xl flex flex-col gap-1.5 animate-scale-in w-full min-w-[280px] max-w-[calc(100vw-1.5rem)] relative z-50"
           >
+            <div className="px-3 py-1.5 border-b border-border-subtle flex items-center justify-between mb-0.5">
+              <span className="text-xs font-serif font-semibold text-text-main">Navigation</span>
+              <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider">Menu</span>
+            </div>
+
             <Link 
               to="/highlight" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
                 "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
-                location.pathname === '/highlight' ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
+                location.pathname === '/highlight' ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" : "text-text-muted hover:text-text-main hover:bg-bg-base/60"
               )}
             >
               <span>Highlight</span>
-              <span className="text-[10px] text-text-muted font-mono bg-bg-base/60 px-2 py-0.5 rounded-md border border-border-subtle">1</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">1</span>
             </Link>
             <Link 
               to="/habits" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
                 "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
-                location.pathname.startsWith('/habits') ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
+                location.pathname.startsWith('/habits') ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" : "text-text-muted hover:text-text-main hover:bg-bg-base/60"
               )}
             >
               <span>Habits</span>
-              <span className="text-[10px] text-text-muted font-mono bg-bg-base/60 px-2 py-0.5 rounded-md border border-border-subtle">2</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">2</span>
             </Link>
             <Link 
               to="/goals" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
                 "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
-                location.pathname.startsWith('/goals') ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
+                location.pathname.startsWith('/goals') ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" : "text-text-muted hover:text-text-main hover:bg-bg-base/60"
               )}
             >
               <span>Goals</span>
-              <span className="text-[10px] text-text-muted font-mono bg-bg-base/60 px-2 py-0.5 rounded-md border border-border-subtle">3</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">3</span>
             </Link>
             <Link 
               to="/logs" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
                 "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
-                location.pathname === '/logs' ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
+                location.pathname === '/logs' ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" : "text-text-muted hover:text-text-main hover:bg-bg-base/60"
               )}
             >
               <span>Logs</span>
-              <span className="text-[10px] text-text-muted font-mono bg-bg-base/60 px-2 py-0.5 rounded-md border border-border-subtle">4</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">4</span>
             </Link>
             <Link 
               to="/settings" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
                 "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
-                location.pathname === '/settings' ? "bg-bg-surface text-text-main font-semibold" : "text-text-muted hover:text-text-main hover:bg-bg-surface/50"
+                location.pathname === '/settings' ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" : "text-text-muted hover:text-text-main hover:bg-bg-base/60"
               )}
             >
               <span>Settings</span>
             </Link>
 
             {/* Mobile Theme Selector */}
-            <div className="pt-2 mt-1 border-t border-border-subtle px-2 pb-1">
-              <div className="text-[10px] uppercase font-mono tracking-wider text-text-muted mb-2 px-1">Theme</div>
+            <div className="pt-2 mt-1 border-t border-border-subtle px-1 pb-1">
+              <div className="flex items-center justify-between mb-2 px-1">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-text-muted">Theme</span>
+                <span className="text-[10px] font-mono text-text-muted uppercase">11 Options</span>
+              </div>
               <div className="grid grid-cols-3 gap-1.5 max-h-36 overflow-y-auto pr-1">
                 {COLOR_THEMES.map(theme => (
                   <button
@@ -538,10 +571,10 @@ export function Layout() {
                       setIsMobileMenuOpen(false);
                     }}
                     className={clsx(
-                      "flex items-center gap-1.5 p-2 rounded-xl text-[11px] font-medium border tap-press cursor-pointer",
+                      "flex items-center gap-1.5 p-2 rounded-xl text-[11px] font-medium border tap-press cursor-pointer transition-colors",
                       currentTheme === theme.id 
-                        ? "bg-bg-surface border-border-strong text-text-main font-semibold" 
-                        : "bg-bg-base/40 border-transparent text-text-muted"
+                        ? "bg-bg-base border-accent-blue text-text-main font-semibold shadow-sm ring-1 ring-accent-blue/50" 
+                        : "bg-bg-base/60 border-border-subtle hover:border-border-strong text-text-muted hover:text-text-main"
                     )}
                   >
                     <span 
