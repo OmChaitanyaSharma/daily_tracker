@@ -1,8 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   type User, 
+  type UserCredential,
   onAuthStateChanged, 
   signInWithPopup, 
+  signInWithRedirect,
   getRedirectResult,
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -14,7 +16,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isGuest: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<UserCredential | undefined>;
+  signInWithGoogleRedirect: () => Promise<void>;
   signInWithEmail: (email: string, pass: string) => Promise<void>;
   signUpWithEmail: (email: string, pass: string) => Promise<void>;
   continueAsGuest: () => void;
@@ -65,15 +68,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('dt_guest_mode');
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (): Promise<UserCredential | undefined> => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
       setIsGuest(false);
       localStorage.removeItem('dt_guest_mode');
+      return result;
     } catch (error: any) {
       console.error('Google sign-in error:', error);
+      // Auto-fallback to redirect if popup is blocked or unsupported
+      if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/cancelled-popup-request') {
+        console.warn('Popup blocked by browser. Automatically falling back to signInWithRedirect...');
+        await signInWithRedirect(auth, googleProvider);
+        return undefined;
+      }
       throw error;
     }
+  };
+
+  const signInWithGoogleRedirect = async (): Promise<void> => {
+    setIsGuest(false);
+    localStorage.removeItem('dt_guest_mode');
+    await signInWithRedirect(auth, googleProvider);
   };
 
   const signInWithEmail = async (email: string, pass: string) => {
@@ -115,6 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading, 
       isGuest, 
       signInWithGoogle, 
+      signInWithGoogleRedirect,
       signInWithEmail, 
       signUpWithEmail, 
       continueAsGuest, 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Mail, Lock, LogIn, UserPlus, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
+import { getAdditionalUserInfo } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 
@@ -9,36 +10,62 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, continueAsGuest } = useAuth();
+  const { signInWithGoogle, signInWithGoogleRedirect, signInWithEmail, signUpWithEmail, continueAsGuest } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [suggestion, setSuggestion] = useState<{ message: string; actionText: string; targetIsSignUp: boolean } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string | null>(null);
+  const [showRedirectFallback, setShowRedirectFallback] = useState(false);
 
   const containerRef = useFocusTrap(isOpen, onClose);
 
   if (!isOpen) return null;
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (forceRedirect = false) => {
     setError(null);
+    setSuggestion(null);
     setIsSubmitting(true);
-    setSyncStatus('Connecting with Google...');
+    setSyncStatus(forceRedirect ? 'Redirecting to Google...' : 'Connecting with Google...');
     try {
-      await signInWithGoogle();
-      // If popup signed in immediately, close modal
-      onClose();
+      if (forceRedirect) {
+        await signInWithGoogleRedirect();
+        return;
+      }
+      const result = await signInWithGoogle();
+      if (result?.user) {
+        const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
+        if (isNewUser) {
+          setSyncStatus('Account created! Welcome to Daily Tracker...');
+        } else {
+          setSyncStatus('Welcome back! Logging in...');
+        }
+        setTimeout(() => {
+          onClose();
+        }, 400);
+      } else {
+        // Returned undefined if auto-redirect kicked in
+        onClose();
+      }
     } catch (err: any) {
       console.error('Google sign-in error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in cancelled.');
+        setError('Google sign-in window was closed.');
+        setShowRedirectFallback(true);
       } else if (err.code === 'auth/popup-blocked') {
-        setError('Pop-up was blocked by your browser. Please allow popups for this site, or sign in below with Email & Password.');
+        setError('Pop-up was blocked. Redirecting directly to Google...');
+        try {
+          await signInWithGoogleRedirect();
+        } catch {
+          setShowRedirectFallback(true);
+        }
       } else if (err.code === 'auth/unauthorized-domain') {
         setError('This domain is not authorized in Firebase Console.');
       } else {
-        setError(err.message || 'Failed to sign in with Google. Please use Email & Password below.');
+        setError(err.message || 'Failed to sign in with Google.');
+        setShowRedirectFallback(true);
       }
       setIsSubmitting(false);
       setSyncStatus(null);
@@ -52,6 +79,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       return;
     }
     setError(null);
+    setSuggestion(null);
     setIsSubmitting(true);
     setSyncStatus(isSignUp ? 'Creating your account...' : 'Signing in...');
 
@@ -63,11 +91,25 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       }
       onClose();
     } catch (err: any) {
-      console.error(err);
+      console.error('Email auth error:', err);
       if (err.code === 'auth/email-already-in-use') {
         setError('An account with this email already exists.');
-      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Invalid email or password.');
+        setSuggestion({
+          message: 'Already registered with this email?',
+          actionText: 'Switch to Sign In',
+          targetIsSignUp: false
+        });
+      } else if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        if (!isSignUp) {
+          setError('Invalid credentials or no account found with this email.');
+          setSuggestion({
+            message: "Don't have an account yet?",
+            actionText: 'Create free account with this email',
+            targetIsSignUp: true
+          });
+        } else {
+          setError('Invalid email or password.');
+        }
       } else if (err.code === 'auth/weak-password') {
         setError('Password must be at least 6 characters.');
       } else {
@@ -120,9 +162,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         )}
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-2.5" role="alert">
+          <div className="mb-3 p-3 rounded-xl bg-accent-red/10 border border-accent-red/20 text-accent-red text-xs flex items-center gap-2.5" role="alert">
             <AlertCircle size={16} className="shrink-0" aria-hidden="true" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {suggestion && (
+          <div className="mb-4 p-3 rounded-xl bg-accent-blue/10 border border-accent-blue/25 text-text-main text-xs flex items-center justify-between gap-2 animate-fade-in">
+            <span className="text-text-muted">{suggestion.message}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(suggestion.targetIsSignUp);
+                setError(null);
+                setSuggestion(null);
+              }}
+              className="inline-flex items-center gap-1 font-semibold text-accent-blue hover:underline cursor-pointer shrink-0"
+            >
+              <span>{suggestion.actionText}</span>
+              <ArrowRight size={14} />
+            </button>
           </div>
         )}
 
@@ -132,7 +192,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             type="button"
             role="tab"
             aria-selected={!isSignUp}
-            onClick={() => { setIsSignUp(false); setError(null); }}
+            onClick={() => { setIsSignUp(false); setError(null); setSuggestion(null); }}
             className={`flex-1 min-h-[40px] py-2 text-xs font-semibold rounded-lg transition-all tap-press ${
               !isSignUp ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
             }`}
@@ -143,7 +203,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             type="button"
             role="tab"
             aria-selected={isSignUp}
-            onClick={() => { setIsSignUp(true); setError(null); }}
+            onClick={() => { setIsSignUp(true); setError(null); setSuggestion(null); }}
             className={`flex-1 min-h-[40px] py-2 text-xs font-semibold rounded-lg transition-all tap-press ${
               isSignUp ? 'bg-bg-surface text-text-main shadow-sm' : 'text-text-muted hover:text-text-main'
             }`}
@@ -155,9 +215,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         {/* Google 1-Click Button */}
         <button
           type="button"
-          onClick={handleGoogleSignIn}
+          onClick={() => handleGoogleSignIn(false)}
           disabled={isSubmitting}
-          className="w-full min-h-[44px] flex items-center justify-center gap-3 py-2.5 px-4 bg-bg-base hover:bg-bg-base/80 border border-border-strong hover:border-text-muted rounded-xl text-sm font-medium text-text-main transition-all mb-4 disabled:opacity-50 cursor-pointer tap-press"
+          className="w-full min-h-[44px] flex items-center justify-center gap-3 py-2.5 px-4 bg-bg-base hover:bg-bg-base/80 border border-border-strong hover:border-text-muted rounded-xl text-sm font-medium text-text-main transition-all mb-2 disabled:opacity-50 cursor-pointer tap-press"
           aria-label="Continue with Google sign in"
         >
           <svg className="w-4 h-4 shrink-0" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
@@ -180,6 +240,28 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </svg>
           Continue with Google
         </button>
+        <div className="text-center mb-3">
+          <span className="text-[11px] text-text-muted">
+            Automatic 1-click access • Signs in or creates your account
+          </span>
+        </div>
+
+        {/* Direct Google Redirect Fallback */}
+        {showRedirectFallback && (
+          <div className="mb-4 p-2.5 rounded-xl bg-accent-blue/10 border border-accent-blue/20 text-center animate-fade-in">
+            <p className="text-xs text-text-muted mb-2">
+              Pop-ups blocked or closed? Use direct Google sign-in:
+            </p>
+            <button
+              type="button"
+              onClick={() => handleGoogleSignIn(true)}
+              disabled={isSubmitting}
+              className="w-full min-h-[38px] flex items-center justify-center gap-2 py-1.5 px-3 bg-accent-blue/20 hover:bg-accent-blue/30 border border-accent-blue/40 text-accent-blue rounded-xl text-xs font-semibold transition-colors cursor-pointer tap-press"
+            >
+              <LogIn size={14} /> Open Direct Google Sign-In
+            </button>
+          </div>
+        )}
 
         <div className="relative flex items-center justify-center mb-4">
           <div className="w-full border-t border-border-subtle"></div>
@@ -250,6 +332,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             onClick={() => {
               setIsSignUp(!isSignUp);
               setError(null);
+              setSuggestion(null);
             }}
             className="min-h-[44px] inline-flex items-center justify-center text-xs text-text-muted hover:text-text-main transition-colors cursor-pointer tap-press px-2"
           >
