@@ -118,7 +118,7 @@ export function getSettings(): AppSettings {
     try {
       const parsed = JSON.parse(saved);
       return sanitizeSettings(parsed);
-    } catch (e) {}
+    } catch {}
   }
   return sanitizeSettings(null);
 }

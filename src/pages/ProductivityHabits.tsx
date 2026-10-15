@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import confetti from 'canvas-confetti';
 import { useSound } from '../hooks/useSound';
+import { auth } from '../firebase';
+import { deleteHabitFromCloud, deleteDocumentFromCloud } from '../services/cloudSync';
 
 export function ProductivityHabits() {
   const { playClick, playCheck, playFanfare, playThump } = useSound();
@@ -155,10 +157,25 @@ export function ProductivityHabits() {
 
   const confirmDelete = async () => {
     if (!deletingHabit) return;
-    await db.habits.delete(deletingHabit.id);
-    const logsToDelete = await db.habitLogs.where('habitId').equals(deletingHabit.id).toArray();
-    await Promise.all(logsToDelete.map(l => db.habitLogs.delete(l.id)));
-    setDeletingHabit(null);
+    const habitId = deletingHabit.id;
+    try {
+      await db.transaction('rw', [db.habits, db.habitLogs], async () => {
+        await db.habits.delete(habitId);
+        const logsToDelete = await db.habitLogs.where('habitId').equals(habitId).toArray();
+        if (logsToDelete.length > 0) {
+          await db.habitLogs.bulkDelete(logsToDelete.map(l => l.id));
+        }
+      });
+      if (auth.currentUser) {
+        deleteHabitFromCloud(auth.currentUser.uid, habitId).catch(err => {
+          console.warn('[ProductivityHabits] Cloud habit delete failed:', err);
+        });
+      }
+    } catch (err) {
+      console.error('[ProductivityHabits] Failed to delete habit:', err);
+    } finally {
+      setDeletingHabit(null);
+    }
   };
 
   const toggleHabit = async (habitId: string, date: string, currentStatus: string | undefined, logId?: string) => {
@@ -168,6 +185,9 @@ export function ProductivityHabits() {
     
     if (nextStatus === 'none' && logId) {
       await db.habitLogs.delete(logId);
+      if (auth.currentUser) {
+        deleteDocumentFromCloud(auth.currentUser.uid, 'habitLogs', logId).catch(() => {});
+      }
       playThump();
     } else if (logId) {
       await db.habitLogs.update(logId, { status: nextStatus as any });

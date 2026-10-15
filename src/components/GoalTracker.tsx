@@ -4,6 +4,8 @@ import { getMeasurementDates, getTodayStr } from '../utils/dateUtils';
 import { format } from 'date-fns';
 import { ChevronRight, Check, Settings, Plus, X, ArrowLeft } from 'lucide-react';
 import clsx from 'clsx';
+import { auth } from '../firebase';
+import { deleteDocumentFromCloud } from '../services/cloudSync';
 
 export function GoalRow({ 
   goal, 
@@ -315,6 +317,9 @@ function MeasurementRow({ goal, date, label, existingMeasurement, isFuture, isSc
   const deleteMeasurement = async () => {
     if (existingMeasurement) {
       await db.goalMeasurements.delete(existingMeasurement.id);
+      if (auth.currentUser) {
+        deleteDocumentFromCloud(auth.currentUser.uid, 'goalMeasurements', existingMeasurement.id).catch(() => {});
+      }
     }
   };
 

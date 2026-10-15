@@ -191,7 +191,7 @@ export class DailyTrackerDB extends Dexie {
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
             habit.startDate = `${year}-${month}-${day}`;
-          } catch(e) {
+          } catch {
             const d = new Date();
             habit.startDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
           }

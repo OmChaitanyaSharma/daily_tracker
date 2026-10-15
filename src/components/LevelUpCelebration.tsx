@@ -62,7 +62,7 @@ export function LevelUpCelebration({ type, level, title, onClose }: LevelUpCeleb
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [type, isStreak, isDev]);
+  }, [type, isStreak, isDev, playFanfare]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in">

@@ -8,8 +8,10 @@ import { addDays, parseISO, format } from 'date-fns';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
 import { getSettings, saveSettings, DEFAULT_MOOD_LABELS, type MoodLabels } from '../utils/settings';
+import { auth } from '../firebase';
+import { deleteDocumentFromCloud } from '../services/cloudSync';
 
-export const MOOD_DEFINITIONS = [
+const MOOD_DEFINITIONS = [
   { value: 'excellent' as const, defaultLabel: 'Excellent', Icon: Sparkles, color: 'text-accent-yellow' },
   { value: 'good' as const, defaultLabel: 'Good', Icon: Smile, color: 'text-accent-green' },
   { value: 'okay' as const, defaultLabel: 'Okay', Icon: Meh, color: 'text-text-muted' },
@@ -101,6 +103,9 @@ export function Highlight() {
     setIsSaving(true);
     if (entry.date !== originalDate) {
       await db.dayEntries.delete(originalDate); // delete old
+      if (auth.currentUser) {
+        deleteDocumentFromCloud(auth.currentUser.uid, 'dayEntries', originalDate).catch(() => {});
+      }
     }
     await db.dayEntries.put(entry as DayEntry);
     setOriginalDate(entry.date!);

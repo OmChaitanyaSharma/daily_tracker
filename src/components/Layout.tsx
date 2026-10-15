@@ -35,9 +35,20 @@ export function Layout() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuBtnRef = useRef<HTMLButtonElement>(null);
 
+  const menusRef = useRef({ isMobileMenuOpen, isThemeMenuOpen, isUserMenuOpen });
   useEffect(() => {
-    setAvatarError(false);
+    menusRef.current = { isMobileMenuOpen, isThemeMenuOpen, isUserMenuOpen };
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAvatarError(false), 0);
+    return () => clearTimeout(timer);
   }, [user?.photoURL]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMobileMenuOpen(false), 0);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   // Close dropdowns on outside click or touch
   useEffect(() => {
@@ -76,23 +87,22 @@ export function Layout() {
     }
   }, [isMobileMenuOpen]);
 
-  // Auto-close mobile menu on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
 
   // Sync with cloud on login
   useEffect(() => {
     if (user) {
       const syncKey = `synced_${user.uid}`;
       if (!sessionStorage.getItem(syncKey)) {
-        setIsSyncing(true);
-        handleUserLoginSync(user.uid)
-          .then(() => {
-            sessionStorage.setItem(syncKey, 'true');
-          })
-          .catch((err) => console.error('Auto-sync error:', err))
-          .finally(() => setIsSyncing(false));
+        const timer = setTimeout(() => {
+          setIsSyncing(true);
+          handleUserLoginSync(user.uid)
+            .then(() => {
+              sessionStorage.setItem(syncKey, 'true');
+            })
+            .catch((err) => console.error('Auto-sync error:', err))
+            .finally(() => setIsSyncing(false));
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [user]);
@@ -177,8 +187,9 @@ export function Layout() {
             activeElement.click();
           }
           break;
-        case 'escape': 
-          if (isMobileMenuOpen || isThemeMenuOpen || isUserMenuOpen) {
+        case 'escape': {
+          const { isMobileMenuOpen: mOpen, isThemeMenuOpen: tOpen, isUserMenuOpen: uOpen } = menusRef.current;
+          if (mOpen || tOpen || uOpen) {
             e.preventDefault();
             setIsMobileMenuOpen(false);
             setIsThemeMenuOpen(false);
@@ -188,6 +199,7 @@ export function Layout() {
           e.preventDefault();
           navigate('/'); 
           break;
+        }
         case 'backspace':
           e.preventDefault();
           navigate(-1);

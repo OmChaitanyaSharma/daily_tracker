@@ -8,6 +8,8 @@ import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
+import { auth } from '../firebase';
+import { deleteHourCategoryFromCloud, deleteDocumentFromCloud } from '../services/cloudSync';
 
 const EMPTY_ARRAY: any[] = [];
 
@@ -156,11 +158,24 @@ export function StudyTracking() {
 
   const handleDeleteCategory = async (cat: HourCategory) => {
     if (confirm(`Delete category "${cat.name}"? This will ALSO delete all historical hours logged under this category. This cannot be undone.`)) {
-      const logsToDelete = await db.hourLogs.filter(l => l.activity === cat.name).toArray();
-      const keys = logsToDelete.map(l => l.id);
-      await db.hourLogs.bulkDelete(keys);
-      await db.hourCategories.delete(cat.id);
-      playClick();
+      try {
+        await db.transaction('rw', [db.hourCategories, db.hourLogs], async () => {
+          const logsToDelete = await db.hourLogs.filter(l => l.activity === cat.name).toArray();
+          const keys = logsToDelete.map(l => l.id);
+          if (keys.length > 0) {
+            await db.hourLogs.bulkDelete(keys);
+          }
+          await db.hourCategories.delete(cat.id);
+        });
+        if (auth.currentUser) {
+          deleteHourCategoryFromCloud(auth.currentUser.uid, cat.name, cat.id).catch(err => {
+            console.warn('[StudyTracking] Cloud category delete failed:', err);
+          });
+        }
+        playClick();
+      } catch (err) {
+        console.error('[StudyTracking] Failed to delete category:', err);
+      }
     }
   };
 
@@ -250,6 +265,9 @@ export function StudyTracking() {
 
   const handleDeleteHourLog = async (logId: string) => {
     await db.hourLogs.delete(logId);
+    if (auth.currentUser) {
+      deleteDocumentFromCloud(auth.currentUser.uid, 'hourLogs', logId).catch(() => {});
+    }
     playThump();
   };
 

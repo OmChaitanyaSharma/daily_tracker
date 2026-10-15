@@ -329,4 +329,61 @@ export async function deleteDocumentFromCloud(
   }
 }
 
+/**
+ * Deletes a habit and all its cascade logs from Firestore cloud storage.
+ */
+export async function deleteHabitFromCloud(userId: string, habitId: string): Promise<void> {
+  if (!auth.currentUser || auth.currentUser.uid !== userId) return;
+
+  try {
+    const userRef = doc(firestore, 'users', userId);
+
+    // 1. Delete the habit document
+    await deleteDoc(doc(collection(userRef, 'habits'), String(habitId)));
+
+    // 2. Cascade delete all habit logs in Firestore
+    const logsRef = collection(userRef, 'habitLogs');
+    const q = query(logsRef, where('habitId', '==', String(habitId)));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const batch = writeBatch(firestore);
+      snapshot.forEach(docSnap => {
+        batch.delete(docSnap.ref);
+      });
+      await batch.commit();
+    }
+  } catch (err) {
+    console.warn(`[CloudSync] Failed to delete habit ${habitId} from Firestore:`, err);
+  }
+}
+
+/**
+ * Deletes an hour category and all its cascade hour logs from Firestore cloud storage.
+ */
+export async function deleteHourCategoryFromCloud(userId: string, categoryName: string, categoryId: string): Promise<void> {
+  if (!auth.currentUser || auth.currentUser.uid !== userId) return;
+
+  try {
+    const userRef = doc(firestore, 'users', userId);
+
+    // 1. Delete the category document
+    await deleteDoc(doc(collection(userRef, 'hourCategories'), String(categoryId)));
+
+    // 2. Cascade delete all hour logs matching this category name
+    const logsRef = collection(userRef, 'hourLogs');
+    const q = query(logsRef, where('activity', '==', categoryName));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const batch = writeBatch(firestore);
+      snapshot.forEach(docSnap => {
+        batch.delete(docSnap.ref);
+      });
+      await batch.commit();
+    }
+  } catch (err) {
+    console.warn(`[CloudSync] Failed to delete hour category ${categoryName} from Firestore:`, err);
+  }
+}
+
+
 

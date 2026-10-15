@@ -4,6 +4,8 @@ import { db, type Task } from '../db';
 import { Plus, Trash2, CheckCircle2, Circle } from 'lucide-react';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
+import { auth } from '../firebase';
+import { deleteDocumentFromCloud } from '../services/cloudSync';
 
 interface TodoListProps {
   date: string; // YYYY-MM-DD
@@ -40,6 +42,9 @@ export function TodoList({ date, title = "What do I want to do tomorrow?", readO
 
   const deleteTask = async (id: string) => {
     await db.tasks.delete(id);
+    if (auth.currentUser) {
+      deleteDocumentFromCloud(auth.currentUser.uid, 'tasks', id).catch(() => {});
+    }
     playThump();
   };
 

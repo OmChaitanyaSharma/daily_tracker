@@ -10,6 +10,8 @@ import { useExerciseStreak } from '../hooks/useExerciseStreak';
 import clsx from 'clsx';
 import { RestDayPlanner } from '../components/RestDayPlanner';
 import { useSound } from '../hooks/useSound';
+import { auth } from '../firebase';
+import { deleteDocumentFromCloud } from '../services/cloudSync';
 
 export function ExerciseTracking() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -107,6 +109,9 @@ export function ExerciseTracking() {
       newReps = Math.max(0, existingLog.reps + delta);
       if (newReps === 0) {
         await db.exerciseLogs.delete(existingLog.id);
+        if (auth.currentUser) {
+          deleteDocumentFromCloud(auth.currentUser.uid, 'exerciseLogs', existingLog.id).catch(() => {});
+        }
       } else {
         await db.exerciseLogs.update(existingLog.id, { reps: newReps });
       }
@@ -136,6 +141,9 @@ export function ExerciseTracking() {
     if (existingLog) {
       if (reps <= 0) {
         await db.exerciseLogs.delete(existingLog.id);
+        if (auth.currentUser) {
+          deleteDocumentFromCloud(auth.currentUser.uid, 'exerciseLogs', existingLog.id).catch(() => {});
+        }
       } else {
         await db.exerciseLogs.update(existingLog.id, { reps });
       }

@@ -14,7 +14,7 @@ export function getRestDaysConfig(): RestDaysConfig {
   if (stored) {
     try {
       return JSON.parse(stored);
-    } catch(e) {}
+    } catch {}
   }
   return { default: DEFAULT_REST_DAYS, weeks: {} };
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, Upload, Database, ChevronDown, Volume2, VolumeX, ArrowLeft, Palette, Check } from 'lucide-react';
 import { format } from 'date-fns';
@@ -16,7 +16,7 @@ export function Settings() {
   const { user } = useAuth();
   const { soundEnabled, toggleSound } = useSound();
   const [currentTheme, setCurrentTheme] = useState(() => getSavedTheme());
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<AppSettings>(() => getSettings());
   const [isClearing, setIsClearing] = useState(false);
   const [clearedMessage, setClearedMessage] = useState('');
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -26,13 +26,10 @@ export function Settings() {
     return val ? parseInt(val, 10) : null;
   });
 
-  useEffect(() => {
-    setSettings(getSettings());
-  }, []);
-
-  if (!settings) return null;
-
-  const isBackupStale = !lastBackupTime || (Date.now() - lastBackupTime > 14 * 24 * 60 * 60 * 1000);
+  const [mountTime] = useState(() => Date.now());
+  const isBackupStale = useMemo(() => {
+    return !lastBackupTime || (mountTime - lastBackupTime > 14 * 24 * 60 * 60 * 1000);
+  }, [lastBackupTime, mountTime]);
 
   const handleExportData = async () => {
     try {

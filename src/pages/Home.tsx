@@ -15,6 +15,8 @@ import { db } from '../db';
 import { getTodayStr } from '../utils/dateUtils';
 
 import { useSound } from '../hooks/useSound';
+import { auth } from '../firebase';
+import { deleteDocumentFromCloud } from '../services/cloudSync';
 
 export function Home() {
   const { playSuccess, playClick, playThump } = useSound();
@@ -46,7 +48,7 @@ export function Home() {
     if (stored === 0) {
       localStorage.setItem('v3_ack_dev_level', dev.level.toString());
     } else if (dev.level > stored) {
-      setLevelUpData({ type: 'dev', level: dev.level, title: dev.title });
+      setTimeout(() => setLevelUpData({ type: 'dev', level: dev.level, title: dev.title }), 0);
       localStorage.setItem('v3_ack_dev_level', dev.level.toString());
     }
   }, [dev.level, dev.title, levelsLoading]);
@@ -58,7 +60,7 @@ export function Home() {
     if (stored === 0) {
       localStorage.setItem('v3_ack_fit_level', fitness.level.toString());
     } else if (fitness.level > stored) {
-      setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title });
+      setTimeout(() => setLevelUpData({ type: 'fit', level: fitness.level, title: fitness.title }), 0);
       localStorage.setItem('v3_ack_fit_level', fitness.level.toString());
     }
   }, [fitness.level, fitness.title, levelsLoading]);
@@ -70,7 +72,7 @@ export function Home() {
     if (stored === 0) {
       localStorage.setItem('v3_ack_streak', streak.toString());
     } else if (streak > stored && streak > 0 && streak % 7 === 0) {
-      setLevelUpData({ type: 'streak', level: streak, title: 'Streak Milestone' });
+      setTimeout(() => setLevelUpData({ type: 'streak', level: streak, title: 'Streak Milestone' }), 0);
       localStorage.setItem('v3_ack_streak', streak.toString());
     } else if (streak > stored) {
       localStorage.setItem('v3_ack_streak', streak.toString());
@@ -157,6 +159,9 @@ export function Home() {
         if (toDeduct <= 0) break;
         if (log.hours <= toDeduct + 0.001) {
           await db.hourLogs.delete(log.id);
+          if (auth.currentUser) {
+            deleteDocumentFromCloud(auth.currentUser.uid, 'hourLogs', log.id).catch(() => {});
+          }
           toDeduct -= log.hours;
         } else {
           const remaining = Math.round((log.hours - toDeduct) * 100) / 100;
