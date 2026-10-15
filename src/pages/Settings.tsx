@@ -269,93 +269,6 @@ export function Settings() {
 
       <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
         
-        {/* Color Theme (Monkeytype Aesthetic) */}
-        <section>
-          <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
-            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
-              <Palette size={18} className="text-accent-blue" />
-              Theme & Aesthetic
-            </h2>
-            <span className="text-[11px] font-mono text-text-muted uppercase">
-              Dark Mode
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-            {COLOR_THEMES.map(theme => {
-              const isActive = currentTheme === theme.id;
-              return (
-                <div
-                  key={theme.id}
-                  onClick={() => {
-                    setCurrentTheme(theme.id);
-                    applyTheme(theme.id);
-                  }}
-                  className={clsx(
-                    "rounded-2xl p-4 border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between tap-press",
-                    isActive
-                      ? "border-accent-blue shadow-lg ring-1 ring-accent-blue bg-bg-surface"
-                      : "border-border-subtle hover:border-border-strong bg-bg-surface/60"
-                  )}
-                >
-                  <div>
-                    {/* Theme mini preview banner */}
-                    <div 
-                      className="w-full h-12 rounded-xl border border-white/10 mb-3 p-2 flex items-center justify-between"
-                      style={{ backgroundColor: theme.preview.bg }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: theme.preview.surface }} />
-                        <div className="text-xs font-mono font-bold" style={{ color: theme.preview.main }}>Aa</div>
-                      </div>
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.preview.accent }} />
-                    </div>
-
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-sm font-semibold text-text-main">{theme.name}</h3>
-                      {isActive && <Check size={16} className="text-accent-blue" />}
-                    </div>
-                    <span className="text-[10px] font-mono text-text-muted block mb-1 uppercase tracking-wider">{theme.category}</span>
-                    <p className="text-xs text-text-muted leading-relaxed">{theme.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Audio & Feedback */}
-        <section>
-          <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
-            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
-              <Volume2 size={18} className="text-accent-yellow" />
-              Sound & Audio Feedback
-            </h2>
-          </div>
-          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="text-sm font-semibold text-text-main">Audio Feedback</div>
-              <p className="text-xs text-text-muted mt-0.5">
-                Sound cues for button taps, habit toggles, and milestone celebrations.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={toggleSound}
-              aria-label={soundEnabled ? "Audio feedback enabled, click to mute" : "Audio feedback muted, click to enable"}
-              className={clsx(
-                "min-h-[44px] px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 tap-press",
-                soundEnabled
-                  ? "bg-accent-yellow/20 text-accent-yellow border border-accent-yellow/40 hover:bg-accent-yellow/30"
-                  : "bg-bg-base text-text-muted border border-border-strong hover:text-text-main"
-              )}
-            >
-              {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-              <span>{soundEnabled ? "Enabled" : "Muted"}</span>
-            </button>
-          </div>
-        </section>
-
         {/* Streak Requirements */}
         <section>
           <h2 className="text-base sm:text-lg font-serif text-text-main mb-4 border-b border-border-subtle pb-2">Streak Requirements</h2>
@@ -599,6 +512,93 @@ export function Settings() {
               </div>
             </div>
           </details>
+        </section>
+
+        {/* Color Theme (Monkeytype Aesthetic) */}
+        <section>
+          <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
+            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
+              <Palette size={18} className="text-accent-blue" />
+              Theme & Aesthetic
+            </h2>
+            <span className="text-[11px] font-mono text-text-muted uppercase">
+              Dark Mode
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            {COLOR_THEMES.map(theme => {
+              const isActive = currentTheme === theme.id;
+              return (
+                <div
+                  key={theme.id}
+                  onClick={() => {
+                    setCurrentTheme(theme.id);
+                    applyTheme(theme.id);
+                  }}
+                  className={clsx(
+                    "rounded-2xl p-4 border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between tap-press",
+                    isActive
+                      ? "border-accent-blue shadow-lg ring-1 ring-accent-blue bg-bg-surface"
+                      : "border-border-subtle hover:border-border-strong bg-bg-surface/60"
+                  )}
+                >
+                  <div>
+                    {/* Theme mini preview banner */}
+                    <div 
+                      className="w-full h-12 rounded-xl border border-white/10 mb-3 p-2 flex items-center justify-between"
+                      style={{ backgroundColor: theme.preview.bg }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-3.5 h-3.5 rounded-full border border-white/20" style={{ backgroundColor: theme.preview.surface }} />
+                        <div className="text-xs font-mono font-bold" style={{ color: theme.preview.main }}>Aa</div>
+                      </div>
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.preview.accent }} />
+                    </div>
+
+                    <div className="flex items-center justify-between mb-1">
+                      <h3 className="text-sm font-semibold text-text-main">{theme.name}</h3>
+                      {isActive && <Check size={16} className="text-accent-blue" />}
+                    </div>
+                    <span className="text-[10px] font-mono text-text-muted block mb-1 uppercase tracking-wider">{theme.category}</span>
+                    <p className="text-xs text-text-muted leading-relaxed">{theme.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Audio & Feedback */}
+        <section>
+          <div className="flex items-center justify-between mb-4 border-b border-border-subtle pb-2">
+            <h2 className="text-base sm:text-lg font-serif text-text-main flex items-center gap-2">
+              <Volume2 size={18} className="text-accent-yellow" />
+              Sound & Audio Feedback
+            </h2>
+          </div>
+          <div className="bg-bg-surface border border-border-subtle rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-text-main">Audio Feedback</div>
+              <p className="text-xs text-text-muted mt-0.5">
+                Sound cues for button taps, habit toggles, and milestone celebrations.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={toggleSound}
+              aria-label={soundEnabled ? "Audio feedback enabled, click to mute" : "Audio feedback muted, click to enable"}
+              className={clsx(
+                "min-h-[44px] px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer shrink-0 tap-press",
+                soundEnabled
+                  ? "bg-accent-yellow/20 text-accent-yellow border border-accent-yellow/40 hover:bg-accent-yellow/30"
+                  : "bg-bg-base text-text-muted border border-border-strong hover:text-text-main"
+              )}
+            >
+              {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+              <span>{soundEnabled ? "Enabled" : "Muted"}</span>
+            </button>
+          </div>
         </section>
 
         {/* Data Management (Danger Zone) */}
