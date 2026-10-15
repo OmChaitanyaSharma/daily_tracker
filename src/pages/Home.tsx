@@ -17,7 +17,7 @@ import { getTodayStr } from '../utils/dateUtils';
 import { useSound } from '../hooks/useSound';
 
 export function Home() {
-  const { playSuccess } = useSound();
+  const { playSuccess, playClick, playThump } = useSound();
   const { streak, freezesOwned, freezeUsedToday, isLoading: streakLoading } = useStreak();
   const { dev, fitness, totalHours, totalReps, isLoading: levelsLoading } = useLevelSystem();
   
@@ -116,22 +116,59 @@ export function Home() {
 
   const [quickHours, setQuickHours] = useState('1');
   const [quickCat, setQuickCat] = useState('');
-  const [quickLogSuccess, setQuickLogSuccess] = useState(false);
+  const [quickLogFeedback, setQuickLogFeedback] = useState<'added' | 'reduced' | null>(null);
 
   const handleQuickLog = async (hoursToAdd?: number) => {
     const val = hoursToAdd !== undefined ? hoursToAdd : parseFloat(quickHours);
-    if (isNaN(val) || val <= 0) return;
+    if (isNaN(val) || val === 0) return;
+
     const activeCats = hourCategories.filter(c => !c.archived);
     const catName = quickCat || (activeCats[0]?.name || 'Deep Work');
-    await db.hourLogs.add({
-      id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
-      date: todayStr,
-      activity: catName,
-      hours: val
-    });
-    playSuccess();
-    setQuickLogSuccess(true);
-    setTimeout(() => setQuickLogSuccess(false), 2200);
+
+    if (val > 0) {
+      await db.hourLogs.add({
+        id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
+        date: todayStr,
+        activity: catName,
+        hours: val
+      });
+      playSuccess();
+      setQuickLogFeedback('added');
+      setTimeout(() => setQuickLogFeedback(null), 2200);
+    } else {
+      // Deducting hours (val < 0, e.g. -0.5, -1)
+      const dateLogs = await db.hourLogs.where('date').equals(todayStr).toArray();
+      // Target logs matching the selected category first
+      let targetLogs = dateLogs.filter(l => l.activity === catName);
+      if (targetLogs.length === 0) {
+        targetLogs = dateLogs;
+      }
+
+      const totalAvailable = targetLogs.reduce((acc, l) => acc + l.hours, 0);
+      if (totalAvailable <= 0) {
+        playThump();
+        return;
+      }
+
+      let toDeduct = Math.min(Math.abs(val), totalAvailable);
+      const logsToProcess = [...targetLogs].reverse();
+
+      for (const log of logsToProcess) {
+        if (toDeduct <= 0) break;
+        if (log.hours <= toDeduct + 0.001) {
+          await db.hourLogs.delete(log.id);
+          toDeduct -= log.hours;
+        } else {
+          const remaining = Math.round((log.hours - toDeduct) * 100) / 100;
+          await db.hourLogs.update(log.id, { hours: remaining });
+          toDeduct = 0;
+        }
+      }
+
+      playClick();
+      setQuickLogFeedback('reduced');
+      setTimeout(() => setQuickLogFeedback(null), 2200);
+    }
   };
 
   const handleSaveWinterRules = () => {
@@ -302,9 +339,12 @@ export function Home() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-widest text-text-muted">Quick Work Log</span>
-              {quickLogSuccess && (
-                <span className="text-[11px] text-accent-green font-medium flex items-center gap-1 animate-fade-in">
-                  <CheckCircle2 size={12} /> Logged!
+              {quickLogFeedback && (
+                <span className={clsx(
+                  "text-[11px] font-medium flex items-center gap-1 animate-fade-in",
+                  quickLogFeedback === 'reduced' ? "text-accent-yellow" : "text-accent-green"
+                )}>
+                  <CheckCircle2 size={12} /> {quickLogFeedback === 'reduced' ? 'Reduced!' : 'Logged!'}
                 </span>
               )}
             </div>
@@ -330,12 +370,28 @@ export function Home() {
             </select>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              type="button"
+              onClick={() => handleQuickLog(-1)}
+              aria-label="Reduce 1.0 hour"
+              className="min-h-[44px] px-2.5 sm:px-3 py-2 bg-bg-base border border-border-subtle hover:border-accent-red/50 hover:text-accent-red rounded-xl text-xs font-mono font-semibold text-text-muted transition-colors cursor-pointer tap-press"
+            >
+              -1.0h
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickLog(-0.5)}
+              aria-label="Reduce 0.5 hours"
+              className="min-h-[44px] px-2.5 sm:px-3 py-2 bg-bg-base border border-border-subtle hover:border-accent-red/50 hover:text-accent-red rounded-xl text-xs font-mono font-semibold text-text-muted transition-colors cursor-pointer tap-press"
+            >
+              -0.5h
+            </button>
             <button
               type="button"
               onClick={() => handleQuickLog(0.5)}
               aria-label="Quick log 0.5 hours"
-              className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
+              className="min-h-[44px] px-2.5 sm:px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +0.5h
             </button>
@@ -343,7 +399,7 @@ export function Home() {
               type="button"
               onClick={() => handleQuickLog(1)}
               aria-label="Quick log 1.0 hour"
-              className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
+              className="min-h-[44px] px-2.5 sm:px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +1.0h
             </button>
@@ -351,7 +407,7 @@ export function Home() {
               type="button"
               onClick={() => handleQuickLog(2)}
               aria-label="Quick log 2.0 hours"
-              className="min-h-[44px] px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
+              className="min-h-[44px] px-2.5 sm:px-3 py-2 bg-bg-base border border-border-subtle hover:border-text-muted rounded-xl text-xs font-mono font-semibold text-text-main transition-colors cursor-pointer tap-press"
             >
               +2.0h
             </button>
@@ -361,7 +417,7 @@ export function Home() {
             <input
               type="number"
               step="0.5"
-              min="0.25"
+              min="-24"
               max="24"
               value={quickHours}
               onChange={e => setQuickHours(e.target.value)}

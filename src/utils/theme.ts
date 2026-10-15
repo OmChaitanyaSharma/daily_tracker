@@ -134,14 +134,62 @@ export const COLOR_THEMES: ColorTheme[] = [
   },
   {
     id: 'shadow',
-    name: 'Shadow',
+    name: 'Shadow (OLED Black)',
     category: 'Monochrome Stark',
-    description: 'Pitch minimalist obsidian black with stark pure white type.',
+    description: 'Deep pitch OLED black with stark, high-contrast pure white type.',
     preview: {
-      bg: '#111111',
-      surface: '#1a1a1a',
-      main: '#eeeeee',
+      bg: '#000000',
+      surface: '#0a0a0a',
+      main: '#ffffff',
       accent: '#ffffff'
+    }
+  },
+  {
+    id: 'amethyst',
+    name: 'Amethyst & Linen',
+    category: 'Muted Lavender & Cream',
+    description: 'Dolphin slate purple with soft amethyst lavender and warm linen cream.',
+    preview: {
+      bg: '#18151f',
+      surface: '#231f2d',
+      main: '#fdf1e2',
+      accent: '#ab92bf'
+    }
+  },
+  {
+    id: 'teal',
+    name: 'Nordic Teal',
+    category: 'Deep Teal & Warm Beige',
+    description: 'Abyssal emerald teal with warm sand beige typography and mint accents.',
+    preview: {
+      bg: '#031c1c',
+      surface: '#072a2a',
+      main: '#f5f5dc',
+      accent: '#008080'
+    }
+  },
+  {
+    id: 'cyan',
+    name: 'Monkeytype Cyan',
+    category: 'Electric Cyan & Charcoal',
+    description: 'Dark charcoal obsidian with electric cyan typography and amber highlights.',
+    preview: {
+      bg: '#151819',
+      surface: '#1d2224',
+      main: '#4ee3d2',
+      accent: '#facc15'
+    }
+  },
+  {
+    id: 'linen',
+    name: 'Warm Linen',
+    category: 'Warm Linen Parchment',
+    description: 'Soft warm linen paper with dark dolphin purple ink and amethyst accents.',
+    preview: {
+      bg: '#fdf1e2',
+      surface: '#f3e5d3',
+      main: '#2b2238',
+      accent: '#655a7c'
     }
   }
 ];
