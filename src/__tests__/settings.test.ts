@@ -117,3 +117,35 @@ describe('backup validation and sanitization security', () => {
     expect(clean[0].highlight).toBe('Shipped security patch');
   });
 });
+
+import { COLOR_THEMES, getSavedTheme, applyTheme } from '../utils/theme';
+
+describe('theme system', () => {
+  it('contains valid and unique theme definitions', () => {
+    const ids = COLOR_THEMES.map(t => t.id);
+    const uniqueIds = new Set(ids);
+    expect(ids.length).toBe(uniqueIds.size);
+    expect(ids).toContain('taro');
+    expect(ids).toContain('aether');
+    expect(ids).toContain('anti_hero');
+    expect(ids).toContain('solarized_osaka');
+    expect(ids).toContain('sewing_tin_light');
+
+    for (const theme of COLOR_THEMES) {
+      expect(theme.name.trim().length).toBeGreaterThan(0);
+      expect(theme.category.trim().length).toBeGreaterThan(0);
+      expect(theme.description.trim().length).toBeGreaterThan(0);
+      expect(theme.preview.bg).toMatch(/^#[0-9a-fA-F]{6}$/);
+      expect(theme.preview.surface).toMatch(/^#[0-9a-fA-F]{6}$/);
+      expect(theme.preview.main).toMatch(/^#[0-9a-fA-F]{6}$/);
+      expect(theme.preview.accent).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it('saves and applies theme', () => {
+    applyTheme('taro');
+    expect(getSavedTheme()).toBe('taro');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('taro');
+  });
+});
+

@@ -468,6 +468,161 @@
     --shadow-soft: 0 8px 30px rgba(12, 0, 0, 0.9), 0 4px 10px rgba(12, 0, 0, 0.7);
   }
 
+  /* MONKEYTYPE TARO THEME (PERIWINKLE & PLUM) */
+  [data-theme="taro"] {
+    --bg-base: #b3baff;
+    --bg-surface: #a1a8f2;
+    --bg-surface-hover: #9299e5;
+    
+    --text-main: #130f1a; 
+    --text-muted: #4a4667; 
+    
+    --border-subtle: #989fe6;
+    --border-strong: #7b83d1;
+    
+    --accent-red: #e11d48;
+    --accent-red-hover: #be123c;
+    --accent-red-bg: rgba(225, 29, 72, 0.15);
+
+    --accent-blue: #1b64da; 
+    --accent-blue-bg: rgba(27, 100, 218, 0.15);
+
+    --accent-purple: #58327d;
+    --accent-purple-bg: rgba(88, 50, 125, 0.15);
+
+    --accent-yellow: #8f6200; 
+    --accent-yellow-bg: rgba(143, 98, 0, 0.15);
+
+    --accent-green: #0d766e; 
+    --accent-green-bg: rgba(13, 118, 110, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(19, 15, 26, 0.2), 0 4px 10px rgba(19, 15, 26, 0.12);
+  }
+
+  /* MONKEYTYPE AETHER THEME (SLATE CHARCOAL & DREAMY VIOLET) */
+  [data-theme="aether"] {
+    --bg-base: #101820;
+    --bg-surface: #1d1e2c;
+    --bg-surface-hover: #292136;
+    
+    --text-main: #eedaea; 
+    --text-muted: #cf6bdd; 
+    
+    --border-subtle: #2c273d;
+    --border-strong: #553c6e;
+    
+    --accent-red: #ff5253;
+    --accent-red-hover: #e03b3c;
+    --accent-red-bg: rgba(255, 82, 83, 0.2);
+
+    --accent-blue: #cf6bdd; 
+    --accent-blue-bg: rgba(207, 107, 221, 0.18);
+
+    --accent-purple: #cf6bdd;
+    --accent-purple-bg: rgba(207, 107, 221, 0.2);
+
+    --accent-yellow: #eedaea; 
+    --accent-yellow-bg: rgba(238, 218, 234, 0.15);
+
+    --accent-green: #68d391; 
+    --accent-green-bg: rgba(104, 211, 145, 0.18);
+
+    --shadow-soft: 0 8px 30px rgba(16, 24, 32, 0.85), 0 4px 10px rgba(16, 24, 32, 0.65);
+  }
+
+  /* MONKEYTYPE ANTI HERO THEME (ABYSSAL INDIGO & NEON PINK) */
+  [data-theme="anti_hero"] {
+    --bg-base: #00002e;
+    --bg-surface: #060548;
+    --bg-surface-hover: #0c0a6b;
+    
+    --text-main: #ffadad; 
+    --text-muted: #ff3d8b; 
+    
+    --border-subtle: #14136e;
+    --border-strong: #3c207a;
+    
+    --accent-red: #ff3d8b;
+    --accent-red-hover: #e62272;
+    --accent-red-bg: rgba(255, 61, 139, 0.2);
+
+    --accent-blue: #8fecff; 
+    --accent-blue-bg: rgba(143, 236, 255, 0.18);
+
+    --accent-purple: #ff3d8b;
+    --accent-purple-bg: rgba(255, 61, 139, 0.2);
+
+    --accent-yellow: #ffadad; 
+    --accent-yellow-bg: rgba(255, 173, 173, 0.18);
+
+    --accent-green: #8fecff; 
+    --accent-green-bg: rgba(143, 236, 255, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(0, 0, 46, 0.95), 0 4px 10px rgba(0, 0, 46, 0.8);
+  }
+
+  /* MONKEYTYPE SOLARIZED OSAKA THEME (PETROL TEAL & OLIVE LIME) */
+  [data-theme="solarized_osaka"] {
+    --bg-base: #00141a;
+    --bg-surface: #00222b;
+    --bg-surface-hover: #003543;
+    
+    --text-main: #859900; 
+    --text-muted: #2aa198; 
+    
+    --border-subtle: #003846;
+    --border-strong: #07596a;
+    
+    --accent-red: #dc322f;
+    --accent-red-hover: #b82421;
+    --accent-red-bg: rgba(220, 50, 47, 0.2);
+
+    --accent-blue: #2aa198; 
+    --accent-blue-bg: rgba(42, 161, 152, 0.18);
+
+    --accent-purple: #6c71c4;
+    --accent-purple-bg: rgba(108, 113, 196, 0.18);
+
+    --accent-yellow: #b58900; 
+    --accent-yellow-bg: rgba(181, 137, 0, 0.2);
+
+    --accent-green: #859900; 
+    --accent-green-bg: rgba(133, 153, 0, 0.2);
+
+    --shadow-soft: 0 8px 30px rgba(0, 20, 26, 0.95), 0 4px 10px rgba(0, 20, 26, 0.8);
+  }
+
+  /* MONKEYTYPE SEWING TIN LIGHT THEME (PORCELAIN WHITE & ROYAL COBALT) */
+  [data-theme="sewing_tin_light"] {
+    --bg-base: #ffffff;
+    --bg-surface: #f3f5fa;
+    --bg-surface-hover: #e3e8f5;
+    
+    --text-main: #2d2076; 
+    --text-muted: #385eca; 
+    
+    --border-subtle: #dce2f0;
+    --border-strong: #b2c0e5;
+    
+    --accent-red: #e11d48;
+    --accent-red-hover: #be123c;
+    --accent-red-bg: rgba(225, 29, 72, 0.12);
+
+    --accent-blue: #385eca; 
+    --accent-blue-bg: rgba(56, 94, 202, 0.15);
+
+    --accent-purple: #2d2076;
+    --accent-purple-bg: rgba(45, 32, 118, 0.12);
+
+    --accent-yellow: #d97706; 
+    --accent-yellow-bg: rgba(217, 119, 6, 0.15);
+
+    --accent-green: #059669; 
+    --accent-green-bg: rgba(5, 150, 105, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(45, 32, 118, 0.12), 0 4px 10px rgba(45, 32, 118, 0.08);
+  }
+
   html, body {
     min-height: 100dvh;
     width: 100%;

@@ -191,6 +191,66 @@ export const COLOR_THEMES: ColorTheme[] = [
       main: '#2b2238',
       accent: '#655a7c'
     }
+  },
+  {
+    id: 'taro',
+    name: 'Taro',
+    category: 'Periwinkle & Deep Plum',
+    description: 'Pastel lavender periwinkle with deep obsidian plum ink, cyan caret, and sunny yellow highlights.',
+    preview: {
+      bg: '#b3baff',
+      surface: '#a1a8f2',
+      main: '#130f1a',
+      accent: '#00e9e5'
+    }
+  },
+  {
+    id: 'aether',
+    name: 'Aether',
+    category: 'Slate Charcoal & Dreamy Violet',
+    description: 'Dark slate charcoal with glowing dreamy magenta-violet and soft lilac cream text.',
+    preview: {
+      bg: '#101820',
+      surface: '#292136',
+      main: '#eedaea',
+      accent: '#cf6bdd'
+    }
+  },
+  {
+    id: 'anti_hero',
+    name: 'Anti Hero',
+    category: 'Abyssal Indigo & Neon Crimson',
+    description: 'Deep midnight navy with vivid neon pink accents and pastel peach coral typography.',
+    preview: {
+      bg: '#00002e',
+      surface: '#060548',
+      main: '#ffadad',
+      accent: '#ff3d8b'
+    }
+  },
+  {
+    id: 'solarized_osaka',
+    name: 'Solarized Osaka',
+    category: 'Petrol Teal & Olive Lime',
+    description: 'Japanese night petrol teal with solarized olive green and luminous cyan highlights.',
+    preview: {
+      bg: '#00141a',
+      surface: '#00222b',
+      main: '#859900',
+      accent: '#2aa198'
+    }
+  },
+  {
+    id: 'sewing_tin_light',
+    name: 'Sewing Tin Light',
+    category: 'Porcelain White & Royal Cobalt',
+    description: 'Crisp porcelain white with deep royal violet ink and vibrant cobalt blue accents.',
+    preview: {
+      bg: '#ffffff',
+      surface: '#f3f5fa',
+      main: '#2d2076',
+      accent: '#385eca'
+    }
   }
 ];
 
