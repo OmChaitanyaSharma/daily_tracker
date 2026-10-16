@@ -24,6 +24,7 @@ export interface AppSettings {
   devRanksNames: string[];
   fitRanksNames: string[];
   moodLabels: MoodLabels;
+  trackingStartDate?: string;
 }
 
 export const DEFAULT_WINTER_ARC: string[] = [];
@@ -54,6 +55,11 @@ export function sanitizeSettings(raw: any): AppSettings {
       moodLabels: { ...DEFAULT_MOOD_LABELS }
     };
   }
+
+  const rawTrackingStart = raw.trackingStartDate;
+  const trackingStartDate = (typeof rawTrackingStart === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(rawTrackingStart.trim()))
+    ? rawTrackingStart.trim()
+    : undefined;
 
   const validFitnessTypes: Array<'all' | 'count' | 'reps' | 'xp'> = ['all', 'count', 'reps', 'xp'];
   const fitnessType = validFitnessTypes.includes(raw.streakFitnessRequirementType)
@@ -108,7 +114,8 @@ export function sanitizeSettings(raw: any): AppSettings {
     winterArcRules,
     devRanksNames: devRanksNames.length > 0 ? devRanksNames : DEFAULT_DEV,
     fitRanksNames: fitRanksNames.length > 0 ? fitRanksNames : DEFAULT_FIT,
-    moodLabels
+    moodLabels,
+    ...(trackingStartDate ? { trackingStartDate } : {})
   };
 }
 

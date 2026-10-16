@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Habit } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isToday, parseISO, isBefore } from 'date-fns';
 const EMPTY_ARRAY: any[] = [];
-import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
+import { getTodayStr, getMinDateStr } from '../utils/dateUtils';
 import { ChevronLeft, ChevronRight, Plus, ArrowLeft, MoreHorizontal, Edit2, Archive, X, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
@@ -119,7 +119,7 @@ export function ProductivityHabits() {
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
     const prevMonth = () => {
     const prev = subMonths(currentDate, 1);
-    const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
+    const minDate = parseISO(getMinDateStr() + "T00:00:00");
     if (!isBefore(endOfMonth(prev), minDate)) {
       setCurrentDate(prev);
     }
@@ -371,7 +371,7 @@ export function ProductivityHabits() {
             Today
           </button>
           <div className="flex items-center gap-1 sm:gap-2 bg-bg-surface border border-border-strong rounded-full p-1">
-            <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent tap-press cursor-pointer" aria-label="Previous month">
+            <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(getMinDateStr() + "T00:00:00"))} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent tap-press cursor-pointer" aria-label="Previous month">
               <ChevronLeft size={18} />
             </button>
             <span className="w-28 sm:w-32 text-center font-serif text-sm sm:text-base font-medium text-text-main">

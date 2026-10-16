@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Exercise, type ExerciseDifficulty, type TrackingType } from '../db';
 import { format, subDays, addDays, isFuture, parseISO, isBefore } from 'date-fns';
-import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
+import { getTodayStr, getMinDateStr } from '../utils/dateUtils';
 import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Dumbbell, Trash2, Edit2, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useExerciseStreak } from '../hooks/useExerciseStreak';
@@ -53,7 +53,7 @@ export function ExerciseTracking() {
     const handlePrevDay = () => {
     setCurrentDate(prev => {
       const prevDay = subDays(prev, 1);
-      const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
+      const minDate = parseISO(getMinDateStr() + "T00:00:00");
       if (isBefore(prevDay, minDate)) return prev;
       return prevDay;
     });
@@ -185,7 +185,7 @@ export function ExerciseTracking() {
         <div className="flex items-center gap-1 sm:gap-4 bg-bg-surface border border-border-strong rounded-full p-1">
           <button 
             onClick={handlePrevDay}
-            disabled={isBefore(subDays(currentDate, 1), parseISO(MIN_DATE_STR + "T00:00:00"))}
+            disabled={isBefore(subDays(currentDate, 1), parseISO(getMinDateStr() + "T00:00:00"))}
             className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main hover:bg-bg-surface-hover rounded-full transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent tap-press cursor-pointer"
             aria-label="Previous day"
           >

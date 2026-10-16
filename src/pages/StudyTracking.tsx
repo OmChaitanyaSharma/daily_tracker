@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type HourCategory } from '../db';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, parseISO, isBefore, isSameMonth, isAfter } from 'date-fns';
-import { getTodayStr, MIN_DATE_STR } from '../utils/dateUtils';
+import { getTodayStr, getMinDateStr } from '../utils/dateUtils';
 import { ChevronLeft, ChevronRight, ArrowLeft, Edit2, Archive, ArchiveRestore, X, Trash2, Plus, Clock, BookOpen, Activity, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -114,7 +114,7 @@ export function StudyTracking() {
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => {
     const prev = subMonths(currentDate, 1);
-    const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
+    const minDate = parseISO(getMinDateStr() + "T00:00:00");
     if (!isBefore(endOfMonth(prev), minDate)) {
       setCurrentDate(prev);
     }
@@ -421,7 +421,8 @@ export function StudyTracking() {
         <div className="flex items-center gap-1 sm:gap-2 self-start sm:self-auto bg-bg-surface border border-border-strong rounded-2xl p-1 shadow-sm">
           <button 
             onClick={prevMonth}
-            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-bg-base text-text-muted hover:text-text-main transition-colors cursor-pointer tap-press"
+            disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(getMinDateStr() + "T00:00:00"))}
+            className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl hover:bg-bg-base text-text-muted hover:text-text-main transition-colors cursor-pointer tap-press disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-text-muted disabled:hover:bg-transparent"
             aria-label="Previous month"
           >
             <ChevronLeft size={18} />

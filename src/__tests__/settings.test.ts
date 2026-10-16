@@ -52,6 +52,20 @@ describe('settings logic', () => {
     expect(reloaded.moodLabels.bad).toBe('Rough');
     expect(reloaded.moodLabels.good).toBe('Good');
   });
+
+  it('validates, stores, and sanitizes trackingStartDate', () => {
+    const s = getSettings();
+    s.trackingStartDate = '2026-10-17';
+    saveSettings(s);
+
+    const reloaded = getSettings();
+    expect(reloaded.trackingStartDate).toBe('2026-10-17');
+
+    // Rejects invalid date format
+    localStorage.setItem('app_settings', JSON.stringify({ trackingStartDate: 'invalid-date' }));
+    const sanitized = getSettings();
+    expect(sanitized.trackingStartDate).toBeUndefined();
+  });
 });
 
 import { validateBackupPayload, sanitizeBackupRecords } from '../utils/backupValidation';

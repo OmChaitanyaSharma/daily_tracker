@@ -4,6 +4,7 @@ import { Settings as SettingsIcon, Save, Plus, Trash2, AlertTriangle, Download, 
 import { format } from 'date-fns';
 import clsx from 'clsx';
 import { getSettings, saveSettings, sanitizeSettings, type AppSettings } from '../utils/settings';
+import { getTodayStr } from '../utils/dateUtils';
 import { DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { db } from '../db';
 import { useAuth } from '../context/AuthContext';
@@ -191,7 +192,15 @@ export function Settings() {
       });
 
       if (payload.settings && typeof payload.settings === 'object') {
-        saveSettings(payload.settings);
+        const importedSettings = { ...payload.settings };
+        if (!importedSettings.trackingStartDate && Array.isArray(payload.dayEntries) && payload.dayEntries.length > 0) {
+          const dates = payload.dayEntries.map((e: any) => e.date).filter(Boolean).sort();
+          if (dates.length > 0) {
+            importedSettings.trackingStartDate = dates[0];
+          }
+        }
+        saveSettings(importedSettings);
+        setSettings(sanitizeSettings(importedSettings));
       }
       if (payload.restDaysConfig) {
         const configStr = typeof payload.restDaysConfig === 'string'
@@ -233,6 +242,12 @@ export function Settings() {
         db.goalMeasurements.clear()
       ]);
 
+      const today = getTodayStr();
+      const currentSettings = getSettings();
+      const updatedSettings = { ...currentSettings, trackingStartDate: today };
+      saveSettings(updatedSettings);
+      setSettings(updatedSettings);
+
       localStorage.removeItem('v3_ack_dev_level');
       localStorage.removeItem('v3_ack_fit_level');
       localStorage.removeItem('v3_ack_streak');
@@ -249,7 +264,7 @@ export function Settings() {
         await uploadLocalToCloud(user.uid, true);
       }
 
-      setClearedMessage('All entries cleared.');
+      setClearedMessage('All entries cleared. Tracking clock reset to today.');
       setTimeout(() => {
         setClearedMessage('');
       }, 3000);
@@ -282,13 +297,15 @@ export function Settings() {
         db.exerciseLogs.clear()
       ]);
 
+      const today = getTodayStr();
       const blankSettings = sanitizeSettings({
         streakTargetHours: 3.0,
         streakTargetHabitPercent: 75,
         streakFitnessRequirementType: 'all',
         streakFitnessRequirementValue: 0,
         seasonName: 'Season 1',
-        winterArcRules: []
+        winterArcRules: [],
+        trackingStartDate: today
       });
       saveSettings(blankSettings);
       setSettings(blankSettings);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatDisplayDate, getDateRange, getMeasurementDates } from '../utils/dateUtils';
+import { formatDisplayDate, getDateRange, getMeasurementDates, getEffectiveTrackingStartDate, getMinDateStr, MIN_DATE_STR } from '../utils/dateUtils';
 
 describe('dateUtils', () => {
   it('formatDisplayDate should format properly and avoid timezone issues', () => {
@@ -31,5 +31,39 @@ describe('dateUtils', () => {
     const dates = getMeasurementDates('2027-01-15');
     expect(dates[0]).toEqual('2027-01-15');
     expect(dates[dates.length - 1]).toEqual('2027-03-01');
+  });
+
+  it('getEffectiveTrackingStartDate prioritizes configured start, then earliest entry, then today', () => {
+    expect(getEffectiveTrackingStartDate('2026-10-17', '2026-09-01')).toBe('2026-10-17');
+    expect(getEffectiveTrackingStartDate(null, '2026-09-01')).toBe('2026-09-01');
+    expect(getEffectiveTrackingStartDate(undefined, '2026-08-27')).toBe('2026-08-27');
+    // When no date provided, defaults to valid YYYY-MM-DD
+    const todayFallback = getEffectiveTrackingStartDate();
+    expect(todayFallback).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+
+  it('getMinDateStr reads from localStorage and falls back to MIN_DATE_STR', () => {
+    localStorage.clear();
+    expect(getMinDateStr()).toBe(MIN_DATE_STR);
+
+    localStorage.setItem('app_settings', JSON.stringify({ trackingStartDate: '2026-10-17' }));
+    expect(getMinDateStr()).toBe('2026-10-17');
+  });
+
+  it('calculates accurate inclusive day capacity from reset date to period end (Option A)', () => {
+    // Factory reset on October 17th, 2026
+    const resetDate = '2026-10-17';
+    const octEnd = '2026-10-31';
+    const yearEnd = '2026-12-31';
+
+    // Monthly capacity for October: 17th through 31st inclusive
+    const octDays = getDateRange(resetDate, octEnd);
+    expect(octDays.length).toBe(15);
+    expect(octDays[0]).toBe('2026-10-17');
+    expect(octDays[octDays.length - 1]).toBe('2026-10-31');
+
+    // Q4 / H2 / Yearly capacity: 17th through Dec 31st inclusive
+    const q4Days = getDateRange(resetDate, yearEnd);
+    expect(q4Days.length).toBe(76);
   });
 });

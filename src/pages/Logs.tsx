@@ -7,7 +7,8 @@ import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { ActivityHeatmap } from '../components/ActivityHeatmap';
 import { WeeklyDigest } from '../components/WeeklyDigest';
-import { MIN_DATE_STR } from '../utils/dateUtils';
+import { getEffectiveTrackingStartDate } from '../utils/dateUtils';
+import { getSettings } from '../utils/settings';
 
 type Period = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly';
 
@@ -82,11 +83,22 @@ export function Logs() {
   const startDayOfWeek = getDay(monthStart); // 0 = Sunday, 1 = Monday
   const paddingDays = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
 
+  // Dynamic tracking inception clock calculation
+  const earliestEntryDate = useMemo(() => {
+    if (!allEntries || allEntries.length === 0) return null;
+    return allEntries.reduce((min, e) => (e.date < min ? e.date : min), allEntries[0].date);
+  }, [allEntries]);
+
+  const appSettings = getSettings();
+  const effectiveTrackingStartDate = useMemo(() => {
+    return getEffectiveTrackingStartDate(appSettings.trackingStartDate, earliestEntryDate);
+  }, [appSettings.trackingStartDate, earliestEntryDate]);
+
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-    const prevMonth = () => {
+  const prevMonth = () => {
     const prev = subMonths(currentDate, 1);
-    const minDate = parseISO(MIN_DATE_STR + "T00:00:00");
-    // Only allow if the previous month's end is on or after the min date
+    const minDate = parseISO(`${effectiveTrackingStartDate}T00:00:00`);
+    // Only allow if the previous month's end is on or after the effective start date
     if (!isBefore(endOfMonth(prev), minDate)) {
       setCurrentDate(prev);
     }
@@ -104,6 +116,7 @@ export function Logs() {
         _app: 'daily-tracker',
         _schemaVersion: 1,
         exportDate: new Date().toISOString(),
+        settings: getSettings(),
         dayEntries: await db.dayEntries.toArray(),
         tasks: await db.tasks.toArray(),
         habits: await db.habits.toArray(),
@@ -154,13 +167,26 @@ export function Logs() {
     const rangeStartStr = format(start, 'yyyy-MM-dd');
     const rangeEndStr = format(end, 'yyyy-MM-dd');
     
-    // Tracking starts strictly from August 27th, 2026
-    const appStartDateStr = '2026-08-27';
+    // Dynamic tracking inception clock: bounded by user start/reset date
+    const appStartDateStr = effectiveTrackingStartDate;
 
-    const periodEntries = allEntries.filter(e => e.date >= rangeStartStr && e.date <= rangeEndStr);
+    // If the entire period is before tracking inception, capacity is 0 and no entries count
+    if (rangeEndStr < appStartDateStr) {
+      return {
+        title: period === 'Monthly' ? format(currentDate, 'MMMM yyyy') :
+               period === 'Quarterly' ? `Q${getQuarter(currentDate)} ${year}` :
+               period === 'Half-Yearly' ? `H${currentMonth < 6 ? 1 : 2} ${year}` :
+               `${year}`,
+        daysLogged: 0,
+        totalDays: 0,
+        avgMood: '0'
+      };
+    }
 
     const effectiveStartStr = rangeStartStr > appStartDateStr ? rangeStartStr : appStartDateStr;
     const effectiveEndStr = rangeEndStr; // Full calendar capacity for the period
+
+    const periodEntries = allEntries.filter(e => e.date >= effectiveStartStr && e.date <= effectiveEndStr);
 
     let totalDaysInPeriod = 0;
     if (effectiveStartStr <= effectiveEndStr) {
@@ -187,7 +213,7 @@ export function Logs() {
       totalDays: totalDaysInPeriod,
       avgMood: avgMoodScore > 0 ? avgMoodScore.toFixed(1) : '0'
     };
-  }, [currentDate, period, allEntries]);
+  }, [currentDate, period, allEntries, effectiveTrackingStartDate]);
 
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in">
@@ -251,7 +277,7 @@ export function Logs() {
                 {format(currentDate, 'MMMM yyyy')}
               </h2>
               <div className="flex gap-1 sm:gap-2">
-                <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(MIN_DATE_STR + "T00:00:00"))} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-muted disabled:cursor-not-allowed tap-press cursor-pointer" aria-label="Previous month">
+                <button onClick={prevMonth} disabled={isBefore(endOfMonth(subMonths(currentDate, 1)), parseISO(`${effectiveTrackingStartDate}T00:00:00`))} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-text-muted disabled:cursor-not-allowed tap-press cursor-pointer" aria-label="Previous month">
                   <ChevronLeft size={20} />
                 </button>
                 <button onClick={nextMonth} className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-bg-surface-hover rounded-full text-text-muted hover:text-text-main transition-colors tap-press cursor-pointer" aria-label="Next month">

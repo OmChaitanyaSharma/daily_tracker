@@ -11,6 +11,8 @@ import {
   signOut 
 } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import { getSettings, saveSettings } from '../utils/settings';
+import { getTodayStr } from '../utils/dateUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -61,6 +63,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const continueAsGuest = () => {
     setIsGuest(true);
     localStorage.setItem('dt_guest_mode', 'true');
+    const current = getSettings();
+    if (!current.trackingStartDate) {
+      saveSettings({ ...current, trackingStartDate: getTodayStr() });
+    }
   };
 
   const exitGuestMode = () => {

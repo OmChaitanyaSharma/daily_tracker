@@ -85,3 +85,41 @@ export function getMeasurementDates(startDateStr: string): string[] {
 }
 
 export const MIN_DATE_STR = '2026-09-27';
+
+/**
+ * Calculates the effective tracking inception date.
+ * Priority:
+ * 1. User configured trackingStartDate from AppSettings (if valid YYYY-MM-DD)
+ * 2. Earliest recorded date among dayEntries (if historical entries exist)
+ * 3. Today's date
+ */
+export function getEffectiveTrackingStartDate(
+  configuredStartDate?: string | null,
+  earliestEntryDate?: string | null
+): string {
+  if (configuredStartDate && /^\d{4}-\d{2}-\d{2}$/.test(configuredStartDate)) {
+    return configuredStartDate;
+  }
+  if (earliestEntryDate && /^\d{4}-\d{2}-\d{2}$/.test(earliestEntryDate)) {
+    return earliestEntryDate;
+  }
+  return getTodayStr();
+}
+
+/**
+ * Returns the active minimum navigable date string.
+ * Uses trackingStartDate from stored settings if valid, falling back to MIN_DATE_STR.
+ */
+export function getMinDateStr(): string {
+  try {
+    const saved = localStorage.getItem('app_settings');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed?.trackingStartDate && /^\d{4}-\d{2}-\d{2}$/.test(parsed.trackingStartDate)) {
+        return parsed.trackingStartDate;
+      }
+    }
+  } catch {}
+  return MIN_DATE_STR;
+}
+

@@ -13,6 +13,7 @@ import {
 import { firestore, auth } from '../firebase';
 import { db } from '../db';
 import { getSettings, saveSettings } from '../utils/settings';
+import { getTodayStr } from '../utils/dateUtils';
 
 const SYNC_COLLECTIONS = [
   'habits',
@@ -58,6 +59,10 @@ export async function uploadLocalToCloud(userId: string, force = false): Promise
 
     // 1. Upload settings & rest day config
     const settings = getSettings();
+    if (!settings.trackingStartDate) {
+      settings.trackingStartDate = getTodayStr();
+      saveSettings(settings);
+    }
     const restDaysConfig = localStorage.getItem('rest_days_config_v1');
     const cleanSettings = settings ? JSON.parse(JSON.stringify(settings)) : {};
     const cleanRestDays = restDaysConfig ? JSON.parse(restDaysConfig) : null;
