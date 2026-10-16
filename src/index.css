@@ -623,6 +623,130 @@
     --shadow-soft: 0 8px 30px rgba(45, 32, 118, 0.12), 0 4px 10px rgba(45, 32, 118, 0.08);
   }
 
+  /* BURGUNDY ROMANCE (RICH MAROON, CRIMSON ROSE & BLUSH QUARTZ) */
+  [data-theme="burgundy_romance"] {
+    --bg-base: #18090d;
+    --bg-surface: #270f15;
+    --bg-surface-hover: #3b1721;
+    
+    --text-main: #dfd9d8;
+    --text-muted: #fc8f8f;
+    
+    --border-subtle: #451b23;
+    --border-strong: #64242f;
+    
+    --accent-red: #fc8f8f;
+    --accent-red-hover: #f77070;
+    --accent-red-bg: rgba(252, 143, 143, 0.15);
+
+    --accent-blue: #c48ca0;
+    --accent-blue-bg: rgba(196, 140, 160, 0.15);
+
+    --accent-purple: #b44446;
+    --accent-purple-bg: rgba(180, 68, 70, 0.18);
+
+    --accent-yellow: #f8c291;
+    --accent-yellow-bg: rgba(248, 194, 145, 0.15);
+
+    --accent-green: #6ab04c;
+    --accent-green-bg: rgba(106, 176, 76, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(18, 5, 8, 0.95), 0 4px 10px rgba(18, 5, 8, 0.8);
+  }
+
+  /* CASHMERE ESPRESSO (WARM CASHMERE & ROASTED MOCHA) */
+  [data-theme="cashmere_espresso"] {
+    --bg-base: #1f1610;
+    --bg-surface: #2b1f17;
+    --bg-surface-hover: #38291f;
+    
+    --text-main: #ffdbbb;
+    --text-muted: #ccbeb1;
+    
+    --border-subtle: #4a3628;
+    --border-strong: #664930;
+    
+    --accent-red: #d95d39;
+    --accent-red-hover: #b84323;
+    --accent-red-bg: rgba(217, 93, 57, 0.15);
+
+    --accent-blue: #997e67;
+    --accent-blue-bg: rgba(153, 126, 103, 0.15);
+
+    --accent-purple: #c99a75;
+    --accent-purple-bg: rgba(201, 154, 117, 0.15);
+
+    --accent-yellow: #ffdbbb;
+    --accent-yellow-bg: rgba(255, 219, 187, 0.15);
+
+    --accent-green: #90a955;
+    --accent-green-bg: rgba(144, 169, 85, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(15, 10, 6, 0.9), 0 4px 10px rgba(15, 10, 6, 0.7);
+  }
+
+  /* OPALINE VERMILION (MINIMALIST ALABASTER & VIBRANT PERSIMMON) */
+  [data-theme="opaline"] {
+    --bg-base: #f4f4f6;
+    --bg-surface: #ffffff;
+    --bg-surface-hover: #e7e7e7;
+    
+    --text-main: #18181b;
+    --text-muted: #64748b;
+    
+    --border-subtle: #e7e7e7;
+    --border-strong: #d2d2d4;
+    
+    --accent-red: #ff634a;
+    --accent-red-hover: #e5523a;
+    --accent-red-bg: rgba(255, 99, 74, 0.15);
+
+    --accent-blue: #2563eb;
+    --accent-blue-bg: rgba(37, 99, 235, 0.12);
+
+    --accent-purple: #7c3aed;
+    --accent-purple-bg: rgba(124, 58, 237, 0.12);
+
+    --accent-yellow: #d97706;
+    --accent-yellow-bg: rgba(217, 119, 6, 0.15);
+
+    --accent-green: #16a34a;
+    --accent-green-bg: rgba(22, 163, 74, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+  }
+
+  /* STARRY NOCTURNE (DEEP SAPPHIRE NAVY & IMPERIAL PLUM) */
+  [data-theme="starry_nocturne"] {
+    --bg-base: #081849;
+    --bg-surface: #10245e;
+    --bg-surface-hover: #17327e;
+    
+    --text-main: #ecdfd2;
+    --text-muted: #cccacc;
+    
+    --border-subtle: #213885;
+    --border-strong: #5f3475;
+    
+    --accent-red: #ef4444;
+    --accent-red-hover: #dc2626;
+    --accent-red-bg: rgba(239, 68, 68, 0.15);
+
+    --accent-blue: #3b5bdb;
+    --accent-blue-bg: rgba(59, 91, 219, 0.2);
+
+    --accent-purple: #893172;
+    --accent-purple-bg: rgba(137, 49, 114, 0.2);
+
+    --accent-yellow: #f59e0b;
+    --accent-yellow-bg: rgba(245, 158, 11, 0.15);
+
+    --accent-green: #10b981;
+    --accent-green-bg: rgba(16, 185, 129, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(4, 12, 38, 0.95), 0 4px 10px rgba(4, 12, 38, 0.8);
+  }
+
   html, body {
     min-height: 100dvh;
     width: 100%;

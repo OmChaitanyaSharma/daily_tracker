@@ -130,6 +130,10 @@ describe('theme system', () => {
     expect(ids).toContain('anti_hero');
     expect(ids).toContain('solarized_osaka');
     expect(ids).toContain('sewing_tin_light');
+    expect(ids).toContain('burgundy_romance');
+    expect(ids).toContain('cashmere_espresso');
+    expect(ids).toContain('opaline');
+    expect(ids).toContain('starry_nocturne');
 
     for (const theme of COLOR_THEMES) {
       expect(theme.name.trim().length).toBeGreaterThan(0);

@@ -73,6 +73,18 @@ export const COLOR_THEMES: ColorTheme[] = [
     }
   },
   {
+    id: 'burgundy_romance',
+    name: 'Burgundy Romance',
+    category: 'Rich Maroon & Blush Quartz',
+    description: 'Deep velvety maroon wine with soft blush carnation pink and misty quartz accents.',
+    preview: {
+      bg: '#18090d',
+      surface: '#270f15',
+      main: '#dfd9d8',
+      accent: '#fc8f8f'
+    }
+  },
+  {
     id: 'carbon',
     name: 'Carbon Minimal',
     category: 'Monochrome Pitch Black',
@@ -82,6 +94,18 @@ export const COLOR_THEMES: ColorTheme[] = [
       surface: '#1a1a1e',
       main: '#f4f4f5',
       accent: '#ffffff'
+    }
+  },
+  {
+    id: 'cashmere_espresso',
+    name: 'Cashmere Espresso',
+    category: 'Warm Cashmere & Roasted Mocha',
+    description: 'Deep roasted walnut mocha with warm cashmere beige and delicate almond peach typography.',
+    preview: {
+      bg: '#1f1610',
+      surface: '#2b1f17',
+      main: '#ffdbbb',
+      accent: '#997e67'
     }
   },
   {
@@ -181,6 +205,18 @@ export const COLOR_THEMES: ColorTheme[] = [
     }
   },
   {
+    id: 'opaline',
+    name: 'Opaline Vermilion',
+    category: 'Minimalist Alabaster & Vibrant Persimmon',
+    description: 'Sleek minimalist alabaster gray with crisp monochrome clarity and vibrant persimmon orange.',
+    preview: {
+      bg: '#f4f4f6',
+      surface: '#ffffff',
+      main: '#18181b',
+      accent: '#ff634a'
+    }
+  },
+  {
     id: 'paper',
     name: 'Parchment Manuscript',
     category: 'Vintage Parchment & Calligraphic Ink',
@@ -226,6 +262,18 @@ export const COLOR_THEMES: ColorTheme[] = [
       surface: '#00222b',
       main: '#859900',
       accent: '#2aa198'
+    }
+  },
+  {
+    id: 'starry_nocturne',
+    name: 'Starry Nocturne',
+    category: 'Deep Sapphire Navy & Imperial Plum',
+    description: 'Deep starry midnight navy and royal sapphire with imperial plum and warm ivory cream.',
+    preview: {
+      bg: '#081849',
+      surface: '#10245e',
+      main: '#ecdfd2',
+      accent: '#893172'
     }
   },
   {
