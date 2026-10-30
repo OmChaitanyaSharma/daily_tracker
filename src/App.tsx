@@ -9,9 +9,10 @@ import { ExerciseTracking } from './pages/ExerciseTracking';
 import { Goals } from './pages/Goals';
 import { EndOfYearGoals } from './pages/EndOfYearGoals';
 import { HealthGoals } from './pages/HealthGoals';
+import { LifetimeGoals } from './pages/LifetimeGoals';
+import { PomodoroTimer } from './pages/PomodoroTimer';
 import { Logs } from './pages/Logs';
 import { Settings } from './pages/Settings';
-import { resetAndSeedDatabase } from './seedData';
 import { db } from './db';
 
 export default function App() {
@@ -19,19 +20,14 @@ export default function App() {
 
   useEffect(() => {
     async function init() {
-      // Check if we need to run the final September 2026 reset
-      if (!localStorage.getItem('sept_2026_reset_final')) {
-        await resetAndSeedDatabase();
-        localStorage.setItem('sept_2026_reset_final', 'true');
-      }
-      
-      // Fix goal dates to 2026-09-27
-      if (!localStorage.getItem('sept_2026_goal_date_fix_27th')) {
-        const goalsToUpdate = await db.goals.toArray();
-        if (goalsToUpdate.length > 0) {
-          await Promise.all(goalsToUpdate.map(g => db.goals.update(g.id, { startDate: '2026-09-27' })));
-        }
-        localStorage.setItem('sept_2026_goal_date_fix_27th', 'true');
+      // Ensure hour categories exist for the graph
+      const existingCategories = await db.hourCategories.toArray();
+      if (existingCategories.length === 0) {
+        await db.hourCategories.bulkAdd([
+          { id: crypto.randomUUID(), name: 'Web Dev', color: 'var(--accent-blue)', createdAt: new Date().toISOString() },
+          { id: crypto.randomUUID(), name: 'DSA', color: 'var(--accent-purple)', createdAt: new Date().toISOString() },
+          { id: crypto.randomUUID(), name: 'Study', color: 'var(--accent-red)', createdAt: new Date().toISOString() }
+        ]);
       }
 
       setIsInitializing(false);
@@ -55,6 +51,8 @@ export default function App() {
           <Route path="goals" element={<Goals />} />
           <Route path="goals/end-of-year" element={<EndOfYearGoals />} />
           <Route path="goals/health" element={<HealthGoals />} />
+          <Route path="goals/lifetime" element={<LifetimeGoals />} />
+          <Route path="pomodoro" element={<PomodoroTimer />} />
           <Route path="logs" element={<Logs />} />
           <Route path="settings" element={<Settings />} />
         </Route>

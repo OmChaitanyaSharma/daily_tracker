@@ -28,7 +28,7 @@ function getMeasurementDates(startDateStr) {
     }
     
     return dates;
-  } catch(e) {
+  } catch {
     return [];
   }
 }

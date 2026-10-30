@@ -10,6 +10,9 @@ export function ActivityHeatmap() {
   const todayStr = getTodayStr();
   const allHabitLogs = useLiveQuery(() => db.habitLogs.toArray()) ?? EMPTY_ARRAY;
   const allExerciseLogs = useLiveQuery(() => db.exerciseLogs.toArray()) ?? EMPTY_ARRAY;
+  const allHourLogs = useLiveQuery(() => db.hourLogs.toArray()) ?? EMPTY_ARRAY;
+  const allGoalMeasurements = useLiveQuery(() => db.goalMeasurements.toArray()) ?? EMPTY_ARRAY;
+  const allDayEntries = useLiveQuery(() => db.dayEntries.toArray()) ?? EMPTY_ARRAY;
   
   const heatmapData = useMemo(() => {
     const end = parseISO(todayStr);
@@ -31,27 +34,51 @@ export function ActivityHeatmap() {
       return acc;
     }, {} as Record<string, number>);
 
+    const hourCountsByDate = allHourLogs.reduce((acc, log) => {
+      if (log.hours > 0) {
+        acc[log.date] = (acc[log.date] || 0) + log.hours;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    const goalCountsByDate = allGoalMeasurements.reduce((acc, log) => {
+      if (log.value !== undefined && log.value !== null && String(log.value).trim() !== '') {
+        acc[log.date] = (acc[log.date] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    const dayEntryDates = new Set(allDayEntries.filter(e => e.highlight?.trim() || e.mood).map(e => e.date));
+
     return days.map(date => {
       const dateStr = format(date, 'yyyy-MM-dd');
       const hCount = habitCountsByDate[dateStr] || 0;
       const eCount = exerciseCountsByDate[dateStr] || 0;
+      const hrCount = hourCountsByDate[dateStr] || 0;
+      const gCount = goalCountsByDate[dateStr] || 0;
+      const hasJournal = dayEntryDates.has(dateStr);
       
+      const hasAny = hCount > 0 || eCount > 0 || hrCount > 0 || gCount > 0 || hasJournal;
+      const activityScore = hCount + (eCount > 0 ? Math.min(eCount / 10, 3) : 0) + hrCount + (gCount > 0 ? 1 : 0) + (hasJournal ? 1 : 0);
+
       // Calculate a rough "intensity" score (0 to 4)
       let intensity = 0;
-      if (hCount > 0 || eCount > 0) intensity = 1;
-      if (hCount > 2 || eCount > 10) intensity = 2;
-      if (hCount > 4 || eCount > 30) intensity = 3;
-      if (hCount > 6 || eCount > 50) intensity = 4;
+      if (hasAny) intensity = 1;
+      if (activityScore >= 2) intensity = 2;
+      if (activityScore >= 4) intensity = 3;
+      if (activityScore >= 6) intensity = 4;
 
       return {
         date,
         dateStr,
         intensity,
         hCount,
-        eCount
+        eCount,
+        hrCount,
+        gCount
       };
     });
-  }, [todayStr, allHabitLogs, allExerciseLogs]);
+  }, [todayStr, allHabitLogs, allExerciseLogs, allHourLogs, allGoalMeasurements, allDayEntries]);
 
   // We want to render a 7x52 grid. The standard is columns of weeks, top to bottom Sun-Sat.
   // Pad the beginning so the first day aligns with the correct day of the week.
@@ -98,7 +125,7 @@ export function ActivityHeatmap() {
               return (
                 <div 
                   key={day.dateStr}
-                  title={`${format(day.date, 'MMM d, yyyy')}: Habits: ${day.hCount}, Reps: ${day.eCount}`}
+                  title={`${format(day.date, 'MMM d, yyyy')}: Habits: ${day.hCount}, Reps: ${day.eCount}, Hours: ${day.hrCount}h${day.gCount > 0 ? `, Goals: ${day.gCount}` : ''}`}
                   className={clsx(
                     "w-3 h-3 rounded-sm transition-colors",
                     day.intensity === 0 && "bg-border-subtle",

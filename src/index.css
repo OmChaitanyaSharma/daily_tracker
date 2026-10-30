@@ -1,39 +1,41 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
-    /* MONKEYTYPE 9009 THEME (LIGHT) */
-    --bg-base: #eeebe2;
-    --bg-surface: #d3cfc1;
-    --bg-surface-hover: #c4c0b2;
+  /* DEFAULT / MONKEYTYPE CARBON THEME (DARK) */
+  :root,
+  .dark,
+  [data-theme="carbon"] {
+    --bg-base: #121214;
+    --bg-surface: #1a1a1e;
+    --bg-surface-hover: #24242a;
     
-    --text-main: #080909; 
-    --text-muted: #99947f; 
+    --text-main: #f4f4f5; 
+    --text-muted: #6b7280; 
     
-    --border-subtle: #b5b1a3;
-    --border-strong: #99947f;
+    --border-subtle: #262830;
+    --border-strong: #3f4350;
     
-    --accent-red: #c87e74;
-    --accent-red-hover: #b86a60;
-    --accent-red-bg: rgba(200, 126, 116, 0.15);
+    --accent-red: #ef4444;
+    --accent-red-hover: #dc2626;
+    --accent-red-bg: rgba(239, 68, 68, 0.15);
 
-    --accent-blue: #809bc7; 
-    --accent-blue-bg: rgba(128, 155, 199, 0.15);
+    --accent-blue: #60a5fa; 
+    --accent-blue-bg: rgba(96, 165, 250, 0.15);
 
-    --accent-purple: #9e85a6;
-    --accent-purple-bg: rgba(158, 133, 166, 0.15);
+    --accent-purple: #c084fc;
+    --accent-purple-bg: rgba(192, 132, 252, 0.15);
 
-    --accent-yellow: #c4a572; 
-    --accent-yellow-bg: rgba(196, 165, 114, 0.15);
+    --accent-yellow: #fbbf24; 
+    --accent-yellow-bg: rgba(251, 191, 36, 0.15);
 
-    --accent-green: #8f9e6a; 
-    --accent-green-bg: rgba(143, 158, 106, 0.15);
+    --accent-green: #4ade80; 
+    --accent-green-bg: rgba(74, 222, 128, 0.15);
 
-    --shadow-soft: 0 4px 20px rgba(8, 9, 9, 0.04), 0 2px 8px rgba(8, 9, 9, 0.02);
+    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
   }
 
-  .dark {
-    /* MONKEYTYPE PHANTOM THEME (DARK) */
+  /* MONKEYTYPE PHANTOM THEME */
+  [data-theme="phantom"] {
     --bg-base: #000011;
     --bg-surface: #101224;
     --bg-surface-hover: #151729;
@@ -61,6 +63,130 @@
     --accent-green-bg: rgba(158, 206, 106, 0.15);
 
     --shadow-soft: 0 8px 30px rgba(0, 0, 10, 0.6), 0 4px 10px rgba(0, 0, 10, 0.4);
+  }
+
+  /* MONKEYTYPE DEEP OCEAN & CORAL THEME */
+  [data-theme="ocean"] {
+    --bg-base: #071524;
+    --bg-surface: #0d2136;
+    --bg-surface-hover: #132b45;
+    
+    --text-main: #f49480; 
+    --text-muted: #4d7192; 
+    
+    --border-subtle: #163553;
+    --border-strong: #245480;
+    
+    --accent-red: #f49480;
+    --accent-red-hover: #e87c66;
+    --accent-red-bg: rgba(244, 148, 128, 0.15);
+
+    --accent-blue: #5eead4; 
+    --accent-blue-bg: rgba(94, 234, 212, 0.15);
+
+    --accent-purple: #c084fc;
+    --accent-purple-bg: rgba(192, 132, 252, 0.15);
+
+    --accent-yellow: #fb923c; 
+    --accent-yellow-bg: rgba(251, 146, 60, 0.15);
+
+    --accent-green: #34d399; 
+    --accent-green-bg: rgba(52, 211, 153, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(3, 10, 18, 0.7), 0 4px 10px rgba(3, 10, 18, 0.5);
+  }
+
+  /* MONKEYTYPE RED DRAGON THEME */
+  [data-theme="dragon"] {
+    --bg-base: #150a0c;
+    --bg-surface: #241115;
+    --bg-surface-hover: #32181d;
+    
+    --text-main: #e89d28; 
+    --text-muted: #824346; 
+    
+    --border-subtle: #3c1920;
+    --border-strong: #5f2732;
+    
+    --accent-red: #ef4444;
+    --accent-red-hover: #dc2626;
+    --accent-red-bg: rgba(239, 68, 68, 0.15);
+
+    --accent-blue: #60a5fa; 
+    --accent-blue-bg: rgba(96, 165, 250, 0.15);
+
+    --accent-purple: #f43f5e;
+    --accent-purple-bg: rgba(244, 63, 94, 0.15);
+
+    --accent-yellow: #e89d28; 
+    --accent-yellow-bg: rgba(232, 157, 40, 0.15);
+
+    --accent-green: #34d399; 
+    --accent-green-bg: rgba(52, 211, 153, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(15, 5, 8, 0.7), 0 4px 10px rgba(15, 5, 8, 0.5);
+  }
+
+  /* MONKEYTYPE LASER PLUM THEME */
+  [data-theme="laser"] {
+    --bg-base: #200829;
+    --bg-surface: #2e0e3a;
+    --bg-surface-hover: #3d154d;
+    
+    --text-main: #45e8b8; 
+    --text-muted: #814c8a; 
+    
+    --border-subtle: #481b58;
+    --border-strong: #68297e;
+    
+    --accent-red: #f43f5e;
+    --accent-red-hover: #e11d48;
+    --accent-red-bg: rgba(244, 63, 94, 0.15);
+
+    --accent-blue: #38bdf8; 
+    --accent-blue-bg: rgba(56, 189, 248, 0.15);
+
+    --accent-purple: #c084fc;
+    --accent-purple-bg: rgba(192, 132, 252, 0.15);
+
+    --accent-yellow: #f97316; 
+    --accent-yellow-bg: rgba(249, 115, 22, 0.15);
+
+    --accent-green: #45e8b8; 
+    --accent-green-bg: rgba(69, 232, 184, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(20, 5, 26, 0.7), 0 4px 10px rgba(20, 5, 26, 0.5);
+  }
+
+  /* MONKEYTYPE MATRIX TERMINAL THEME */
+  [data-theme="matrix"] {
+    --bg-base: #080c09;
+    --bg-surface: #0f1812;
+    --bg-surface-hover: #16241b;
+    
+    --text-main: #22c55e; 
+    --text-muted: #3c664a; 
+    
+    --border-subtle: #192e21;
+    --border-strong: #284c35;
+    
+    --accent-red: #ef4444;
+    --accent-red-hover: #dc2626;
+    --accent-red-bg: rgba(239, 68, 68, 0.15);
+
+    --accent-blue: #38bdf8; 
+    --accent-blue-bg: rgba(56, 189, 248, 0.15);
+
+    --accent-purple: #a855f7;
+    --accent-purple-bg: rgba(168, 85, 247, 0.15);
+
+    --accent-yellow: #eab308; 
+    --accent-yellow-bg: rgba(234, 179, 8, 0.15);
+
+    --accent-green: #22c55e; 
+    --accent-green-bg: rgba(34, 197, 94, 0.15);
+
+    --shadow-soft: 0 8px 30px rgba(4, 8, 5, 0.7), 0 4px 10px rgba(4, 8, 5, 0.5);
   }
 
   html, body {
@@ -186,6 +312,43 @@
   animation: fire-flicker 1.5s infinite ease-in-out;
   transform-origin: bottom center;
 }
+
+/* Tactile button & card press feedback */
+.tap-press {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease, filter 0.15s ease;
+}
+.tap-press:active {
+  transform: scale(0.96);
+}
+
+/* Hover isolation for touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .hover-lift:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+/* Prevent iOS auto-zoom when focusing form inputs */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Respect user accessibility motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .tap-press,
+  .hover-lift,
+  .animate-fire {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
 /* Global spatial navigation focus outline */
 *:focus {
   outline: 2px solid var(--accent-blue);

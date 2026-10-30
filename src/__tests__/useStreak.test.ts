@@ -1,12 +1,24 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { calculateStreak } from '../hooks/useStreak';
 import { getTodayStr } from '../utils/dateUtils';
 import { subDays, format } from 'date-fns';
+import { saveSettings, getSettings } from '../utils/settings';
 
 describe('calculateStreak', () => {
   const today = getTodayStr();
   const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd');
   const twoDaysAgo = format(subDays(new Date(), 2), 'yyyy-MM-dd');
+
+  beforeEach(() => {
+    localStorage.clear();
+    const s = getSettings();
+    s.streakTargetHours = 3.0;
+    saveSettings(s);
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
 
   it('should return 0 when there are no logs', () => {
     const habits = [{ id: 'h1', startDate: twoDaysAgo, archived: false }];

@@ -18,7 +18,8 @@ export function Snowfall() {
     canvas.width = width;
     canvas.height = height;
 
-    const numParticles = 120; // Slightly more snow
+    const isMobile = window.innerWidth < 768;
+    const numParticles = isMobile ? 35 : 120;
     const flakeChars = ['❄', '❅', '❆'];
     const particles: Array<{
       x: number;

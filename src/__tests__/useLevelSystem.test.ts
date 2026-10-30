@@ -8,16 +8,15 @@ describe('useLevelSystem logic', () => {
   });
 
   describe('calculateLevel', () => {
-    it('calculates dev level 1 for 0 XP', () => {
+    it('calculates dev level 0 for 0 XP', () => {
       const result = calculateDevLevel(0);
-      expect(result.level).toBe(1);
+      expect(result.level).toBe(0);
       expect(result.progress).toBe(0);
     });
 
     it('calculates fit level properly', () => {
-      const result = calculateFitLevel(400); // 400/100 = 4, sqrt(4) = 2, +1 = 3?
-      // Math.floor(Math.sqrt(400 / 100)) + 1 = floor(2) + 1 = 3
-      expect(result.level).toBe(3);
+      const result = calculateFitLevel(400); // 400/100 = 4, sqrt(4) = 2, displayLevel = 2
+      expect(result.level).toBe(2);
     });
   });
 
@@ -43,7 +42,7 @@ describe('useLevelSystem logic', () => {
       const hourLogs = [{ hours: 1.5 }, { hours: 2.0 }];
       const stats = calculateStats(hourLogs, [], []);
       expect(stats.totalHours).toBe(3.5);
-      expect(stats.dev.level).toBe(3);
+      expect(stats.dev.level).toBe(2);
       expect(stats.dev.xp).toBe(350);
     });
   });

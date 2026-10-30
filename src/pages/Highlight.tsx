@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
 import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { TodoList } from '../components/TodoList';
 import { addDays, parseISO, format } from 'date-fns';
 import clsx from 'clsx';
@@ -16,10 +16,14 @@ const MOODS = [
 ];
 
 export function Highlight() {
-  const [originalDate, setOriginalDate] = useState(getTodayDateString());
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
+  const initialDate = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : getTodayDateString();
+
+  const [originalDate, setOriginalDate] = useState(initialDate);
   
   const [entry, setEntry] = useState<Partial<DayEntry>>({
-    date: getTodayDateString(),
+    date: initialDate,
     mood: '',
     highlight: '',
     oneLineSummary: '',

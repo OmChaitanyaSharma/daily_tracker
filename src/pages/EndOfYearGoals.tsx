@@ -8,12 +8,15 @@ import { Link } from 'react-router-dom';
 import { GoalSettingsModal } from '../components/GoalSettingsModal';
 import { GoalRow, GoalDetail } from '../components/GoalTracker';
 
+const EMPTY_GOALS: Goal[] = [];
+const EMPTY_MEASUREMENTS: any[] = [];
+
 export function EndOfYearGoals() {
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
-  const goals = useLiveQuery(() => db.goals.where('category').equals('end-of-year').toArray()) || [];
-  const measurements = useLiveQuery(() => db.goalMeasurements.toArray()) || [];
+  const goals = useLiveQuery(() => db.goals.where('category').equals('end-of-year').toArray()) ?? EMPTY_GOALS;
+  const measurements = useLiveQuery(() => db.goalMeasurements.toArray()) ?? EMPTY_MEASUREMENTS;
 
   const [draggedGoalId, setDraggedGoalId] = useState<string | null>(null);
 

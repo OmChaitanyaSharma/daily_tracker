@@ -105,7 +105,17 @@ export function GoalRow({
   );
 }
 
-export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measurements: GoalMeasurement[], onBack: () => void }) {
+export function GoalDetail({ 
+  goal, 
+  measurements, 
+  onBack,
+  onEdit 
+}: { 
+  goal: Goal; 
+  measurements: GoalMeasurement[]; 
+  onBack: () => void;
+  onEdit?: () => void;
+}) {
   const scheduleDates = useMemo(() => getMeasurementDates(goal.startDate), [goal.startDate]);
   const measurementDates = measurements.map(m => m.date);
   
@@ -116,9 +126,21 @@ export function GoalDetail({ goal, measurements, onBack }: { goal: Goal, measure
 
   return (
     <div className="bg-bg-surface border border-border-strong rounded-[2rem] p-8 md:p-12 shadow-sm animate-scale-in">
-      <button onClick={onBack} className="text-sm font-medium text-text-muted hover:text-text-main mb-8 flex items-center gap-2">
-        <ArrowLeft size={16} /> Back to goals
-      </button>
+      <div className="flex items-center justify-between mb-8">
+        <button onClick={onBack} className="text-sm font-medium text-text-muted hover:text-text-main flex items-center gap-2 cursor-pointer">
+          <ArrowLeft size={16} /> Back to goals
+        </button>
+        {onEdit && (
+          <button
+            onClick={onEdit}
+            className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-text-muted hover:text-text-main bg-bg-base border border-border-strong rounded-xl transition-all tap-press cursor-pointer hover:border-text-muted"
+            aria-label="Edit goal settings"
+          >
+            <Settings size={16} />
+            <span>Goal Settings</span>
+          </button>
+        )}
+      </div>
       
       <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>

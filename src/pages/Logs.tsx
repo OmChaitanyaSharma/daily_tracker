@@ -97,6 +97,32 @@ export function Logs() {
   const selectedHabitLogs = selectedDate ? allHabitLogs.filter(l => l.date === selectedDate) : [];
   const selectedHourLogs = selectedDate ? allHourLogs.filter(l => l.date === selectedDate) : [];
   const selectedExerciseLogs = selectedDate ? allExerciseLogs.filter(l => l.date === selectedDate) : [];
+  const selectedGoalMeasurements = selectedDate ? allGoalMeasurements.filter(m => m.date === selectedDate) : [];
+
+  // Compute set of all dates with ANY tracked activity (habits, hours, exercises, goals/calories, or journal)
+  const loggedDatesSet = useMemo(() => {
+    const dates = new Set<string>();
+    allEntries.forEach(e => {
+      if (e.highlight?.trim() || e.mood || e.wentWell?.trim() || e.problems?.trim() || e.learned?.trim() || e.reflection?.trim() || e.notes?.trim()) {
+        dates.add(e.date);
+      }
+    });
+    allHabitLogs.forEach(l => {
+      if (l.status && l.status !== 'none') dates.add(l.date);
+    });
+    allHourLogs.forEach(l => {
+      if (l.hours > 0) dates.add(l.date);
+    });
+    allExerciseLogs.forEach(l => {
+      if (l.reps > 0) dates.add(l.date);
+    });
+    allGoalMeasurements.forEach(m => {
+      if (m.value !== undefined && m.value !== null && String(m.value).trim() !== '') {
+        dates.add(m.date);
+      }
+    });
+    return dates;
+  }, [allEntries, allHabitLogs, allHourLogs, allExerciseLogs, allGoalMeasurements]);
 
   const exportData = async () => {
     try {
@@ -166,7 +192,12 @@ export function Logs() {
       totalDaysInPeriod = eachDayOfInterval({ start: effStart, end: effEnd }).length;
     }
 
-    const daysLogged = periodEntries.length;
+    let daysLogged = 0;
+    loggedDatesSet.forEach(d => {
+      if (d >= effectiveStartStr && d <= effectiveEndStr) {
+        daysLogged++;
+      }
+    });
     
     // Mood mapping: excellent=5, good=4, okay=3, not-great=2, bad=1
     const moodValues: Record<string, number> = { 'excellent': 5, 'good': 4, 'okay': 3, 'not-great': 2, 'bad': 1 };
@@ -184,7 +215,7 @@ export function Logs() {
       totalDays: totalDaysInPeriod,
       avgMood: avgMoodScore > 0 ? avgMoodScore.toFixed(1) : '0'
     };
-  }, [currentDate, period, allEntries]);
+  }, [currentDate, period, allEntries, loggedDatesSet]);
 
   return (
     <div className="max-w-6xl mx-auto pb-24 animate-fade-in">
@@ -269,7 +300,7 @@ export function Logs() {
               ))}
               {calendarDays.map(date => {
                 const dateStr = format(date, 'yyyy-MM-dd');
-                const hasEntry = allEntries.some(e => e.date === dateStr);
+                const hasEntry = loggedDatesSet.has(dateStr);
                 const isSelected = selectedDate === dateStr;
                 const isTodayDate = isToday(date);
                 
@@ -374,14 +405,24 @@ export function Logs() {
                 )}
               </header>
 
-              {selectedEntry ? (
+              {loggedDatesSet.has(selectedDate) || selectedEntry ? (
                 <div className="space-y-8">
-                  {selectedEntry.highlight && (
-                    <div>
-                      <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-2">Highlight of the day</h3>
-                      <p className="text-text-main whitespace-pre-wrap leading-relaxed">{selectedEntry.highlight}</p>
+                  {/* Highlight of the day - ALWAYS visible */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted">Highlight of the day</h3>
+                      {!selectedEntry?.highlight?.trim() && (
+                        <Link to={`/highlight?date=${selectedDate}`} className="text-xs text-accent-blue hover:underline font-medium">
+                          + Add highlight
+                        </Link>
+                      )}
                     </div>
-                  )}
+                    {selectedEntry?.highlight?.trim() ? (
+                      <p className="text-text-main whitespace-pre-wrap leading-relaxed font-serif">{selectedEntry.highlight}</p>
+                    ) : (
+                      <p className="text-text-muted italic text-sm">No highlight recorded for this day.</p>
+                    )}
+                  </div>
 
                   <div>
                     <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-3">Habits</h3>
@@ -454,8 +495,30 @@ export function Logs() {
                     </div>
                   )}
 
+                  {/* Goals & Measurements (e.g. Calories, Weight, etc.) */}
+                  {selectedGoalMeasurements.length > 0 && (
+                    <div className="pt-4 border-t border-border-subtle">
+                      <h3 className="text-xs font-semibold tracking-widest uppercase text-text-muted mb-3">Goals & Measurements</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {selectedGoalMeasurements.map(m => {
+                          const goal = allGoals.find(g => g.id === m.goalId);
+                          if (!goal) return null;
+                          return (
+                            <div key={m.id} className="bg-bg-surface-hover border border-border-strong rounded-xl p-3 flex flex-col">
+                              <span className="text-xs text-text-muted uppercase tracking-wider truncate" title={goal.title}>{goal.title}</span>
+                              <span className="text-lg font-medium text-text-main mt-1">
+                                {m.value}{goal.unit ? ` ${goal.unit}` : ''}
+                              </span>
+                              {m.notes && <span className="text-xs text-text-muted italic mt-0.5">{m.notes}</span>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Other reflections if they exist */}
-                  {(selectedEntry.wentWell || selectedEntry.problems || selectedEntry.learned) && (
+                  {selectedEntry && (selectedEntry.wentWell || selectedEntry.problems || selectedEntry.learned) && (
                     <div className="pt-4 border-t border-border-subtle space-y-4">
                       {selectedEntry.wentWell && (
                         <div>
@@ -475,8 +538,11 @@ export function Logs() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center py-20 text-text-muted">
-                  <p className="font-serif italic text-lg mb-2">No journal entry found.</p>
-                  <p className="text-sm">You didn't log anything on this day.</p>
+                  <p className="font-serif italic text-lg mb-2">No activity logged.</p>
+                  <p className="text-sm mb-4">You haven't tracked habits, hours, exercises, or reflections on this day.</p>
+                  <Link to={`/highlight?date=${selectedDate}`} className="text-xs text-accent-blue hover:underline bg-bg-surface-hover border border-border-strong px-4 py-2 rounded-xl">
+                    + Log this day
+                  </Link>
                 </div>
               )}
             </div>
