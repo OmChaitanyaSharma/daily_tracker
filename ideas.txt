@@ -6,3 +6,12 @@
 - Built-in Focus Timer / Stopwatch in Study and Deep Work with auto-logging to hourLogs
 - Interactive Category Legend Soloing on the Hours Line Graph (click a category in the legend to solo/toggle its line)
 - Custom font selector in Settings (e.g., Serif Editorial, Sans Clean, Monospace Terminal) to customize primary body and heading typography across the application
+
+- Gamified Bad Habit Elimination System:
+  - Add a dedicated section to track and quit bad habits with a clean streak counter.
+  - Game mechanics with checkpoint scoring intervals:
+    - 7-Day Checkpoint (1 week clean): unlocks first milestone score.
+    - 14-Day Biweekly Checkpoint (2 weeks clean): unlocks habit rewiring score.
+    - 30-Day Monthly Checkpoint (1 month clean): unlocks solid consistency score.
+    - 90-Day Quarterly Checkpoint (1 quarter clean): unlocks mastery score.
+  - Checkpoint persistence: Reaching each milestone locks in that tier as a permanent checkpoint, securing accrued points and achievement badges so progress is preserved.
