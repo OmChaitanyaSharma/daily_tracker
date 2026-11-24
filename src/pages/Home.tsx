@@ -582,7 +582,7 @@ export function Home() {
 
       <div className="text-center pt-12 pb-4">
         <p className="text-[11px] text-text-muted uppercase tracking-[0.2em] font-medium opacity-50">
-          Tip: Press 1-5 to navigate, Esc to return home
+          Tip: Press 1-6 to navigate, Esc to return home
         </p>
       </div>
 
