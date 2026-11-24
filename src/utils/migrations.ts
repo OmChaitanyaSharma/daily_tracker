@@ -1,7 +1,7 @@
 import { db } from '../db';
 import { syncExercisesScores } from './exerciseSync';
 
-const CURRENT_MIGRATION_VERSION = 3;
+const CURRENT_MIGRATION_VERSION = 4;
 const MIGRATION_KEY = 'dt_schema_migration_version';
 
 /**
@@ -53,6 +53,30 @@ export async function runDatabaseMigrations(): Promise<void> {
     await syncExercisesScores();
     startVersion = 3;
     localStorage.setItem(MIGRATION_KEY, '3');
+  }
+
+  // Migration 4: Harmonize all current goals start date to 2026-11-25 without altering any other user data
+  if (startVersion < 4) {
+    const goalsToUpdate = await db.goals.toArray();
+    if (goalsToUpdate.length > 0) {
+      for (const goal of goalsToUpdate) {
+        const oldStartDate = goal.startDate;
+        await db.goals.update(goal.id, { startDate: '2026-11-25' });
+        // Re-align initial baseline measurement recorded on old start date to 2026-11-25
+        if (oldStartDate && oldStartDate !== '2026-11-25') {
+          const baselineMeasurements = await db.goalMeasurements
+            .where('goalId')
+            .equals(goal.id)
+            .filter(m => m.date === oldStartDate)
+            .toArray();
+          for (const m of baselineMeasurements) {
+            await db.goalMeasurements.update(m.id, { date: '2026-11-25' });
+          }
+        }
+      }
+    }
+    startVersion = 4;
+    localStorage.setItem(MIGRATION_KEY, '4');
   }
 
   localStorage.setItem(MIGRATION_KEY, CURRENT_MIGRATION_VERSION.toString());
