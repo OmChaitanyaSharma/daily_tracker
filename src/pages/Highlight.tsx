@@ -3,7 +3,6 @@ import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
 import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { DailyPlanner } from '../components/DailyPlanner';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
 import { getSettings, saveSettings, DEFAULT_MOOD_LABELS, type MoodLabels } from '../utils/settings';
@@ -209,9 +208,9 @@ export function Highlight() {
       )}
 
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-12 border-b border-border-subtle pb-6 gap-4 sm:gap-6">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-border-subtle pb-6 gap-4 sm:gap-6">
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link to="/" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer shrink-0" aria-label="Go back to home">
+          <Link to="/highlight" className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-text-muted hover:text-text-main transition-colors rounded-full hover:bg-bg-surface tap-press cursor-pointer shrink-0" aria-label="Go back to highlights hub">
             <ArrowLeft size={24} />
           </Link>
           
@@ -265,6 +264,19 @@ export function Highlight() {
           </div>
         )}
       </header>
+
+      {/* Two-Tile Switcher in Highlights Tab */}
+      <div className="flex items-center gap-1.5 mb-8 bg-bg-surface p-1 rounded-2xl border border-border-subtle w-fit text-xs font-medium">
+        <span className="px-3.5 py-1.5 rounded-xl bg-text-main text-bg-base font-semibold shadow-sm">
+          Highlight of the Day
+        </span>
+        <Link 
+          to="/highlight/planner"
+          className="px-3.5 py-1.5 rounded-xl text-text-muted hover:text-text-main hover:bg-bg-base/60 transition-colors"
+        >
+          Daily Planner & Schedule
+        </Link>
+      </div>
 
       {isCompletedView ? (
         <CompletedView 
@@ -556,11 +568,6 @@ function EditableForm({
           placeholder="Write the core win, event, or breakthrough from today..."
           className="w-full min-h-[180px] sm:min-h-[220px] p-5 sm:p-8 bg-transparent border-none resize-none focus:outline-none text-base sm:text-xl text-text-main font-serif leading-relaxed placeholder:text-text-muted/40"
         />
-      </section>
-
-      {/* Daily Planner & Focus Blocks */}
-      <section className="pt-2">
-        <DailyPlanner currentDate={entry.date!} embedded={true} />
       </section>
       
     </div>

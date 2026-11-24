@@ -477,7 +477,7 @@ export function Home() {
       {/* Live Active Schedule Focus Block Banner */}
       <div className="w-full">
         <Link 
-          to="/planner"
+          to="/highlight/planner"
           className="group block p-4 sm:p-5 rounded-3xl bg-bg-surface border border-border-subtle hover:border-accent-blue/50 transition-all hover-lift tap-press shadow-sm"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -526,28 +526,15 @@ export function Home() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
         
-        <Link to="/planner" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-blue-bg text-accent-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
-            <Calendar size={28} className="sm:hidden" strokeWidth={1.5} />
-            <Calendar size={32} className="hidden sm:block" strokeWidth={1.5} />
-          </div>
-          <div>
-            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Daily Planner</h2>
-            <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
-              Time-blocked routine, focus blocks, and concrete deliverables.
-            </p>
-          </div>
-        </Link>
-
         <Link to="/highlight" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-red-bg text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
             <PenTool size={28} className="sm:hidden" strokeWidth={1.5} />
             <PenTool size={32} className="hidden sm:block" strokeWidth={1.5} />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Highlight of the Day</h2>
+            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Highlights & Schedule</h2>
             <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
-              Capture the day's key wins, lessons, and mood.
+              Daily highlight journal and structured 7-day focus block routine.
             </p>
           </div>
         </Link>

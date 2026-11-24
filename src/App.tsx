@@ -6,6 +6,7 @@ import { runDatabaseMigrations } from './utils/migrations';
 
 // Code-split route components to eliminate monolithic bundle
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const HighlightsHub = lazy(() => import('./pages/HighlightsHub').then(m => ({ default: m.HighlightsHub })));
 const Highlight = lazy(() => import('./pages/Highlight').then(m => ({ default: m.Highlight })));
 const Habits = lazy(() => import('./pages/Habits').then(m => ({ default: m.Habits })));
 const ProductivityHabits = lazy(() => import('./pages/ProductivityHabits').then(m => ({ default: m.ProductivityHabits })));
@@ -54,7 +55,10 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<Suspense fallback={<RouteFallback />}><Home /></Suspense>} />
-            <Route path="highlight" element={<Suspense fallback={<RouteFallback />}><Highlight /></Suspense>} />
+            <Route path="highlight" element={<Suspense fallback={<RouteFallback />}><HighlightsHub /></Suspense>} />
+            <Route path="highlight/journal" element={<Suspense fallback={<RouteFallback />}><Highlight /></Suspense>} />
+            <Route path="highlight/planner" element={<Suspense fallback={<RouteFallback />}><Planner /></Suspense>} />
+            <Route path="planner" element={<Suspense fallback={<RouteFallback />}><Planner /></Suspense>} />
             <Route path="habits" element={<Suspense fallback={<RouteFallback />}><Habits /></Suspense>} />
             <Route path="habits/productivity" element={<Suspense fallback={<RouteFallback />}><ProductivityHabits /></Suspense>} />
             <Route path="habits/health" element={<Suspense fallback={<RouteFallback />}><ExerciseTracking /></Suspense>} />
