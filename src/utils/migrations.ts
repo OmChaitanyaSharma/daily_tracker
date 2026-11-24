@@ -1,8 +1,8 @@
 import { db } from '../db';
-import { syncExercisesScores } from './exerciseSync';
+import { syncExercisesScores, seedWorkoutRoutine } from './exerciseSync';
 import { seedDefaultSchedule } from './scheduleDefaults';
 
-const CURRENT_MIGRATION_VERSION = 5;
+const CURRENT_MIGRATION_VERSION = 6;
 const MIGRATION_KEY = 'dt_schema_migration_version';
 
 /**
@@ -85,6 +85,16 @@ export async function runDatabaseMigrations(): Promise<void> {
     await seedDefaultSchedule();
     startVersion = 5;
     localStorage.setItem(MIGRATION_KEY, '5');
+  }
+
+  // Migration 6: Seed Phase 1 Master Schedule (Schedule A: Mon/Wed/Fri/Sat/Sun + Tue/Thu Rest Days)
+  // and replace all previous exercises with the 10 "Train Like You're 16" workout exercises
+  if (startVersion < 6) {
+    await seedDefaultSchedule(true);
+    await seedWorkoutRoutine(true);
+    localStorage.setItem('exercise_rest_days', JSON.stringify({ default: [2, 4], weeks: {} }));
+    startVersion = 6;
+    localStorage.setItem(MIGRATION_KEY, '6');
   }
 
   localStorage.setItem(MIGRATION_KEY, CURRENT_MIGRATION_VERSION.toString());

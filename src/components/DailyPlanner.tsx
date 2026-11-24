@@ -5,7 +5,6 @@ import {
   formatTime12h, 
   calculateDuration, 
   isCurrentSlot, 
-  DEFAULT_MASTER_SCHEDULE,
   seedDefaultSchedule 
 } from '../utils/scheduleDefaults';
 import { getTodayStr } from '../utils/dateUtils';
@@ -28,9 +27,9 @@ import clsx from 'clsx';
 const DAYS_OF_WEEK = [
   { id: -1, label: 'Every Day (Master)', short: 'All' },
   { id: 1, label: 'Monday', short: 'Mon' },
-  { id: 2, label: 'Tuesday', short: 'Tue' },
+  { id: 2, label: 'Tuesday (Rest Day)', short: 'Tue (Rest)' },
   { id: 3, label: 'Wednesday', short: 'Wed' },
-  { id: 4, label: 'Thursday', short: 'Thu' },
+  { id: 4, label: 'Thursday (Rest Day)', short: 'Thu (Rest)' },
   { id: 5, label: 'Friday', short: 'Fri' },
   { id: 6, label: 'Saturday', short: 'Sat' },
   { id: 0, label: 'Sunday', short: 'Sun' }
@@ -210,20 +209,9 @@ export function DailyPlanner({ currentDate = getTodayStr(), embedded = false }: 
 
   // Reload master preset schedule
   const handleReloadDefaultPreset = async () => {
-    await db.scheduleSlots.clear();
-    const slotsToSeed: ScheduleSlot[] = DEFAULT_MASTER_SCHEDULE.map((slot, index) => ({
-      id: crypto.randomUUID(),
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      title: slot.title,
-      deliverable: slot.deliverable,
-      dayOfWeek: -1,
-      order: index,
-      completedDates: []
-    }));
-    await db.scheduleSlots.bulkAdd(slotsToSeed);
+    await seedDefaultSchedule(true);
     setSelectedDayTab(-1);
-    showToast('Reset to master schedule preset');
+    showToast('Reset to master schedule and rest day presets');
   };
 
   // Completion count
@@ -312,6 +300,19 @@ export function DailyPlanner({ currentDate = getTodayStr(), embedded = false }: 
           );
         })}
       </div>
+
+      {/* Rest Day Indicator banner for Tuesday and Thursday */}
+      {(selectedDayTab === 2 || selectedDayTab === 4) && (
+        <div className="p-3 sm:p-4 rounded-2xl bg-accent-blue/10 border border-accent-blue/30 flex items-center justify-between gap-3 text-xs animate-fade-in shadow-sm">
+          <div className="flex items-center gap-2.5 text-accent-blue font-medium">
+            <Sparkles size={16} />
+            <span>Scheduled Rest Day ({selectedDayTab === 2 ? 'Tuesday' : 'Thursday'}) — Gentle mobility, floor stretches, and active recovery walk. No workout drills today.</span>
+          </div>
+          <span className="px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue font-mono text-[9px] uppercase font-bold tracking-wider shrink-0">
+            Rest Day
+          </span>
+        </div>
+      )}
 
       {/* Time Slots Timeline / List */}
       {displaySlots.length === 0 ? (

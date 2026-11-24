@@ -27,21 +27,24 @@ describe('Daily Planner & Schedule Engine', () => {
     expect(calculateDuration('08:30', '09:00')).toBe('30m');
   });
 
-  it('seeds all 10 default focus blocks if database schedule is empty', async () => {
+  it('seeds default focus blocks and rest day overrides if database schedule is empty', async () => {
     expect(await db.scheduleSlots.count()).toBe(0);
 
     await seedDefaultSchedule();
 
     const count = await db.scheduleSlots.count();
-    expect(count).toBe(10);
+    expect(count).toBe(30); // 10 master + 10 Tue rest day + 10 Thu rest day
 
-    const first = await db.scheduleSlots.orderBy('startTime').first();
-    expect(first?.title).toBe('Zero-Phone Morning Launch (1 Hour)');
+    const masterSlots = await db.scheduleSlots.where('dayOfWeek').equals(-1).toArray();
+    expect(masterSlots.length).toBe(10);
+
+    const first = masterSlots.sort((a, b) => a.startTime.localeCompare(b.startTime))[0];
+    expect(first?.title).toBe('Zero-Phone Morning Launch');
     expect(first?.startTime).toBe('09:00');
     expect(first?.endTime).toBe('10:00');
     expect(first?.dayOfWeek).toBe(-1); // All 7 days master
 
-    const cs50 = await db.scheduleSlots.where('startTime').equals('10:00').first();
+    const cs50 = masterSlots.find(s => s.startTime === '10:00');
     expect(cs50?.title).toBe('CS50 Python (Block 1)');
   });
 

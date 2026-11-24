@@ -62,7 +62,14 @@ describe('Database Migrations', () => {
     await runDatabaseMigrations();
 
     // Verify migration version
-    expect(localStorage.getItem('dt_schema_migration_version')).toBe('5');
+    expect(localStorage.getItem('dt_schema_migration_version')).toBe('6');
+
+    // Verify 10 workout exercises were seeded
+    const exercises = await db.exercises.toArray();
+    expect(exercises.length).toBe(10);
+    expect(exercises.some(e => e.name === 'Max Tuck Jumps')).toBe(true);
+    expect(exercises.some(e => e.name === 'Pull-up Negatives + Active Hangs')).toBe(true);
+    expect(exercises.some(e => e.name === 'Wall Angels')).toBe(true);
 
     // Verify goals have new startDate 2026-11-25
     const updatedGoals = await db.goals.toArray();

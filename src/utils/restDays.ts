@@ -2,7 +2,7 @@ import { startOfWeek, format, getDay, addDays, parseISO } from 'date-fns';
 import type { Exercise, ExerciseLog } from '../db';
 
 const LS_KEY = 'exercise_rest_days';
-const DEFAULT_REST_DAYS = [1, 3, 5, 6]; // 1=Mon, 3=Wed, 5=Fri, 6=Sat
+const DEFAULT_REST_DAYS = [2, 4]; // 2=Tue, 4=Thu (Rest Days: Active recovery, no intense workout)
 
 export interface RestDaysConfig {
   default: number[];

@@ -93,6 +93,13 @@ export interface Exercise {
   archived: boolean;
   difficulty?: ExerciseDifficulty;
   trackingType?: TrackingType;
+  category?: string; // Part A: High-Velocity Impact, Part B: Postural Alignment, Part C: Flexibility
+  targetSets?: number;
+  targetReps?: string; // e.g. "8 reps", "30 secs", "15 / leg"
+  targetRepsNumeric?: number;
+  restTime?: string; // e.g. "60s", "30s walk", "45s"
+  execution?: string; // Biomechanical focus and execution guide
+  order?: number;
 }
 
 export interface ExerciseLog {
@@ -100,6 +107,8 @@ export interface ExerciseLog {
   date: string; // YYYY-MM-DD
   exerciseId: string;
   reps: number;
+  sets?: number;
+  setDetails?: { setNumber: number; reps: number; completed: boolean }[];
 }
 
 export interface ScheduleSlot {

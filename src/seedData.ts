@@ -1,6 +1,6 @@
 
 import { db } from './db';
-import { EXERCISE_CONFIGS } from './utils/exerciseSync';
+import { seedWorkoutRoutine } from './utils/exerciseSync';
 import { seedDefaultSchedule } from './utils/scheduleDefaults';
 
 export async function resetAndSeedDatabase() {
@@ -109,21 +109,10 @@ export async function resetAndSeedDatabase() {
     });
   }
 
-  // 5. Seed Exercises (with difficulties mapped from exercise configs)
-  const defaultExercises = [
-    ...EXERCISE_CONFIGS.map(c => ({
-      id: crypto.randomUUID(),
-      name: c.name,
-      createdAt,
-      archived: false,
-      difficulty: c.difficulty,
-      trackingType: c.trackingType
-    })),
-    { id: crypto.randomUUID(), name: 'Cycling', createdAt, archived: false, difficulty: 'medium' as const, trackingType: 'time' as const }
-  ];
-  await db.exercises.bulkAdd(defaultExercises);
+  // 5. Seed 10 "Train Like You're 16" Exercises with Part A/B/C categories, targets, and scores
+  await seedWorkoutRoutine(true);
 
-  // 6. Seed Default Master Schedule Slots
-  await seedDefaultSchedule();
+  // 6. Seed Default Master Schedule & Rest Day Slots
+  await seedDefaultSchedule(true);
 }
 

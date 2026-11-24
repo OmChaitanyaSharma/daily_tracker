@@ -11,64 +11,131 @@ export const DEFAULT_MASTER_SCHEDULE: DefaultSlotTemplate[] = [
   {
     startTime: '09:00',
     endTime: '10:00',
-    title: 'Zero-Phone Morning Launch (1 Hour)',
-    deliverable: 'Strict Zero Phone Usage for the full hour.\n• Easy morning walk (3,000–4,000 steps) + gentle floor stretching & relaxed dead hangs.\n• Brush teeth + tongue scrape + 10 mins Vocal Articulation & Depth exercises in the shower.\n• Morning skincare & hair care (cleanser, moisturizer, sunscreen).'
+    title: 'Zero-Phone Morning Launch',
+    deliverable: 'NO PHONE FOR FULL HOUR. 45m Impact + Posture + @MovementbyDavid stretch + Dead Hangs; Brushing + tongue scrape + 10m Vocal Articulation in shower; Morning skin & hair care.'
   },
   {
     startTime: '10:00',
     endTime: '12:30',
     title: 'CS50 Python (Block 1)',
-    deliverable: 'Restart CS50P from Week 0. Watch early familiar lectures at 1.5x speed, code alongside in terminal, and lock in for later modules (File I/O, Regex, OOP).'
+    deliverable: 'Watch lectures at 1.5x (fast through early weeks) + write code alongside in terminal.'
   },
   {
     startTime: '12:30',
     endTime: '13:15',
-    title: 'Sales & Local Website Demo',
-    deliverable: '• Days 1–4 (Nov 25–28): Build & polish 1 responsive local business demo (clinic/gym) with working Tap-to-WhatsApp booking.\n• Days 5–12 (Nov 29–Dec 6): Make 5–10 cold calls / WhatsApp pitches daily to close ₹5,000 deals.'
+    title: 'Sales & Local Demo Site',
+    deliverable: 'Days 1–4: Build/polish 1 local business demo (Tap-to-WhatsApp). Days 5–12: 5–10 cold calls/pitches.'
   },
   {
     startTime: '13:15',
     endTime: '14:15',
-    title: 'Rest & Hydration Reset',
-    deliverable: 'Step away from all screens, hydrate (with doctor-approved electrolytes), and rest eyes.'
+    title: 'Meal 1 + Sutta #1 + Reset',
+    deliverable: 'High-protein, high-fiber home meal (zero outside food) + Sutta #1 (max) + 1L water + screen-free rest.'
   },
   {
     startTime: '14:15',
     endTime: '16:15',
-    title: 'CS50 Python (Block 2) & Personal Site',
-    deliverable: 'Solve CS50P problem sets, push commits to GitHub, and maintain/update your personal website and profile. (Branch into Web Dev & NeetCode Python DSA immediately upon finishing CS50P).'
+    title: 'CS50 Python (Block 2) + Site',
+    deliverable: 'Complete CS50P problem sets, push GitHub commit, and update personal website/profile.'
   },
   {
     startTime: '16:15',
     endTime: '17:25',
-    title: 'Content & Speaking Practice Lab (70 Mins)',
-    deliverable: 'Practice only — no video publishing until Phase 3.\n• 30 mins: Hands-on video editing & videography timeline practice (photography parked).\n• 30 mins: Watch only saved YouTube Storytelling/Creation & Instagram Winter Arc playlists to study speaking & selling.\n• 10 mins: Paritosh Anand camera drill (2–3m speaking → audio-only review + video-only review).'
+    title: 'Content & Speaking Lab (70m)',
+    deliverable: '30m Video editing/videography practice • 30m YT/IG Storytelling & Sales playlist • 10m Paritosh camera drill (audio-only + video-only review). No posting yet.'
   },
   {
     startTime: '17:25',
     endTime: '18:30',
-    title: 'Evening Walk & Dead Hangs',
-    deliverable: 'Complete remaining steps toward 10,000 daily steps at a steady, low-heart-rate pace + final relaxed dead hang sets.'
+    title: '10k Steps Walk + Dead Hangs',
+    deliverable: 'Track manual Walking workout on Galaxy Fit 3 to complete 10,000 daily steps + 2 relaxed dead hangs.'
   },
   {
     startTime: '18:30',
-    endTime: '20:30',
-    title: 'Flexible Study / Fasting Rest Buffer',
-    deliverable: 'Additional CS50P coding if energy is solid, or complete screen-free rest if fasting fatigue occurs.'
+    endTime: '20:00',
+    title: 'Deep Coding / Buffer',
+    deliverable: 'Extra CS50P problem sets or Saturday YouTube/Winter Arc project implementation.'
   },
   {
-    startTime: '20:30',
-    endTime: '21:00',
-    title: 'Social & Digital Hygiene (20–30m Cap)',
-    deliverable: '1 group video call with the gang + send 2–3 reels to Adi Boi (light support during his pre-mids; deeper 1-on-1 once his exams finish). Social Rule: Only watch and reply to reels/messages sent by friends; zero new feed browsing.'
+    startTime: '20:00',
+    endTime: '20:45',
+    title: 'Meal 2 + Sutta #2 (3h Pre-Sleep)',
+    deliverable: 'Second clean high-protein/fiber meal (finish ≥2.5–3h before bed for deep-sleep GH pulse) + Sutta #2 (final).'
   },
   {
-    startTime: '21:00',
+    startTime: '20:45',
     endTime: '21:30',
-    title: 'Night Grooming & Tracker Sign-Off',
-    deliverable: 'Night skincare (cleanser + moisturizer), teeth brushing, nightly Minoxidil on dry scalp, verify Zero Sutta, and log all completions on your daily tracker.'
+    title: 'Social Cap + Night Care',
+    deliverable: '20m Cap: 1 gang video call + 2–3 reels to Adi Boi (reply to friends only). Night skin/teeth + Minoxidil + log tracker.'
   }
 ];
+
+export const REST_DAY_SCHEDULE: DefaultSlotTemplate[] = [
+  {
+    startTime: '09:00',
+    endTime: '10:00',
+    title: 'Zero-Phone Morning Launch (Rest Day)',
+    deliverable: 'REST DAY: No intense workout. 45m gentle mobility, light walking & floor stretching. Brushing + tongue scrape + 10m Vocal Articulation in shower; Morning skin & hair care.'
+  },
+  {
+    startTime: '10:00',
+    endTime: '12:30',
+    title: 'CS50 Python (Block 1)',
+    deliverable: 'Watch lectures at 1.5x (fast through early weeks) + write code alongside in terminal.'
+  },
+  {
+    startTime: '12:30',
+    endTime: '13:15',
+    title: 'Sales & Local Demo Site',
+    deliverable: 'Days 1–4: Build/polish 1 local business demo (Tap-to-WhatsApp). Days 5–12: 5–10 cold calls/pitches.'
+  },
+  {
+    startTime: '13:15',
+    endTime: '14:15',
+    title: 'Meal 1 + Sutta #1 + Reset',
+    deliverable: 'High-protein, high-fiber home meal (zero outside food) + Sutta #1 (max) + 1L water + screen-free rest.'
+  },
+  {
+    startTime: '14:15',
+    endTime: '16:15',
+    title: 'CS50 Python (Block 2) + Site',
+    deliverable: 'Complete CS50P problem sets, push GitHub commit, and update personal website/profile.'
+  },
+  {
+    startTime: '16:15',
+    endTime: '17:25',
+    title: 'Content & Speaking Lab (70m)',
+    deliverable: '30m Video editing/videography practice • 30m YT/IG Storytelling & Sales playlist • 10m Paritosh camera drill (audio-only + video-only review). No posting yet.'
+  },
+  {
+    startTime: '17:25',
+    endTime: '18:30',
+    title: '10k Steps Walk (Active Recovery)',
+    deliverable: 'Active recovery walk on Galaxy Fit 3 to complete 10,000 daily steps + relaxed dead hang sets.'
+  },
+  {
+    startTime: '18:30',
+    endTime: '20:00',
+    title: 'Deep Coding / Buffer',
+    deliverable: 'Extra CS50P problem sets or Saturday YouTube/Winter Arc project implementation.'
+  },
+  {
+    startTime: '20:00',
+    endTime: '20:45',
+    title: 'Meal 2 + Sutta #2 (3h Pre-Sleep)',
+    deliverable: 'Second clean high-protein/fiber meal (finish ≥2.5–3h before bed for deep-sleep GH pulse) + Sutta #2 (final).'
+  },
+  {
+    startTime: '20:45',
+    endTime: '21:30',
+    title: 'Social Cap + Night Care',
+    deliverable: '20m Cap: 1 gang video call + 2–3 reels to Adi Boi (reply to friends only). Night skin/teeth + Minoxidil + log tracker.'
+  }
+];
+
+export function isRestDayOfWeek(dayOfWeek: number): boolean {
+  return dayOfWeek === 2 || dayOfWeek === 4; // Tuesday = 2, Thursday = 4
+}
 
 /**
  * Format a 24h string ("09:00", "13:15") to 12h ("09:00 AM", "01:15 PM")
@@ -127,22 +194,51 @@ export function isCurrentSlot(startTime: string, endTime: string): boolean {
 }
 
 /**
- * Pre-populates the database with the user's master schedule if none exist
+ * Pre-populates the database with the user's master schedule and rest day schedules
  */
-export async function seedDefaultSchedule(): Promise<void> {
+export async function seedDefaultSchedule(forceReset = false): Promise<void> {
   const existingCount = await db.scheduleSlots.count();
-  if (existingCount > 0) return;
+  if (existingCount > 0 && !forceReset) return;
 
-  const slotsToSeed: ScheduleSlot[] = DEFAULT_MASTER_SCHEDULE.map((slot, index) => ({
-    id: crypto.randomUUID(),
-    startTime: slot.startTime,
-    endTime: slot.endTime,
-    title: slot.title,
-    deliverable: slot.deliverable,
-    dayOfWeek: -1, // -1 means all 7 days (master daily schedule)
-    order: index,
-    completedDates: []
-  }));
+  if (forceReset) {
+    await db.scheduleSlots.clear();
+  }
+
+  const slotsToSeed: ScheduleSlot[] = [
+    // Master daily schedule (dayOfWeek: -1)
+    ...DEFAULT_MASTER_SCHEDULE.map((slot, index) => ({
+      id: crypto.randomUUID(),
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      title: slot.title,
+      deliverable: slot.deliverable,
+      dayOfWeek: -1,
+      order: index,
+      completedDates: []
+    })),
+    // Tuesday Rest Day schedule override (dayOfWeek: 2)
+    ...REST_DAY_SCHEDULE.map((slot, index) => ({
+      id: crypto.randomUUID(),
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      title: slot.title,
+      deliverable: slot.deliverable,
+      dayOfWeek: 2,
+      order: index,
+      completedDates: []
+    })),
+    // Thursday Rest Day schedule override (dayOfWeek: 4)
+    ...REST_DAY_SCHEDULE.map((slot, index) => ({
+      id: crypto.randomUUID(),
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      title: slot.title,
+      deliverable: slot.deliverable,
+      dayOfWeek: 4,
+      order: index,
+      completedDates: []
+    }))
+  ];
 
   await db.scheduleSlots.bulkAdd(slotsToSeed);
 }
