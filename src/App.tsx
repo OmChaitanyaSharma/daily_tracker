@@ -30,6 +30,30 @@ export default function App() {
         ]);
       }
 
+      // Harmonize all current goals start date to 2026-11-25 without altering any other user data
+      const GOAL_DATE_MIGRATION_KEY = 'dt_goal_start_date_migration_2026_11_25_v1';
+      if (!localStorage.getItem(GOAL_DATE_MIGRATION_KEY)) {
+        const goalsToUpdate = await db.goals.toArray();
+        if (goalsToUpdate.length > 0) {
+          for (const goal of goalsToUpdate) {
+            const oldStartDate = goal.startDate;
+            await db.goals.update(goal.id, { startDate: '2026-11-25' });
+            // Re-align initial baseline measurement recorded on old start date to 2026-11-25
+            if (oldStartDate && oldStartDate !== '2026-11-25') {
+              const baselineMeasurements = await db.goalMeasurements
+                .where('goalId')
+                .equals(goal.id)
+                .filter(m => m.date === oldStartDate)
+                .toArray();
+              for (const m of baselineMeasurements) {
+                await db.goalMeasurements.update(m.id, { date: '2026-11-25' });
+              }
+            }
+          }
+        }
+        localStorage.setItem(GOAL_DATE_MIGRATION_KEY, 'true');
+      }
+
       setIsInitializing(false);
     }
     init().catch(console.error);
