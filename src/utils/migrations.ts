@@ -1,8 +1,8 @@
 import { db } from '../db';
-import { syncExercisesScores, seedWorkoutRoutine } from './exerciseSync';
+import { syncExercisesScores, seedWorkoutRoutine, ensureWorkoutSequenceExact } from './exerciseSync';
 import { seedDefaultSchedule } from './scheduleDefaults';
 
-const CURRENT_MIGRATION_VERSION = 6;
+const CURRENT_MIGRATION_VERSION = 7;
 const MIGRATION_KEY = 'dt_schema_migration_version';
 
 /**
@@ -95,6 +95,14 @@ export async function runDatabaseMigrations(): Promise<void> {
     localStorage.setItem('exercise_rest_days', JSON.stringify({ default: [2, 4], weeks: {} }));
     startVersion = 6;
     localStorage.setItem(MIGRATION_KEY, '6');
+  }
+
+  // Migration 7: Guarantee obsolete exercises are purged and 10 drills are set in exact order with perSetDesc
+  if (startVersion < 7) {
+    await ensureWorkoutSequenceExact();
+    localStorage.setItem('exercise_rest_days', JSON.stringify({ default: [2, 4], weeks: {} }));
+    startVersion = 7;
+    localStorage.setItem(MIGRATION_KEY, '7');
   }
 
   localStorage.setItem(MIGRATION_KEY, CURRENT_MIGRATION_VERSION.toString());

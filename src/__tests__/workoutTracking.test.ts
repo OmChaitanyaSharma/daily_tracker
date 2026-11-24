@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
 import { db, type ExerciseLog } from '../db';
-import { seedWorkoutRoutine, DIFFICULTY_POINTS } from '../utils/exerciseSync';
+import { seedWorkoutRoutine, ensureWorkoutSequenceExact, DIFFICULTY_POINTS } from '../utils/exerciseSync';
 import { isRestDayOfWeek } from '../utils/scheduleDefaults';
 
 describe('Workout & Exercise Protocol Engine', () => {
@@ -67,5 +67,43 @@ describe('Workout & Exercise Protocol Engine', () => {
     expect(saved?.sets).toBe(4);
     expect(saved?.reps).toBe(32);
     expect(saved?.exerciseId).toBe(tuckJumps.id);
+  });
+
+  it('guarantees exact 1-to-10 order and explicit perSetDesc volume on all drills', async () => {
+    // Add obsolete legacy exercise to test purging
+    await db.exercises.add({
+      id: 'old-pullups',
+      name: 'Pullups',
+      createdAt: new Date().toISOString(),
+      archived: false
+    });
+
+    await ensureWorkoutSequenceExact();
+
+    const exercises = (await db.exercises.toArray())
+      .filter(e => !e.archived)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    expect(exercises).toHaveLength(10);
+    expect(exercises.some(e => e.name === 'Pullups')).toBe(false);
+
+    const expectedDrills = [
+      { order: 1, name: 'Max Tuck Jumps', perSetDesc: '8 reps' },
+      { order: 2, name: 'High-Knee Sprints', perSetDesc: '30 secs' },
+      { order: 3, name: 'Speed Skipping', perSetDesc: '60 secs' },
+      { order: 4, name: 'Single-Leg Hops', perSetDesc: '15 / leg' },
+      { order: 5, name: 'Pull-up Negatives + Active Hangs', perSetDesc: '3–5s lower + max hang' },
+      { order: 6, name: 'Glute Bridges (3s Hold)', perSetDesc: '15 reps (3s hold)' },
+      { order: 7, name: 'Wall Angels', perSetDesc: '15 slow reps' },
+      { order: 8, name: 'Hanging Knee Raises', perSetDesc: '8–10 reps' },
+      { order: 9, name: '@MovementbyDavid Video', perSetDesc: 'Full routine' },
+      { order: 10, name: 'Final Dead Hang', perSetDesc: '45–60 secs' },
+    ];
+
+    expectedDrills.forEach((expected, i) => {
+      expect(exercises[i].order).toBe(expected.order);
+      expect(exercises[i].name).toBe(expected.name);
+      expect(exercises[i].perSetDesc).toBe(expected.perSetDesc);
+    });
   });
 });

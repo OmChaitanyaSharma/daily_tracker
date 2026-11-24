@@ -1,5 +1,5 @@
 const EMPTY_ARRAY: any[] = [];
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Exercise, type ExerciseDifficulty, type TrackingType } from '../db';
 import { format, subDays, addDays, isFuture, parseISO, isBefore, getDay } from 'date-fns';
@@ -26,13 +26,18 @@ import { RestDayPlanner } from '../components/RestDayPlanner';
 import { useSound } from '../hooks/useSound';
 import { auth } from '../firebase';
 import { deleteDocumentFromCloud } from '../services/cloudSync';
-import { seedWorkoutRoutine, DIFFICULTY_POINTS, DIFFICULTY_LABELS } from '../utils/exerciseSync';
+import { seedWorkoutRoutine, ensureWorkoutSequenceExact, DIFFICULTY_POINTS, DIFFICULTY_LABELS } from '../utils/exerciseSync';
 import { isRestDayOfWeek } from '../utils/scheduleDefaults';
 
 export function ExerciseTracking() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const dateStr = format(currentDate, 'yyyy-MM-dd');
   const todayStr = getTodayStr();
+
+  // Auto-sync sequence: ensure obsolete exercises are removed and 10 drills are loaded in exact order
+  useEffect(() => {
+    ensureWorkoutSequenceExact().catch(console.error);
+  }, []);
 
   const currentDayOfWeek = useMemo(() => getDay(currentDate), [currentDate]);
   const isRestDay = useMemo(() => isRestDayOfWeek(currentDayOfWeek), [currentDayOfWeek]);
@@ -567,6 +572,8 @@ export function ExerciseTracking() {
                           {Array.from({ length: targetSets }).map((_, idx) => {
                             const setNumber = idx + 1;
                             const isSetDone = setNumber <= completedSets;
+                            const setVol = ex.perSetDesc || (isTime ? `${ex.targetRepsNumeric || 30} secs` : `${ex.targetRepsNumeric || 10} reps`);
+                            const buttonLabel = targetSets === 1 ? `Full Routine (${setVol})` : `Set ${setNumber} (${setVol})`;
                             return (
                               <button
                                 key={setNumber}
@@ -584,7 +591,7 @@ export function ExerciseTracking() {
                                 ) : (
                                   <Circle size={12} className="opacity-40" />
                                 )}
-                                <span>Set {setNumber}</span>
+                                <span>{buttonLabel}</span>
                               </button>
                             );
                           })}

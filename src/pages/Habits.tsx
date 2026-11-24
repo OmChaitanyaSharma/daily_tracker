@@ -40,9 +40,9 @@ export function Habits() {
               <HeartPulse size={32} className="hidden sm:block" strokeWidth={1.5} />
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">Exercise Tracking</h2>
+              <h2 className="text-xl sm:text-2xl font-serif text-text-main mb-2 sm:mb-3 font-medium">Exercise & Workout Sequence</h2>
               <p className="text-text-muted text-xs sm:text-sm max-w-sm mx-auto leading-relaxed">
-                Log reps, time, difficulty tiers, and personal records.
+                10-drill "Train Like You're 16" routine, sets × reps tracker, and Tuesday/Thursday rest days.
               </p>
             </div>
           </div>

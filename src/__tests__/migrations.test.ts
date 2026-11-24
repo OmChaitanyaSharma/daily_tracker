@@ -62,7 +62,7 @@ describe('Database Migrations', () => {
     await runDatabaseMigrations();
 
     // Verify migration version
-    expect(localStorage.getItem('dt_schema_migration_version')).toBe('6');
+    expect(localStorage.getItem('dt_schema_migration_version')).toBe('7');
 
     // Verify 10 workout exercises were seeded
     const exercises = await db.exercises.toArray();

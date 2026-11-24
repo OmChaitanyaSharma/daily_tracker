@@ -7,6 +7,7 @@ export interface WorkoutExerciseDefinition {
   trackingType: TrackingType;
   targetSets: number;
   targetReps: string;
+  perSetDesc: string;
   targetRepsNumeric: number;
   restTime: string;
   execution: string;
@@ -38,6 +39,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 4,
     targetReps: '4 × 8 reps',
+    perSetDesc: '8 reps',
     targetRepsNumeric: 8,
     restTime: '60s',
     execution: 'Quarter-squat dip, explode straight up, pull knees to chest. Land softly on balls of feet and rebound immediately.',
@@ -50,6 +52,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'time',
     targetSets: 5,
     targetReps: '5 × 30 secs',
+    perSetDesc: '30 secs',
     targetRepsNumeric: 30,
     restTime: '30s walk',
     execution: 'Sprint in place or 20–30m. Drive knees to waist height and strike forcefully on the balls of your feet.',
@@ -62,6 +65,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'time',
     targetSets: 4,
     targetReps: '4 × 60 secs',
+    perSetDesc: '60 secs',
     targetRepsNumeric: 60,
     restTime: '30s',
     execution: 'Rope or invisible rope. Fast, rhythmic bounce on balls of feet; keep spine tall and heels off the floor.',
@@ -74,6 +78,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 3,
     targetReps: '3 × 15 / leg',
+    perSetDesc: '15 / leg',
     targetRepsNumeric: 15,
     restTime: '30s',
     execution: 'Continuous vertical hops on one leg with stiff ankle rebound to send axial load up the kinetic chain.',
@@ -88,6 +93,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 4,
     targetReps: '4 sets (3–5s lower + max hang)',
+    perSetDesc: '3–5s lower + max hang',
     targetRepsNumeric: 5,
     restTime: '60s',
     execution: 'Decompresses thoracic spine and strengthens upper back to pull rounded shoulders back into alignment.',
@@ -100,6 +106,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 3,
     targetReps: '3 × 15 reps',
+    perSetDesc: '15 reps (3s hold)',
     targetRepsNumeric: 15,
     restTime: '45s',
     execution: 'Squeeze glutes hard at top for 3s to unclamp tight hip flexors and eliminate anterior pelvic tilt.',
@@ -112,6 +119,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 2,
     targetReps: '2 × 15 slow reps',
+    perSetDesc: '15 slow reps',
     targetRepsNumeric: 15,
     restTime: '30s',
     execution: 'Press heels, glutes, upper back, and head flat against wall. Slide arms W-to-Y without lower back arching.',
@@ -124,6 +132,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 3,
     targetReps: '3 × 8–10 reps',
+    perSetDesc: '8–10 reps',
     targetRepsNumeric: 10,
     restTime: '45s',
     execution: 'Hang from bar, tuck tailbone under, lift knees to chest without swinging to reverse lumbar compression.',
@@ -138,6 +147,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'reps',
     targetSets: 1,
     targetReps: 'Full routine',
+    perSetDesc: 'Full routine',
     targetRepsNumeric: 1,
     restTime: '—',
     execution: 'Run his Daily Stretch Routine for Tight Muscles & Full-Body Flexibility while fascia is warm.',
@@ -150,6 +160,7 @@ export const WORKOUT_EXERCISES: WorkoutExerciseDefinition[] = [
     trackingType: 'time',
     targetSets: 3,
     targetReps: '3 × 45–60 secs',
+    perSetDesc: '45–60 secs',
     targetRepsNumeric: 60,
     restTime: '45s',
     execution: 'Let ribs, lower back, and hips go completely limp. Step onto a chair/stool gently—never drop hard onto heels.',
@@ -183,6 +194,7 @@ export async function seedWorkoutRoutine(forceReset = true): Promise<void> {
     category: w.category,
     targetSets: w.targetSets,
     targetReps: w.targetReps,
+    perSetDesc: w.perSetDesc,
     targetRepsNumeric: w.targetRepsNumeric,
     restTime: w.restTime,
     execution: w.execution,
@@ -190,6 +202,21 @@ export async function seedWorkoutRoutine(forceReset = true): Promise<void> {
   }));
 
   await db.exercises.bulkAdd(exercisesToSeed);
+}
+
+/**
+ * Ensures obsolete exercises are wiped and the 10 drills exist in exact 1-10 sequence.
+ */
+export async function ensureWorkoutSequenceExact(): Promise<void> {
+  const existing = await db.exercises.toArray();
+  const active = existing.filter(e => !e.archived).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const isExact = active.length === WORKOUT_EXERCISES.length &&
+    WORKOUT_EXERCISES.every((w, i) => active[i] && active[i].name === w.name && Boolean(active[i].perSetDesc));
+
+  if (!isExact) {
+    await seedWorkoutRoutine(true);
+  }
 }
 
 export async function syncExercisesScores(): Promise<void> {

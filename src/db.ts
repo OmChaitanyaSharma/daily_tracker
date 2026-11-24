@@ -96,6 +96,7 @@ export interface Exercise {
   category?: string; // Part A: High-Velocity Impact, Part B: Postural Alignment, Part C: Flexibility
   targetSets?: number;
   targetReps?: string; // e.g. "8 reps", "30 secs", "15 / leg"
+  perSetDesc?: string; // e.g. "8 reps", "30s", "15/leg", "45–60s"
   targetRepsNumeric?: number;
   restTime?: string; // e.g. "60s", "30s walk", "45s"
   execution?: string; // Biomechanical focus and execution guide
