@@ -62,7 +62,7 @@ describe('Database Migrations', () => {
     await runDatabaseMigrations();
 
     // Verify migration version
-    expect(localStorage.getItem('dt_schema_migration_version')).toBe('4');
+    expect(localStorage.getItem('dt_schema_migration_version')).toBe('5');
 
     // Verify goals have new startDate 2026-11-25
     const updatedGoals = await db.goals.toArray();

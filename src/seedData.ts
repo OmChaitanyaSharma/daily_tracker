@@ -1,6 +1,7 @@
 
 import { db } from './db';
 import { EXERCISE_CONFIGS } from './utils/exerciseSync';
+import { seedDefaultSchedule } from './utils/scheduleDefaults';
 
 export async function resetAndSeedDatabase() {
   console.log('Performing final DB reset and seed for Sept 2026...');
@@ -16,6 +17,7 @@ export async function resetAndSeedDatabase() {
   await db.goalMeasurements.clear();
   await db.exercises.clear();
   await db.exerciseLogs.clear();
+  await db.scheduleSlots.clear();
 
   const startDate = '2026-11-25';
   const createdAt = new Date('2026-11-25T00:00:00Z').toISOString();
@@ -120,5 +122,8 @@ export async function resetAndSeedDatabase() {
     { id: crypto.randomUUID(), name: 'Cycling', createdAt, archived: false, difficulty: 'medium' as const, trackingType: 'time' as const }
   ];
   await db.exercises.bulkAdd(defaultExercises);
+
+  // 6. Seed Default Master Schedule Slots
+  await seedDefaultSchedule();
 }
 

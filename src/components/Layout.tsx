@@ -227,13 +227,17 @@ export function Layout() {
           break;
         case '2': 
           e.preventDefault();
-          navigate('/habits'); 
+          navigate('/planner'); 
           break;
         case '3': 
           e.preventDefault();
-          navigate('/goals'); 
+          navigate('/habits'); 
           break;
         case '4': 
+          e.preventDefault();
+          navigate('/goals'); 
+          break;
+        case '5': 
           e.preventDefault();
           navigate('/logs'); 
           break;
@@ -317,6 +321,7 @@ export function Layout() {
           
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
             <Link to="/highlight" className={clsx("hover:text-text-main transition-colors", location.pathname === '/highlight' && "text-text-main font-semibold")}>Highlight</Link>
+            <Link to="/planner" className={clsx("hover:text-text-main transition-colors", location.pathname === '/planner' && "text-text-main font-semibold")}>Planner</Link>
             <Link to="/habits" className={clsx("hover:text-text-main transition-colors", location.pathname.startsWith('/habits') && "text-text-main font-semibold")}>Habits</Link>
             <Link to="/goals" className={clsx("hover:text-text-main transition-colors", location.pathname.startsWith('/goals') && "text-text-main font-semibold")}>Goals</Link>
             <Link to="/logs" className={clsx("hover:text-text-main transition-colors", location.pathname === '/logs' && "text-text-main font-semibold")}>Logs</Link>
@@ -581,6 +586,17 @@ export function Layout() {
               <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">1</span>
             </Link>
             <Link 
+              to="/planner" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={clsx(
+                "min-h-[44px] px-4 py-2.5 rounded-2xl text-sm font-medium transition-colors flex items-center justify-between tap-press",
+                location.pathname === '/planner' ? "bg-bg-base border border-border-strong text-text-main font-semibold shadow-sm" : "text-text-muted hover:text-text-main hover:bg-bg-base/60"
+              )}
+            >
+              <span>Daily Planner</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">2</span>
+            </Link>
+            <Link 
               to="/habits" 
               onClick={() => setIsMobileMenuOpen(false)}
               className={clsx(
@@ -589,7 +605,7 @@ export function Layout() {
               )}
             >
               <span>Habits</span>
-              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">2</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">3</span>
             </Link>
             <Link 
               to="/goals" 
@@ -600,7 +616,7 @@ export function Layout() {
               )}
             >
               <span>Goals</span>
-              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">3</span>
+              <span className="text-[10px] text-text-muted font-mono bg-bg-base px-2 py-0.5 rounded-md border border-border-subtle">4</span>
             </Link>
             <Link 
               to="/logs" 

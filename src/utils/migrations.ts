@@ -1,7 +1,8 @@
 import { db } from '../db';
 import { syncExercisesScores } from './exerciseSync';
+import { seedDefaultSchedule } from './scheduleDefaults';
 
-const CURRENT_MIGRATION_VERSION = 4;
+const CURRENT_MIGRATION_VERSION = 5;
 const MIGRATION_KEY = 'dt_schema_migration_version';
 
 /**
@@ -77,6 +78,13 @@ export async function runDatabaseMigrations(): Promise<void> {
     }
     startVersion = 4;
     localStorage.setItem(MIGRATION_KEY, '4');
+  }
+
+  // Migration 5: Seed user's daily planner and focus blocks if empty
+  if (startVersion < 5) {
+    await seedDefaultSchedule();
+    startVersion = 5;
+    localStorage.setItem(MIGRATION_KEY, '5');
   }
 
   localStorage.setItem(MIGRATION_KEY, CURRENT_MIGRATION_VERSION.toString());

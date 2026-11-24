@@ -3,8 +3,7 @@ import { db, type DayEntry } from '../db';
 import { getTodayDateString } from '../utils/dateUtils';
 import { Save, ArrowLeft, CheckCircle2, Edit2, Sparkles, Smile, Meh, Frown, CloudRain, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { TodoList } from '../components/TodoList';
-import { addDays, parseISO, format } from 'date-fns';
+import { DailyPlanner } from '../components/DailyPlanner';
 import clsx from 'clsx';
 import { useSound } from '../hooks/useSound';
 import { getSettings, saveSettings, DEFAULT_MOOD_LABELS, type MoodLabels } from '../utils/settings';
@@ -559,67 +558,11 @@ function EditableForm({
         />
       </section>
 
-      {/* To-Do List */}
-      <section>
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-4 sm:mb-6 flex items-center gap-2 px-2">
-           <span className="w-2 h-2 rounded-full bg-accent-green"></span>
-           To-Do (Tomorrow)
-        </h2>
-        <div className="group">
-          <TodoList date={format(addDays(parseISO(entry.date!), 1), 'yyyy-MM-dd')} title="" />
-        </div>
-      </section>
-
-      {/* Lightweight Reflections */}
-      <section>
-        <h2 className="text-xs font-semibold tracking-[0.2em] uppercase text-text-muted mb-4 sm:mb-6 flex items-center gap-2 px-2">
-           <span className="w-2 h-2 rounded-full bg-accent-purple"></span>
-           Daily Reflection
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-          <ReflectionField 
-            label="What went well?" 
-            value={entry.wentWell} 
-            onChange={val => setEntry({ ...entry, wentWell: val })} 
-          />
-          <ReflectionField 
-            label="What didn't go well?" 
-            value={entry.problems} 
-            onChange={val => setEntry({ ...entry, problems: val })} 
-          />
-          <ReflectionField 
-            label="What did I learn?" 
-            value={entry.learned} 
-            onChange={val => setEntry({ ...entry, learned: val })} 
-          />
-          <ReflectionField 
-            label="What do I want to remember?" 
-            value={entry.whatIWantToRemember} 
-            onChange={val => setEntry({ ...entry, whatIWantToRemember: val })} 
-          />
-        </div>
-
-
+      {/* Daily Planner & Focus Blocks */}
+      <section className="pt-2">
+        <DailyPlanner currentDate={entry.date!} embedded={true} />
       </section>
       
-    </div>
-  );
-}
-
-function ReflectionField({ label, value, onChange }: { label: string, value: string | undefined, onChange: (val: string) => void }) {
-  const fieldId = `reflection-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-  return (
-    <div className="bg-bg-surface border border-border-strong rounded-2xl p-4 sm:p-6 transition-all focus-within:border-accent-blue focus-within:ring-2 focus-within:ring-accent-blue-bg group shadow-sm hover:border-text-muted">
-      <label htmlFor={fieldId} className="block text-[10px] font-bold tracking-widest uppercase text-text-muted mb-2 sm:mb-3 group-focus-within:text-accent-blue transition-colors">{label}</label>
-      <textarea
-        id={fieldId}
-        value={value || ''}
-        onChange={e => onChange(e.target.value)}
-        rows={3}
-        placeholder="Add note..."
-        className="w-full bg-transparent border-none resize-none focus:outline-none text-text-main text-base placeholder:text-text-muted/30"
-      />
     </div>
   );
 }

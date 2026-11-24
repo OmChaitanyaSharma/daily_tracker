@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { LevelUpCelebration } from '../components/LevelUpCelebration';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check, Clock, Plus, CheckCircle2, Edit2, Trash2 } from 'lucide-react';
+import { PenTool, CheckSquare, Target, LineChart, Flame, Code, Snowflake, Dumbbell, X, Check, Clock, Plus, CheckCircle2, Edit2, Trash2, Calendar } from 'lucide-react';
 import { TodoList } from '../components/TodoList';
 import { format } from 'date-fns';
 import { useStreak } from '../hooks/useStreak';
 import { calculateFitnessXPForLogs } from '../hooks/useLevelSystem';
 import { useLevelSystem, DEFAULT_DEV_RANKS, DEFAULT_FIT_RANKS } from '../hooks/useLevelSystem';
 import { getSettings, saveSettings } from '../utils/settings';
+import { formatTime12h, isCurrentSlot } from '../utils/scheduleDefaults';
 import clsx from 'clsx';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
@@ -39,6 +39,37 @@ export function Home() {
   }, [todayStr]) || [];
   
   const completedTodosCount = todaysTodos.filter(t => t.completed).length;
+
+  const allScheduleSlots = useLiveQuery(async () => {
+    return await db.scheduleSlots.toArray();
+  }) || [];
+
+  const currentDayOfWeek = useMemo(() => new Date().getDay(), []);
+
+  const todayScheduleSlots = useMemo(() => {
+    const daySpecific = allScheduleSlots.filter(s => s.dayOfWeek === currentDayOfWeek);
+    const slots = daySpecific.length > 0 
+      ? daySpecific 
+      : allScheduleSlots.filter(s => s.dayOfWeek === -1 || s.dayOfWeek === undefined);
+    return [...slots].sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }, [allScheduleSlots, currentDayOfWeek]);
+
+  const activeSlot = useMemo(() => {
+    return todayScheduleSlots.find(s => isCurrentSlot(s.startTime, s.endTime)) || null;
+  }, [todayScheduleSlots]);
+
+  const nextSlot = useMemo(() => {
+    if (!activeSlot) {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      return todayScheduleSlots.find(s => {
+        const [sh, sm] = s.startTime.split(':').map(Number);
+        return sh * 60 + sm > currentMinutes;
+      }) || null;
+    }
+    const idx = todayScheduleSlots.findIndex(s => s.id === activeSlot.id);
+    return idx >= 0 && idx < todayScheduleSlots.length - 1 ? todayScheduleSlots[idx + 1] : null;
+  }, [todayScheduleSlots, activeSlot]);
 
 
   useEffect(() => {
@@ -443,8 +474,71 @@ export function Home() {
         </div>
       </div>
 
+      {/* Live Active Schedule Focus Block Banner */}
+      <div className="w-full">
+        <Link 
+          to="/planner"
+          className="group block p-4 sm:p-5 rounded-3xl bg-bg-surface border border-border-subtle hover:border-accent-blue/50 transition-all hover-lift tap-press shadow-sm"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-accent-blue-bg text-accent-blue flex items-center justify-center shrink-0">
+                <Calendar size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-text-muted">
+                    Daily Schedule & Focus Block
+                  </span>
+                  {activeSlot ? (
+                    <span className="px-2 py-0.5 rounded-full bg-accent-blue/20 text-accent-blue font-mono text-[9px] font-bold uppercase tracking-wider animate-pulse">
+                      Active Now
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-text-muted">
+                      {todayScheduleSlots.length} slots today
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-base sm:text-lg font-serif font-medium text-text-main group-hover:text-accent-blue transition-colors mt-0.5">
+                  {activeSlot 
+                    ? activeSlot.title 
+                    : nextSlot 
+                      ? `Next: ${nextSlot.title}` 
+                      : 'View Daily Routine & Focus Slots'}
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 sm:self-center pl-13 sm:pl-0">
+              {(activeSlot || nextSlot) && (
+                <span className="font-mono text-xs font-semibold px-2.5 py-1 rounded-lg bg-bg-base border border-border-strong text-text-main">
+                  {formatTime12h(activeSlot ? activeSlot.startTime : nextSlot!.startTime)} – {formatTime12h(activeSlot ? activeSlot.endTime : nextSlot!.endTime)}
+                </span>
+              )}
+              <span className="text-xs font-medium text-accent-blue group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                Open Planner →
+              </span>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
         
+        <Link to="/planner" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-blue-bg text-accent-blue flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
+            <Calendar size={28} className="sm:hidden" strokeWidth={1.5} />
+            <Calendar size={32} className="hidden sm:block" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-serif font-medium text-text-main mb-2 sm:mb-3">Daily Planner</h2>
+            <p className="text-text-muted text-xs sm:text-sm leading-relaxed max-w-[250px] mx-auto">
+              Time-blocked routine, focus blocks, and concrete deliverables.
+            </p>
+          </div>
+        </Link>
+
         <Link to="/highlight" className="group hover-lift tap-press p-6 sm:p-10 rounded-3xl bg-bg-surface border border-border-subtle flex flex-col items-center text-center gap-5 sm:gap-6">
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-accent-red-bg text-accent-red flex items-center justify-center group-hover:scale-110 transition-transform duration-500 ease-out">
             <PenTool size={28} className="sm:hidden" strokeWidth={1.5} />
@@ -501,7 +595,7 @@ export function Home() {
 
       <div className="text-center pt-12 pb-4">
         <p className="text-[11px] text-text-muted uppercase tracking-[0.2em] font-medium opacity-50">
-          Tip: Press 1-4 to navigate, Esc to return home
+          Tip: Press 1-5 to navigate, Esc to return home
         </p>
       </div>
 

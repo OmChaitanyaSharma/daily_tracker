@@ -102,6 +102,18 @@ export interface ExerciseLog {
   reps: number;
 }
 
+export interface ScheduleSlot {
+  id: string; // UUID
+  startTime: string; // "HH:mm" (24-hour e.g. "09:00", "14:15" for precise sorting)
+  endTime: string;   // "HH:mm" (24-hour e.g. "10:00", "16:15")
+  title: string;     // Focus block title, e.g. "Zero-Phone Morning Launch (1 Hour)"
+  deliverable?: string; // Concrete Action & Deliverable, bullet points / description
+  dayOfWeek?: number; // -1 for all 7 days (default daily), or 0=Sun, 1=Mon, ..., 6=Sat
+  date?: string; // Optional: YYYY-MM-DD for single-day override/plan
+  order?: number;
+  completedDates?: string[]; // Array of YYYY-MM-DD dates marked done
+}
+
 export class DailyTrackerDB extends Dexie {
   dayEntries!: Table<DayEntry, string>;
   tasks!: Table<Task, string>;
@@ -113,6 +125,7 @@ export class DailyTrackerDB extends Dexie {
   goalMeasurements!: Table<GoalMeasurement, string>;
   exercises!: Table<Exercise, string>;
   exerciseLogs!: Table<ExerciseLog, string>;
+  scheduleSlots!: Table<ScheduleSlot, string>;
 
   constructor() {
     super('DailyTrackerDB');
@@ -273,6 +286,21 @@ export class DailyTrackerDB extends Dexie {
           await tx.table('habits').put(habit);
         }
       }
+    });
+
+    // Version 9 schema definition (Daily Planner & Schedule Slots)
+    this.version(9).stores({
+      dayEntries: 'date',
+      tasks: 'id, date, completed',
+      habits: 'id, archived',
+      habitLogs: 'id, date, habitId, status',
+      hourLogs: 'id, date, activity',
+      hourCategories: 'id, name',
+      goals: 'id, category',
+      goalMeasurements: 'id, goalId, date',
+      exercises: 'id, name, archived',
+      exerciseLogs: 'id, date, exerciseId',
+      scheduleSlots: 'id, startTime, dayOfWeek, date'
     });
   }
 }
